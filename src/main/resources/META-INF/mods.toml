@@ -5,10 +5,10 @@ license="All rights reserved"
 [[mods]]
 modId="questing"
 version="${file.jarVersion}"
-displayName="Example Mod"
+displayName="Questing"
 updateJSONURL="https://raw.githubusercontent.com/Toma1O6/UpdateSchemas/master/questing-forge.json"
 displayURL="https://github.com/Toma1O6/Questing" # TODO change later
-authors="Love, Cheese and small house plants"
+authors="Toma"
 description='''
 '''
 

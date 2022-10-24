@@ -3,7 +3,7 @@
   "compatibilityLevel": "JAVA_8",
   "package": "dev.toma.questing.mixin",
   "refmap": "questing.refmap.json",
-  "minVersion": "0.8.5",
+  "minVersion": "0.8.4",
   "injectors": {
     "defaultRequire": 1
   },

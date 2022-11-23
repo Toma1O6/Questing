@@ -1,5 +1,6 @@
 package dev.toma.questing.quest;
 
+import dev.toma.questing.party.QuestParty;
 import dev.toma.questing.trigger.ITriggerHandler;
 import dev.toma.questing.trigger.ITriggerRegisterHandler;
 import dev.toma.questing.trigger.ITriggerResponder;
@@ -9,16 +10,21 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractQuest {
+public abstract class Quest {
 
     private final TriggerContainer triggerStore = new TriggerContainer();
+    private QuestParty party;
     private QuestStatus status = QuestStatus.NEW;
 
-    public AbstractQuest() {
+    public Quest() {
         this.registerTriggers(triggerStore::register);
     }
 
     public abstract void registerTriggers(ITriggerRegisterHandler registerHandler);
+
+    public QuestParty getParty() {
+        return party;
+    }
 
     private static final class TriggerContainer {
 

@@ -3,7 +3,7 @@ package dev.toma.questing.reward;
 import dev.toma.questing.quest.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
-public interface IReward {
+public interface IRewardTransformer<I> {
 
-    void awardPlayer(PlayerEntity player, Quest quest);
+    I adjust(I originalValue, PlayerEntity player, Quest quest);
 }

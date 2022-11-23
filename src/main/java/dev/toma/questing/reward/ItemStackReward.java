@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ItemStackReward extends AbstractItemReward {
 
@@ -30,7 +31,7 @@ public class ItemStackReward extends AbstractItemReward {
 
     @Override
     protected ItemList getItems(PlayerEntity player, Quest quest) {
-        return new ItemList(Arrays.asList(items));
+        return new ItemList(Arrays.stream(this.items).map(ItemStack::copy).collect(Collectors.toList()));
     }
 
     public static final class Serializer extends AbstractSerializer<ItemStackReward> {

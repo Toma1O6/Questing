@@ -4,20 +4,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.JsonHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItemStackReward extends AbstractItemReward {
@@ -39,26 +38,29 @@ public class ItemStackReward extends AbstractItemReward {
         @Override
         public ItemStackReward resolveJson(JsonObject data, IRewardTransformer<Integer>[] counts, IRewardTransformer<ItemList>[] items) {
             JsonArray itemArray = JSONUtils.getAsJsonArray(data, "items");
-            ItemStack[] itemStacks = JsonHelper.mapArray(itemArray, ItemStack[]::new, this::resolve);
-            return new ItemStackReward(counts, items, itemStacks);
-        }
-
-        private ItemStack resolve(JsonElement element) {
-            JsonObject data = JsonHelper.requireObject(element);
-            ResourceLocation id = new ResourceLocation(JSONUtils.getAsString(data, "id"));
-            if (!ForgeRegistries.ITEMS.containsKey(id)) {
-                throw new JsonSyntaxException("Unknown item: " + id);
+            List<ItemStack> rewardStacks = new ArrayList<>();
+            for (JsonElement element : itemArray) {
+                JsonObject itemData = JsonHelper.requireObject(element);
+                ResourceLocation id = new ResourceLocation(JSONUtils.getAsString(itemData, "item"));
+                if (!ForgeRegistries.ITEMS.containsKey(id)) {
+                    throw new JsonSyntaxException("Unknown item: " + id);
+                }
+                Item item = ForgeRegistries.ITEMS.getValue(id);
+                int itemCount = JSONUtils.getAsInt(itemData, "count", 1);
+                CompoundNBT nbt = null;
+                if (itemData.has("nbt")) {
+                    String rawNbt = JSONUtils.getAsString(itemData, "nbt");
+                    nbt = JsonHelper.getNbt(rawNbt);
+                }
+                CompoundNBT nbt1 = nbt; // (:
+                List<ItemStack> itemList = createNonstandartSizeItemStacks(size -> {
+                    ItemStack stack = new ItemStack(item, size);
+                    stack.setTag(nbt1);
+                    return stack;
+                }, itemCount, item.getMaxStackSize());
+                rewardStacks.addAll(itemList);
             }
-            Item item = ForgeRegistries.ITEMS.getValue(id);
-            int count = JSONUtils.getAsInt(data, "count", 1);
-            CompoundNBT nbt = null;
-            if (data.has("nbt")) {
-                String rawNbt = JSONUtils.getAsString(data, "nbt");
-                nbt = JsonHelper.getNbt(rawNbt);
-            }
-            ItemStack stack = new ItemStack(item, count);
-            stack.setTag(nbt);
-            return stack;
+            return new ItemStackReward(counts, items, rewardStacks.toArray(new ItemStack[0]));
         }
     }
 }

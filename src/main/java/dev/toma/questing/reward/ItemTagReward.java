@@ -19,11 +19,13 @@ public class ItemTagReward extends AbstractItemReward {
 
     private final ITag<Item> tag;
     private final int fetchCount;
+    private final int itemCount;
 
-    public ItemTagReward(IRewardTransformer<Integer>[] countAdjusters, IRewardTransformer<ItemList>[] itemAdjusters, ITag<Item> tag, int fetchCount) {
+    public ItemTagReward(IRewardTransformer<Integer>[] countAdjusters, IRewardTransformer<ItemList>[] itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount) {
         super(countAdjusters, itemAdjusters);
         this.tag = tag;
         this.fetchCount = fetchCount;
+        this.itemCount = itemCount;
     }
 
     @Override
@@ -32,8 +34,9 @@ public class ItemTagReward extends AbstractItemReward {
         Random random = player.getRandom();
         List<ItemStack> generated = new ArrayList<>();
         for (int i = 0; i < this.fetchCount; i++) {
-            ItemStack stack = new ItemStack(items.get(random.nextInt(items.size())));
-            generated.add(stack);
+            Item item = items.get(random.nextInt(items.size()));
+            List<ItemStack> split = createNonstandartSizeItemStacks(size -> new ItemStack(item, size), this.itemCount, item.getMaxStackSize());
+            generated.addAll(split);
         }
         return new ItemList(generated);
     }
@@ -43,12 +46,13 @@ public class ItemTagReward extends AbstractItemReward {
         @Override
         public ItemTagReward resolveJson(JsonObject data, IRewardTransformer<Integer>[] counts, IRewardTransformer<ItemList>[] items) {
             int fetchCount = JSONUtils.getAsInt(data, "fetchCount", 1);
+            int count = JSONUtils.getAsInt(data, "count", 1);
             ResourceLocation location = new ResourceLocation(JSONUtils.getAsString(data, "tag"));
             ITag<Item> iTag = TagCollectionManager.getInstance().getItems().getTag(location);
             if (iTag == null) {
                 throw new JsonSyntaxException("Unknown tag " + location);
             }
-            return new ItemTagReward(counts, items, iTag, fetchCount);
+            return new ItemTagReward(counts, items, iTag, fetchCount, count);
         }
     }
 }

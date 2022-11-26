@@ -12,6 +12,7 @@ import net.minecraft.util.JSONUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class AbstractItemReward extends VolumeBasedReward {
 
@@ -63,6 +64,18 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
     @SuppressWarnings("unchecked")
     public static IRewardTransformer<ItemList>[] resolveItemListTransformers(JsonArray array) {
         return JsonHelper.mapArray(array, IRewardTransformer[]::new, element -> RewardTransformerType.fromJson(element, ItemList.class));
+    }
+
+    public static List<ItemStack> createNonstandartSizeItemStacks(Function<Integer, ItemStack> itemFactory, int stackSize, int maxStackSize) {
+        List<ItemStack> items = new ArrayList<>();
+        int remaining = stackSize;
+        while (remaining > 0) {
+            int take = Math.min(maxStackSize, remaining);
+            ItemStack stack = itemFactory.apply(take);
+            remaining -= take;
+            items.add(stack);
+        }
+        return items;
     }
 
     public static abstract class AbstractSerializer<R extends AbstractItemReward> implements RewardType.RewardSerializer<R> {

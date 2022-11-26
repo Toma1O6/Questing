@@ -6,28 +6,33 @@ import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.party.QuestParty;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.JsonHelper;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.world.World;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SplitRewardDistributor implements IRewardDistributor {
 
-    private final IReward[] ownerRewards;
-    private final IReward[] otherRewards;
+    private final List<IReward> ownerRewards;
+    private final List<IReward> otherRewards;
 
     public SplitRewardDistributor(IReward[] ownerRewards, IReward[] otherRewards) {
-        this.ownerRewards = ownerRewards;
-        this.otherRewards = otherRewards;
+        this.ownerRewards = Arrays.asList(ownerRewards);
+        this.otherRewards = Arrays.asList(otherRewards);
     }
 
     @Override
-    public void distribute(World world, Quest quest) {
+    public Map<PlayerEntity, List<IReward>> generateDistributedRewards(World world, Quest quest) {
         QuestParty party = quest.getParty();
         UUID ownerId = party.getOwner();
-        party.getOwner(world).ifPresent(owner -> this.giveRewards(owner, quest, ownerRewards));
-        party.forEachOnlineMemberExcept(ownerId, world, player -> this.giveRewards(player, quest, otherRewards));
+        Map<PlayerEntity, List<IReward>> rewards = new HashMap<>();
+        party.getOwner(world)
+                .ifPresent(owner -> generateRewards(owner, quest, rewards, ownerRewards));
+        party.forEachOnlineMemberExcept(ownerId, world, player -> generateRewards(player, quest, rewards, otherRewards));
+        return rewards;
     }
 
     @Override
@@ -35,10 +40,11 @@ public class SplitRewardDistributor implements IRewardDistributor {
         return QuestingRegistries.SPLIT_REWARD_DISTRIBUTOR;
     }
 
-    private void giveRewards(PlayerEntity player, Quest quest, IReward[] rewards) {
-        for (IReward reward : rewards) {
-            reward.awardPlayer(player, quest);
-        }
+    private void generateRewards(PlayerEntity player, Quest quest, Map<PlayerEntity, List<IReward>> holder, List<IReward> rewards) {
+        List<IReward> rewardList = rewards.stream()
+                .map(ireward -> Utils.getAwardableReward(ireward, player, quest))
+                .collect(Collectors.toList());
+        holder.put(player, rewardList);
     }
 
     public static final class Serializer implements RewardDistributionType.Serializer<SplitRewardDistributor> {

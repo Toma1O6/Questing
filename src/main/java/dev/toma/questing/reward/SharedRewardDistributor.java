@@ -6,22 +6,36 @@ import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.party.QuestParty;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.JsonHelper;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.world.World;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class SharedRewardDistributor implements IRewardDistributor {
 
-    private final IReward[] rewards;
+    private final List<IReward> rewards;
 
     public SharedRewardDistributor(IReward[] rewards) {
-        this.rewards = rewards;
+        this.rewards = Arrays.asList(rewards);
     }
 
     @Override
-    public void distribute(World world, Quest quest) {
+    public Map<PlayerEntity, List<IReward>> generateDistributedRewards(World world, Quest quest) {
         QuestParty party = quest.getParty();
-        party.forEachOnlineMemberExcept(null, world, player -> this.giveRewards(player, quest));
+        Map<PlayerEntity, List<IReward>> rewardMap = new HashMap<>();
+        party.forEachOnlineMemberExcept(null, world, player -> {
+            List<IReward> rewardList = this.rewards.stream()
+                    .map(ireward -> Utils.getAwardableReward(ireward, player, quest))
+                    .collect(Collectors.toList());
+            rewardMap.put(player, rewardList);
+        });
+        return rewardMap;
     }
 
     @Override

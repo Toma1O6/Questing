@@ -16,9 +16,9 @@ import java.util.function.Function;
 
 public abstract class AbstractItemReward extends VolumeBasedReward {
 
-    private final IRewardTransformer<ItemList>[] itemAdjusters;
+    private final RewardTransformer<ItemList>[] itemAdjusters;
 
-    public AbstractItemReward(IRewardTransformer<Integer>[] countAdjusters, IRewardTransformer<ItemList>[] itemAdjusters) {
+    public AbstractItemReward(RewardTransformer<Integer>[] countAdjusters, RewardTransformer<ItemList>[] itemAdjusters) {
         super(countAdjusters);
         this.itemAdjusters = itemAdjusters;
     }
@@ -43,7 +43,7 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
     @Override
     public void awardPlayer(PlayerEntity player, Quest quest) {
         ItemList list = this.getItems(player, quest);
-        for (IRewardTransformer<ItemList> transformer : itemAdjusters) {
+        for (RewardTransformer<ItemList> transformer : itemAdjusters) {
             list = transformer.adjust(list, player, quest);
         }
         for (ItemStack stack : list) {
@@ -62,8 +62,8 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
     }
 
     @SuppressWarnings("unchecked")
-    public static IRewardTransformer<ItemList>[] resolveItemListTransformers(JsonArray array) {
-        return JsonHelper.mapArray(array, IRewardTransformer[]::new, element -> RewardTransformerType.fromJson(element, ItemList.class));
+    public static RewardTransformer<ItemList>[] resolveItemListTransformers(JsonArray array) {
+        return JsonHelper.mapArray(array, RewardTransformer[]::new, element -> RewardTransformerType.fromJson(element, ItemList.class));
     }
 
     public static List<ItemStack> createNonstandartSizeItemStacks(Function<Integer, ItemStack> itemFactory, int stackSize, int maxStackSize) {
@@ -83,13 +83,13 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
         @Override
         public final R rewardFromJson(JsonObject data) {
             JsonArray countTransformers = JSONUtils.getAsJsonArray(data, "countFunctions", new JsonArray());
-            IRewardTransformer<Integer>[] counts = resolveCountTransformers(countTransformers);
+            RewardTransformer<Integer>[] counts = resolveCountTransformers(countTransformers);
             JsonArray itemTransformers = JSONUtils.getAsJsonArray(data, "itemFunctions", new JsonArray());
-            IRewardTransformer<ItemList>[] items = resolveItemListTransformers(itemTransformers);
+            RewardTransformer<ItemList>[] items = resolveItemListTransformers(itemTransformers);
             return this.resolveJson(data, counts, items);
         }
 
-        public abstract R resolveJson(JsonObject data, IRewardTransformer<Integer>[] counts, IRewardTransformer<ItemList>[] items);
+        public abstract R resolveJson(JsonObject data, RewardTransformer<Integer>[] counts, RewardTransformer<ItemList>[] items);
     }
 
     public static final class ItemList implements Iterable<ItemStack> {

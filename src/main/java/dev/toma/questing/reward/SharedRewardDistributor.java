@@ -17,20 +17,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SharedRewardDistributor implements IRewardDistributor {
+public class SharedRewardDistributor implements RewardDistributor {
 
-    private final List<IReward> rewards;
+    private final List<Reward> rewards;
 
-    public SharedRewardDistributor(IReward[] rewards) {
+    public SharedRewardDistributor(Reward[] rewards) {
         this.rewards = Arrays.asList(rewards);
     }
 
     @Override
-    public Map<PlayerEntity, List<IReward>> generateDistributedRewards(World world, Quest quest) {
+    public Map<PlayerEntity, List<Reward>> generateDistributedRewards(World world, Quest quest) {
         QuestParty party = quest.getParty();
-        Map<PlayerEntity, List<IReward>> rewardMap = new HashMap<>();
+        Map<PlayerEntity, List<Reward>> rewardMap = new HashMap<>();
         party.forEachOnlineMemberExcept(null, world, player -> {
-            List<IReward> rewardList = this.rewards.stream()
+            List<Reward> rewardList = this.rewards.stream()
                     .map(ireward -> Utils.getAwardableReward(ireward, player, quest))
                     .collect(Collectors.toList());
             rewardMap.put(player, rewardList);
@@ -44,7 +44,7 @@ public class SharedRewardDistributor implements IRewardDistributor {
     }
 
     private void giveRewards(PlayerEntity player, Quest quest) {
-        for (IReward reward : rewards) {
+        for (Reward reward : rewards) {
             reward.awardPlayer(player, quest);
         }
     }
@@ -53,7 +53,7 @@ public class SharedRewardDistributor implements IRewardDistributor {
 
         @Override
         public SharedRewardDistributor distributorFromJson(JsonObject data) {
-            return new SharedRewardDistributor(JsonHelper.mapArray(JSONUtils.getAsJsonArray(data, "rewards", new JsonArray()), IReward[]::new, RewardType::fromJson));
+            return new SharedRewardDistributor(JsonHelper.mapArray(JSONUtils.getAsJsonArray(data, "rewards", new JsonArray()), Reward[]::new, RewardType::fromJson));
         }
     }
 }

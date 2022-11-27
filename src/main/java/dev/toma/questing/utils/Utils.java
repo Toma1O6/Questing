@@ -1,16 +1,16 @@
 package dev.toma.questing.utils;
 
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.reward.INestedReward;
-import dev.toma.questing.reward.IReward;
+import dev.toma.questing.reward.NestedReward;
+import dev.toma.questing.reward.Reward;
 import net.minecraft.entity.player.PlayerEntity;
 
 public final class Utils {
 
-    public static IReward getAwardableReward(IReward topLevelReward, PlayerEntity player, Quest quest) {
-        IReward root = topLevelReward;
-        while (root instanceof INestedReward) {
-            root = ((INestedReward) root).getActualReward(player, quest);
+    public static Reward getAwardableReward(Reward topLevelReward, PlayerEntity player, Quest quest) {
+        Reward root = topLevelReward;
+        while (root instanceof NestedReward) {
+            root = ((NestedReward) root).getActualReward(player, quest);
         }
         return root;
     }

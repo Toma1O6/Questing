@@ -23,7 +23,7 @@ public class ItemStackReward extends AbstractItemReward {
 
     private final ItemStack[] items;
 
-    public ItemStackReward(IRewardTransformer<Integer>[] countAdjusters, IRewardTransformer<ItemList>[] itemAdjusters, ItemStack[] items) {
+    public ItemStackReward(RewardTransformer<Integer>[] countAdjusters, RewardTransformer<ItemList>[] itemAdjusters, ItemStack[] items) {
         super(countAdjusters, itemAdjusters);
         this.items = items;
     }
@@ -36,7 +36,7 @@ public class ItemStackReward extends AbstractItemReward {
     public static final class Serializer extends AbstractSerializer<ItemStackReward> {
 
         @Override
-        public ItemStackReward resolveJson(JsonObject data, IRewardTransformer<Integer>[] counts, IRewardTransformer<ItemList>[] items) {
+        public ItemStackReward resolveJson(JsonObject data, RewardTransformer<Integer>[] counts, RewardTransformer<ItemList>[] items) {
             JsonArray itemArray = JSONUtils.getAsJsonArray(data, "items");
             List<ItemStack> rewardStacks = new ArrayList<>();
             for (JsonElement element : itemArray) {

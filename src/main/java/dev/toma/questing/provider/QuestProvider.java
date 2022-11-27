@@ -1,6 +1,6 @@
 package dev.toma.questing.provider;
 
-public interface IQuestProvider {
+public interface QuestProvider {
 
     Options options();
 

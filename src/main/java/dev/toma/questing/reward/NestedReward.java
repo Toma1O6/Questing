@@ -3,7 +3,7 @@ package dev.toma.questing.reward;
 import dev.toma.questing.quest.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
-public interface IRewardTransformer<I> {
+public interface NestedReward extends Reward {
 
-    I adjust(I originalValue, PlayerEntity player, Quest quest);
+    Reward getActualReward(PlayerEntity player, Quest quest);
 }

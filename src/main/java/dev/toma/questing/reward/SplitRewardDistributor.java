@@ -14,21 +14,21 @@ import net.minecraft.world.World;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SplitRewardDistributor implements IRewardDistributor {
+public class SplitRewardDistributor implements RewardDistributor {
 
-    private final List<IReward> ownerRewards;
-    private final List<IReward> otherRewards;
+    private final List<Reward> ownerRewards;
+    private final List<Reward> otherRewards;
 
-    public SplitRewardDistributor(IReward[] ownerRewards, IReward[] otherRewards) {
+    public SplitRewardDistributor(Reward[] ownerRewards, Reward[] otherRewards) {
         this.ownerRewards = Arrays.asList(ownerRewards);
         this.otherRewards = Arrays.asList(otherRewards);
     }
 
     @Override
-    public Map<PlayerEntity, List<IReward>> generateDistributedRewards(World world, Quest quest) {
+    public Map<PlayerEntity, List<Reward>> generateDistributedRewards(World world, Quest quest) {
         QuestParty party = quest.getParty();
         UUID ownerId = party.getOwner();
-        Map<PlayerEntity, List<IReward>> rewards = new HashMap<>();
+        Map<PlayerEntity, List<Reward>> rewards = new HashMap<>();
         party.getOwner(world)
                 .ifPresent(owner -> generateRewards(owner, quest, rewards, ownerRewards));
         party.forEachOnlineMemberExcept(ownerId, world, player -> generateRewards(player, quest, rewards, otherRewards));
@@ -40,8 +40,8 @@ public class SplitRewardDistributor implements IRewardDistributor {
         return QuestingRegistries.SPLIT_REWARD_DISTRIBUTOR;
     }
 
-    private void generateRewards(PlayerEntity player, Quest quest, Map<PlayerEntity, List<IReward>> holder, List<IReward> rewards) {
-        List<IReward> rewardList = rewards.stream()
+    private void generateRewards(PlayerEntity player, Quest quest, Map<PlayerEntity, List<Reward>> holder, List<Reward> rewards) {
+        List<Reward> rewardList = rewards.stream()
                 .map(ireward -> Utils.getAwardableReward(ireward, player, quest))
                 .collect(Collectors.toList());
         holder.put(player, rewardList);
@@ -53,8 +53,8 @@ public class SplitRewardDistributor implements IRewardDistributor {
         public SplitRewardDistributor distributorFromJson(JsonObject data) {
             JsonArray owner = JSONUtils.getAsJsonArray(data, "ownerRewards", new JsonArray());
             JsonArray other = JSONUtils.getAsJsonArray(data, "otherRewards", new JsonArray());
-            IReward[] ownerRewards = JsonHelper.mapArray(owner, IReward[]::new, RewardType::fromJson);
-            IReward[] otherRewards = JsonHelper.mapArray(other, IReward[]::new, RewardType::fromJson);
+            Reward[] ownerRewards = JsonHelper.mapArray(owner, Reward[]::new, RewardType::fromJson);
+            Reward[] otherRewards = JsonHelper.mapArray(other, Reward[]::new, RewardType::fromJson);
             return new SplitRewardDistributor(ownerRewards, otherRewards);
         }
     }

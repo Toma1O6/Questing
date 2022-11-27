@@ -9,7 +9,7 @@ import dev.toma.questing.utils.JsonHelper;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 
-public final class RewardTransformerType<V, T extends IRewardTransformer<V>> implements IdentifierHolder {
+public final class RewardTransformerType<V, T extends RewardTransformer<V>> implements IdentifierHolder {
 
     private final ResourceLocation identifier;
     private final Serializer<V, T> serializer;
@@ -26,7 +26,7 @@ public final class RewardTransformerType<V, T extends IRewardTransformer<V>> imp
         return identifier;
     }
 
-    public static <V, T extends IRewardTransformer<V>> T fromJson(JsonElement element, Class<V> type) {
+    public static <V, T extends RewardTransformer<V>> T fromJson(JsonElement element, Class<V> type) {
         JsonObject data = JsonHelper.requireObject(element);
         ResourceLocation location = new ResourceLocation(JSONUtils.getAsString(data, "type"));
         RewardTransformerType<V, T> transformerType = QuestingRegistries.REWARD_TRANSFORMERS.getValueUnsafe(location);
@@ -39,7 +39,7 @@ public final class RewardTransformerType<V, T extends IRewardTransformer<V>> imp
         return transformerType.serializer.transformerFromJson(data);
     }
 
-    public interface Serializer<V, T extends IRewardTransformer<V>> {
+    public interface Serializer<V, T extends RewardTransformer<V>> {
 
         T transformerFromJson(JsonObject data);
     }

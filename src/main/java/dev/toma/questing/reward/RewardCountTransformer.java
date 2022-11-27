@@ -6,7 +6,7 @@ import dev.toma.questing.quest.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.JSONUtils;
 
-public class RewardCountTransformer implements IRewardTransformer<Integer> {
+public class RewardCountTransformer implements RewardTransformer<Integer> {
 
     private final Operation operation;
     private final float value;

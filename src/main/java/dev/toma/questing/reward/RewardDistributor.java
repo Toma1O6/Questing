@@ -7,9 +7,9 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.Map;
 
-public interface IRewardDistributor {
+public interface RewardDistributor {
 
-    Map<PlayerEntity, List<IReward>> generateDistributedRewards(World world, Quest quest);
+    Map<PlayerEntity, List<Reward>> generateDistributedRewards(World world, Quest quest);
 
     RewardDistributionType<?> getType();
 }

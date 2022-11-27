@@ -1,7 +1,7 @@
 package dev.toma.questing.party;
 
 import dev.toma.questing.Questing;
-import dev.toma.questing.provider.IQuestProvider;
+import dev.toma.questing.provider.QuestProvider;
 import dev.toma.questing.utils.NbtHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -10,30 +10,26 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public final class QuestParty {
 
-    public static final Marker MARKER = MarkerManager.getMarker("Parties");
-    private final IQuestProvider.Options options;
+    private final QuestProvider.Options options;
     private final UUID owner;
     private final Set<UUID> members = new LinkedHashSet<>();
     private final Map<UUID, String> usernameCache = new HashMap<>();
 
-    public QuestParty(IQuestProvider.Options options, PlayerEntity owner) {
+    public QuestParty(QuestProvider.Options options, PlayerEntity owner) {
         this.options = options;
         this.owner = owner.getUUID();
         this.addMember(owner);
     }
 
     // For NBT read ops
-    public QuestParty(IQuestProvider.Options options, CompoundNBT nbt) {
+    public QuestParty(QuestProvider.Options options, CompoundNBT nbt) {
         this.options = options;
         this.owner = nbt.getUUID("owner");
         NbtHelper.readCollection(() -> members, nbt.getList("members", Constants.NBT.TAG_INT_ARRAY), NBTUtil::loadUUID);
@@ -47,7 +43,7 @@ public final class QuestParty {
 
     public void addMember(PlayerEntity member) {
         if (!this.canAddNewMember()) {
-            Questing.LOGGER.error(MARKER, "Unable to add new member {} because party is already full", member.getName().getString());
+            Questing.LOGGER.error(Questing.MARKER_PARTIES, "Unable to add new member {} because party is already full", member.getName().getString());
             return;
         }
         UUID uuid = member.getUUID();

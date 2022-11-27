@@ -1,10 +1,10 @@
 package dev.toma.questing.quest;
 
 import dev.toma.questing.party.QuestParty;
-import dev.toma.questing.trigger.ITriggerHandler;
-import dev.toma.questing.trigger.ITriggerRegisterHandler;
-import dev.toma.questing.trigger.ITriggerResponder;
 import dev.toma.questing.trigger.Trigger;
+import dev.toma.questing.trigger.TriggerHandler;
+import dev.toma.questing.trigger.TriggerRegisterHandler;
+import dev.toma.questing.trigger.TriggerResponder;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public abstract class Quest {
         this.registerTriggers(triggerStore::register);
     }
 
-    public abstract void registerTriggers(ITriggerRegisterHandler registerHandler);
+    public abstract void registerTriggers(TriggerRegisterHandler registerHandler);
 
     public QuestParty getParty() {
         return party;
@@ -36,17 +36,17 @@ public abstract class Quest {
             return (TriggerData<T>) map.get(trigger);
         }
 
-        <T> void register(Trigger<T> trigger, ITriggerResponder<T> responder, ITriggerHandler<T> handler) {
+        <T> void register(Trigger<T> trigger, TriggerResponder<T> responder, TriggerHandler<T> handler) {
             this.map.put(trigger, new TriggerData<>(responder, handler));
         }
     }
 
     private static final class TriggerData<T> {
 
-        private final ITriggerResponder<T> responder;
-        private final ITriggerHandler<T> handler;
+        private final TriggerResponder<T> responder;
+        private final TriggerHandler<T> handler;
 
-        private TriggerData(ITriggerResponder<T> responder, ITriggerHandler<T> handler) {
+        private TriggerData(TriggerResponder<T> responder, TriggerHandler<T> handler) {
             this.responder = responder;
             this.handler = handler;
         }

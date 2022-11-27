@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.JSONUtils;
 
-public class RewardItemNbtTransformer implements IRewardTransformer<AbstractItemReward.ItemList> {
+public class RewardItemNbtTransformer implements RewardTransformer<AbstractItemReward.ItemList> {
 
     private final CompoundNBT nbt;
 

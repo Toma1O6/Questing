@@ -21,7 +21,7 @@ public class ItemTagReward extends AbstractItemReward {
     private final int fetchCount;
     private final int itemCount;
 
-    public ItemTagReward(IRewardTransformer<Integer>[] countAdjusters, IRewardTransformer<ItemList>[] itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount) {
+    public ItemTagReward(RewardTransformer<Integer>[] countAdjusters, RewardTransformer<ItemList>[] itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount) {
         super(countAdjusters, itemAdjusters);
         this.tag = tag;
         this.fetchCount = fetchCount;
@@ -44,7 +44,7 @@ public class ItemTagReward extends AbstractItemReward {
     public static final class Serializer extends AbstractSerializer<ItemTagReward> {
 
         @Override
-        public ItemTagReward resolveJson(JsonObject data, IRewardTransformer<Integer>[] counts, IRewardTransformer<ItemList>[] items) {
+        public ItemTagReward resolveJson(JsonObject data, RewardTransformer<Integer>[] counts, RewardTransformer<ItemList>[] items) {
             int fetchCount = JSONUtils.getAsInt(data, "fetchCount", 1);
             int count = JSONUtils.getAsInt(data, "count", 1);
             ResourceLocation location = new ResourceLocation(JSONUtils.getAsString(data, "tag"));

@@ -18,7 +18,11 @@ public final class Questing {
 
     public static final String MODID = "questing";
     public static final Logger LOGGER = LogManager.getLogger("Questing");
+    // Logging markers
     public static final Marker MARKER_MAIN = MarkerManager.getMarker("Main");
+    public static final Marker MARKER_PARTIES = MarkerManager.getMarker("Parties");
+    public static final Marker MARKER_IO = MarkerManager.getMarker("IO");
+    public static final Marker MARKER_AREA = MarkerManager.getMarker("Area");
 
     public Questing() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

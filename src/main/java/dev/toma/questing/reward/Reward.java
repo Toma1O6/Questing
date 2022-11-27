@@ -3,7 +3,7 @@ package dev.toma.questing.reward;
 import dev.toma.questing.quest.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
-public interface INestedReward extends IReward {
+public interface Reward {
 
-    IReward getActualReward(PlayerEntity player, Quest quest);
+    void awardPlayer(PlayerEntity player, Quest quest);
 }

@@ -8,6 +8,7 @@ import dev.toma.questing.area.spawner.Spawner;
 import dev.toma.questing.area.spawner.SpawnerProvider;
 import dev.toma.questing.area.spawner.SpawnerType;
 import dev.toma.questing.quest.Quest;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -17,8 +18,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public abstract class SimpleAreaProvider implements AreaProvider<SimpleArea> {
 
@@ -68,9 +67,7 @@ public abstract class SimpleAreaProvider implements AreaProvider<SimpleArea> {
         if (areaCenter == null) {
             throw new IllegalStateException("Area center is null! " + this);
         }
-        List<Spawner> spawners = this.mobSpawners.stream()
-                .map(Supplier::get)
-                .collect(Collectors.toList());
+        List<Spawner> spawners = Utils.getProvidedSpawners(this.mobSpawners.stream());
         return new SimpleArea(this, areaCenter, this.interactionMode, this.areaSize, spawners);
     }
 

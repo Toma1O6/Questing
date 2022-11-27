@@ -5,13 +5,12 @@ import dev.toma.questing.area.Area;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.JsonHelper;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.world.World;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class WaveBasedSpawner implements Spawner {
 
@@ -25,7 +24,7 @@ public class WaveBasedSpawner implements Spawner {
     public WaveBasedSpawner(int spawnInterval, int waveCount, SpawnerProvider<?>[] spawnerProviders) {
         this.spawnInterval = spawnInterval;
         this.waveCount = waveCount;
-        this.spawners = Arrays.stream(spawnerProviders).map(Supplier::get).collect(Collectors.toList());
+        this.spawners = Utils.getProvidedSpawners(Arrays.stream(spawnerProviders));
         this.waveLimit = waveCount >= 0;
         this.currentDelay = this.spawnInterval;
         this.wavesLeft = this.waveCount;

@@ -6,14 +6,13 @@ import dev.toma.questing.area.Area;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.JsonHelper;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.world.World;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class RandomizedSpawner implements Spawner {
 
@@ -22,7 +21,7 @@ public class RandomizedSpawner implements Spawner {
 
     public RandomizedSpawner(float chance, SpawnerProvider<?>[] providers) {
         this.chance = chance;
-        this.spawnerList = Arrays.stream(providers).map(Supplier::get).collect(Collectors.toList());
+        this.spawnerList = Utils.getProvidedSpawners(Arrays.stream(providers));
     }
 
     @Override

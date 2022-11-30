@@ -10,6 +10,7 @@ import dev.toma.questing.area.spawner.WaveBasedSpawner;
 import dev.toma.questing.area.spawner.processor.SetEffectsProcessor;
 import dev.toma.questing.area.spawner.processor.SetEquipmentProcessor;
 import dev.toma.questing.area.spawner.processor.SpawnerProcessorType;
+import dev.toma.questing.condition.ConditionType;
 import dev.toma.questing.reward.*;
 import dev.toma.questing.utils.IdentifierHolder;
 import net.minecraft.util.ResourceLocation;
@@ -23,6 +24,7 @@ public final class QuestingRegistries {
     public static final SimpleRegistry<ResourceLocation, AreaType<?>> AREA = new SimpleRegistry<>();
     public static final SimpleRegistry<ResourceLocation, SpawnerType<?>> SPAWNER = new SimpleRegistry<>();
     public static final SimpleRegistry<ResourceLocation, SpawnerProcessorType<?>> SPAWNER_PROCESSOR = new SimpleRegistry<>();
+    public static final SimpleRegistry<ResourceLocation, ConditionType<?>> CONDITION = new SimpleRegistry<>();
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors
@@ -48,6 +50,8 @@ public final class QuestingRegistries {
     // Spawner processors
     public static final SpawnerProcessorType<SetEquipmentProcessor> EQUIPMENT_SPAWNER_PROCESSOR = new SpawnerProcessorType<>(internalId("set_equipment"), new SetEquipmentProcessor.Serializer());
     public static final SpawnerProcessorType<SetEffectsProcessor> EFFECTS_SPAWNER_PROCESSOR = new SpawnerProcessorType<>(internalId("set_effects"), new SetEffectsProcessor.Serializer());
+
+    // Conditions
 
     public static void register() {
         register(REWARD_DISTRIBUTORS, SHARED_REWARD_DISTRIBUTOR);

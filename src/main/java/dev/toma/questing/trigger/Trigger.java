@@ -2,7 +2,7 @@ package dev.toma.questing.trigger;
 
 import java.util.Objects;
 
-public final class Trigger<T> {
+public final class Trigger<T extends TriggerData> {
 
     private static int triggerIndexPool;
     private final int triggerIndex;
@@ -11,7 +11,7 @@ public final class Trigger<T> {
         this.triggerIndex = triggerIndex;
     }
 
-    public static <T> Trigger<T> createTrigger() {
+    public static <T extends TriggerData> Trigger<T> createTrigger() {
         return new Trigger<>(triggerIndexPool++);
     }
 

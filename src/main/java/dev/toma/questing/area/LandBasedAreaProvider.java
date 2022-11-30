@@ -2,6 +2,7 @@ package dev.toma.questing.area;
 
 import com.google.gson.JsonObject;
 import dev.toma.questing.area.spawner.SpawnerProvider;
+import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -24,7 +25,7 @@ public class LandBasedAreaProvider extends SimpleAreaProvider {
 
     @Override
     public AreaType<?> getAreaType() {
-        return null;
+        return QuestingRegistries.LAND_AREA;
     }
 
     public static final class Serializer extends SimpleAreaProvider.AbstractSerializer<LandBasedAreaProvider> {

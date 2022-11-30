@@ -1,10 +1,7 @@
 package dev.toma.questing.quest;
 
 import dev.toma.questing.party.QuestParty;
-import dev.toma.questing.trigger.Trigger;
-import dev.toma.questing.trigger.TriggerHandler;
-import dev.toma.questing.trigger.TriggerRegisterHandler;
-import dev.toma.questing.trigger.TriggerResponder;
+import dev.toma.questing.trigger.*;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -28,25 +25,25 @@ public abstract class Quest {
 
     private static final class TriggerContainer {
 
-        private final Map<Trigger<?>, TriggerData<?>> map = new HashMap<>();
+        private final Map<Trigger<?>, TriggerDataHandler<?>> map = new HashMap<>();
 
         @Nullable
         @SuppressWarnings("unchecked")
-        <T> TriggerData<T> getData(Trigger<T> trigger) {
-            return (TriggerData<T>) map.get(trigger);
+        <T extends TriggerData> TriggerDataHandler<T> getData(Trigger<T> trigger) {
+            return (TriggerDataHandler<T>) map.get(trigger);
         }
 
-        <T> void register(Trigger<T> trigger, TriggerResponder<T> responder, TriggerHandler<T> handler) {
-            this.map.put(trigger, new TriggerData<>(responder, handler));
+        <T extends TriggerData> void register(Trigger<T> trigger, TriggerResponder<T> responder, TriggerHandler<T> handler) {
+            this.map.put(trigger, new TriggerDataHandler<>(responder, handler));
         }
     }
 
-    private static final class TriggerData<T> {
+    private static final class TriggerDataHandler<T extends TriggerData> {
 
         private final TriggerResponder<T> responder;
         private final TriggerHandler<T> handler;
 
-        private TriggerData(TriggerResponder<T> responder, TriggerHandler<T> handler) {
+        private TriggerDataHandler(TriggerResponder<T> responder, TriggerHandler<T> handler) {
             this.responder = responder;
             this.handler = handler;
         }

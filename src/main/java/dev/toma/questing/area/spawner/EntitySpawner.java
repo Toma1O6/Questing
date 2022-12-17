@@ -1,7 +1,6 @@
 package dev.toma.questing.area.spawner;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.area.Area;
 import dev.toma.questing.area.spawner.processor.SpawnerProcessor;
@@ -11,12 +10,11 @@ import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,12 +24,7 @@ public class EntitySpawner implements Spawner {
 
     public static final Codec<EntitySpawner> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codecs.enumCodec(SpawnMode.class).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
-            ResourceLocation.CODEC.flatXmap(location -> {
-                if (!ForgeRegistries.ENTITIES.containsKey(location)) {
-                    return DataResult.error("Unknown entity " + location);
-                }
-                return DataResult.success(ForgeRegistries.ENTITIES.getValue(location));
-            }, type -> type == null ? DataResult.error("Entity type is null") : DataResult.success(type.getRegistryName())).fieldOf("entity").forGetter(EntitySpawner::getEntity),
+            Registry.ENTITY_TYPE.fieldOf("entity").forGetter(EntitySpawner::getEntity),
             Codec.intRange(1, 64).optionalFieldOf("min", 1).forGetter(spawner -> spawner.minCount),
             Codec.intRange(1, 64).optionalFieldOf("max", 1).forGetter(spawner -> spawner.maxCount),
             SpawnerProcessorType.CODEC.listOf().optionalFieldOf("processors", Collections.emptyList()).forGetter(spawner -> spawner.processors)

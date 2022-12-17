@@ -1,7 +1,6 @@
 package dev.toma.questing.area.spawner.processor;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.area.Area;
 import dev.toma.questing.area.spawner.Spawner;
@@ -9,9 +8,8 @@ import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.EffectProvider;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -19,12 +17,7 @@ import java.util.function.Supplier;
 public class SetEffectsProcessor extends LivingEntityProcessor {
 
     private static final Codec<EffectProvider> PROVIDER_CODEC = RecordCodecBuilder.create(b -> b.group(
-            ResourceLocation.CODEC.flatXmap(id -> {
-                if (!ForgeRegistries.POTIONS.containsKey(id)) {
-                    return DataResult.error("Effect ID is null");
-                }
-                return DataResult.success(ForgeRegistries.POTIONS.getValue(id));
-            }, effect -> effect == null ? DataResult.error("Effect is null") : DataResult.success(effect.getRegistryName())).fieldOf("effect").forGetter(EffectProvider::getEffect),
+            Registry.MOB_EFFECT.fieldOf("effect").forGetter(EffectProvider::getEffect),
             Codec.intRange(1, Integer.MAX_VALUE).fieldOf("duration").orElse(100).forGetter(EffectProvider::getDuration),
             Codec.intRange(0, 255).fieldOf("amplifier").orElse(0).forGetter(EffectProvider::getAmplifier),
             Codec.BOOL.optionalFieldOf("ambient", false).forGetter(EffectProvider::isAmbient),

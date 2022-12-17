@@ -24,7 +24,7 @@ public abstract class VolumeBasedReward implements Reward {
         this.countAdjusters = countAdjusters;
     }
 
-    protected List<RewardTransformer<Integer>> getCountAdjusters() {
+    public List<RewardTransformer<Integer>> getCountAdjusters() {
         return countAdjusters;
     }
 

@@ -32,7 +32,7 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
 
     protected abstract ItemList getItems(PlayerEntity player, Quest quest);
 
-    protected List<RewardTransformer<ItemList>> getItemAdjusters() {
+    public List<RewardTransformer<ItemList>> getItemAdjusters() {
         return itemAdjusters;
     }
 

@@ -46,7 +46,7 @@ public class EntitySpawner implements Spawner {
         this.spawnMode = spawnMode;
         this.entity = entity;
         this.minCount = minCount;
-        this.maxCount = maxCount;
+        this.maxCount = Math.max(minCount, maxCount);
         this.processors = processors;
     }
 
@@ -124,8 +124,16 @@ public class EntitySpawner implements Spawner {
         return y;
     }
 
-    protected EntityType getEntity() {
+    public EntityType getEntity() {
         return entity;
+    }
+
+    public int getMinCount() {
+        return minCount;
+    }
+
+    public int getMaxCount() {
+        return maxCount;
     }
 
     public enum SpawnMode {

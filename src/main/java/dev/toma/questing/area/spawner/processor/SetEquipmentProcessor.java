@@ -20,7 +20,7 @@ public class SetEquipmentProcessor extends LivingEntityProcessor {
     public static final Codec<SetEquipmentProcessor> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             Codec.unboundedMap(
                     Codecs.enumCodec(EquipmentSlotType.class, EquipmentSlotType::byName, EquipmentSlotType::getName),
-                    ItemStack.CODEC).fieldOf("equipment").forGetter(instance -> instance.equipmentMap)
+                    Codecs.SIMPLIFIED_ITEMSTACK).fieldOf("equipment").forGetter(instance -> instance.equipmentMap)
     ).apply(builder, SetEquipmentProcessor::new));
     private final Map<EquipmentSlotType, ItemStack> equipmentMap;
 

@@ -2,10 +2,25 @@ package dev.toma.questing.utils;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.registry.Registry;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 public final class Codecs {
+
+    public static final Codec<ItemStack> SIMPLIFIED_ITEMSTACK = RecordCodecBuilder.create(instance -> instance.group(
+            Registry.ITEM.fieldOf("item").forGetter(ItemStack::getItem),
+            Codec.INT.optionalFieldOf("count", 1).forGetter(ItemStack::getCount),
+            CompoundNBT.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getTag()))
+    ).apply(instance, (item, count, optionalTag) -> {
+        ItemStack stack = new ItemStack(item, Math.max(1, count));
+        optionalTag.ifPresent(stack::setTag);
+        return stack;
+    }));
 
     public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> enumClass) {
         return enumCodec(enumClass, string -> Enum.valueOf(enumClass, string), Enum::name);

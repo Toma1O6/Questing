@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.area.Area;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -39,6 +40,6 @@ public class RandomizedSpawner implements Spawner {
 
     @Override
     public Spawner copy() {
-        return new RandomizedSpawner(chance, spawnerList);
+        return new RandomizedSpawner(chance, Utils.instantiate(spawnerList, Spawner::copy));
     }
 }

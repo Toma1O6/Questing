@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.area.Area;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -52,7 +53,7 @@ public class WaveBasedSpawner implements Spawner {
 
     @Override
     public Spawner copy() {
-        return new WaveBasedSpawner(spawnInterval, waveCount, spawners);
+        return new WaveBasedSpawner(spawnInterval, waveCount, Utils.instantiate(spawners, Spawner::copy));
     }
 
     protected boolean hasWave() {

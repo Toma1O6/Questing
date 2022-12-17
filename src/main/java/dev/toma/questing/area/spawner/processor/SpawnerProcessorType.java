@@ -1,8 +1,8 @@
 package dev.toma.questing.area.spawner.processor;
 
 import com.mojang.serialization.Codec;
-import dev.toma.questing.utils.IdentifierHolder;
 import dev.toma.questing.init.QuestingRegistries;
+import dev.toma.questing.utils.IdentifierHolder;
 import net.minecraft.util.ResourceLocation;
 
 public class SpawnerProcessorType<P extends SpawnerProcessor> implements IdentifierHolder {

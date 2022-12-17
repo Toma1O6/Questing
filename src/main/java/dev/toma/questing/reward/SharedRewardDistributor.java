@@ -2,10 +2,10 @@ package dev.toma.questing.reward;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.toma.questing.utils.Utils;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.party.QuestParty;
 import dev.toma.questing.quest.Quest;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 

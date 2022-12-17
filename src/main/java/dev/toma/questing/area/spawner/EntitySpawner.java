@@ -8,6 +8,7 @@ import dev.toma.questing.area.spawner.processor.SpawnerProcessor;
 import dev.toma.questing.area.spawner.processor.SpawnerProcessorType;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.ResourceLocation;
@@ -24,13 +25,7 @@ import java.util.Random;
 public class EntitySpawner implements Spawner {
 
     public static final Codec<EntitySpawner> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.flatXmap(string -> {
-                try {
-                    return DataResult.success(SpawnMode.valueOf(string));
-                } catch (IllegalArgumentException e) {
-                    return DataResult.error("Unknown spawn mode " + string);
-                }
-            }, mode -> mode == null ? DataResult.error("Spawn mode is null") : DataResult.success(mode.name())).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
+            Codecs.enumCodec(SpawnMode.class).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
             ResourceLocation.CODEC.flatXmap(location -> {
                 if (!ForgeRegistries.ENTITIES.containsKey(location)) {
                     return DataResult.error("Unknown entity " + location);

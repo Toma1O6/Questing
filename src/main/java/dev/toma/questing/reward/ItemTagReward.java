@@ -1,27 +1,34 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 public class ItemTagReward extends AbstractItemReward {
 
+    public static final Codec<ItemTagReward> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            VOLUME_ADJUSTER_CODEC.listOf().optionalFieldOf("countAdjusters", Collections.emptyList()).forGetter(VolumeBasedReward::getCountAdjusters),
+            ITEM_ADJUSTER_CODEC.listOf().optionalFieldOf("itemAdjusters", Collections.emptyList()).forGetter(AbstractItemReward::getItemAdjusters),
+            ITag.codec(() -> TagCollectionManager.getInstance().getItems()).fieldOf("tag").forGetter(t -> t.tag),
+            Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("fetchCount", 1).forGetter(t -> t.fetchCount),
+            Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("itemCount", 1).forGetter(t -> t.itemCount)
+    ).apply(instance, ItemTagReward::new));
     private final ITag<Item> tag;
     private final int fetchCount;
     private final int itemCount;
 
-    public ItemTagReward(RewardTransformer<Integer>[] countAdjusters, RewardTransformer<ItemList>[] itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount) {
+    public ItemTagReward(List<RewardTransformer<Integer>> countAdjusters, List<RewardTransformer<ItemList>> itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount) {
         super(countAdjusters, itemAdjusters);
         this.tag = tag;
         this.fetchCount = fetchCount;
@@ -41,18 +48,8 @@ public class ItemTagReward extends AbstractItemReward {
         return new ItemList(generated);
     }
 
-    public static final class Serializer extends AbstractSerializer<ItemTagReward> {
-
-        @Override
-        public ItemTagReward resolveJson(JsonObject data, RewardTransformer<Integer>[] counts, RewardTransformer<ItemList>[] items) {
-            int fetchCount = JSONUtils.getAsInt(data, "fetchCount", 1);
-            int count = JSONUtils.getAsInt(data, "count", 1);
-            ResourceLocation location = new ResourceLocation(JSONUtils.getAsString(data, "tag"));
-            ITag<Item> iTag = TagCollectionManager.getInstance().getItems().getTag(location);
-            if (iTag == null) {
-                throw new JsonSyntaxException("Unknown tag " + location);
-            }
-            return new ItemTagReward(counts, items, iTag, fetchCount, count);
-        }
+    @Override
+    public RewardType<?> getType() {
+        return QuestingRegistries.ITEMTAG_REWARD;
     }
 }

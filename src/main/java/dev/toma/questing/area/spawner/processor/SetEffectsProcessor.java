@@ -1,35 +1,49 @@
 package dev.toma.questing.area.spawner.processor;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.area.Area;
 import dev.toma.questing.area.spawner.Spawner;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.utils.JsonHelper;
+import dev.toma.questing.utils.EffectProvider;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class SetEffectsProcessor extends LivingEntityProcessor {
 
-    private final Supplier<EffectInstance>[] effectsProvider;
+    private static final Codec<EffectProvider> PROVIDER_CODEC = RecordCodecBuilder.create(b -> b.group(
+            ResourceLocation.CODEC.flatXmap(id -> {
+                if (!ForgeRegistries.POTIONS.containsKey(id)) {
+                    return DataResult.error("Effect ID is null");
+                }
+                return DataResult.success(ForgeRegistries.POTIONS.getValue(id));
+            }, effect -> effect == null ? DataResult.error("Effect is null") : DataResult.success(effect.getRegistryName())).fieldOf("effect").forGetter(EffectProvider::getEffect),
+            Codec.intRange(1, Integer.MAX_VALUE).fieldOf("duration").orElse(100).forGetter(EffectProvider::getDuration),
+            Codec.intRange(0, 255).fieldOf("amplifier").orElse(0).forGetter(EffectProvider::getAmplifier),
+            Codec.BOOL.optionalFieldOf("ambient", false).forGetter(EffectProvider::isAmbient),
+            Codec.BOOL.optionalFieldOf("visible", true).forGetter(EffectProvider::isVisible),
+            Codec.BOOL.optionalFieldOf("showIcon", true).forGetter(EffectProvider::showIcon)
+    ).apply(b, EffectProvider::new));
+    public static final Codec<SetEffectsProcessor> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            PROVIDER_CODEC.listOf().fieldOf("effects").forGetter(processor -> processor.providerList)
+    ).apply(builder, SetEffectsProcessor::new));
 
-    public SetEffectsProcessor(Supplier<EffectInstance>[] effectsProvider) {
-        this.effectsProvider = effectsProvider;
+    private final List<EffectProvider> providerList;
+
+    public SetEffectsProcessor(List<EffectProvider> providerList) {
+        this.providerList = providerList;
     }
 
     @Override
     public void processEntitySpawn(LivingEntity entity, Spawner spawner, World world, Quest quest, Area area) {
-        Arrays.stream(effectsProvider)
+        providerList.stream()
                 .map(Supplier::get)
                 .forEach(entity::addEffect);
     }
@@ -39,27 +53,4 @@ public class SetEffectsProcessor extends LivingEntityProcessor {
         return QuestingRegistries.EFFECTS_SPAWNER_PROCESSOR;
     }
 
-    public static final class Serializer implements SpawnerProcessorType.Serializer<SetEffectsProcessor> {
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public SetEffectsProcessor processorFromJson(JsonObject data) {
-            JsonArray array = JSONUtils.getAsJsonArray(data, "effects");
-            Supplier<EffectInstance>[] providers = JsonHelper.mapArray(array, Supplier[]::new, e -> {
-                JsonObject effectData = JsonHelper.requireObject(e);
-                ResourceLocation id = new ResourceLocation(JSONUtils.getAsString(effectData, "effect"));
-                if (!ForgeRegistries.POTIONS.containsKey(id)) {
-                    throw new JsonSyntaxException("Unknown effect: " + id);
-                }
-                Effect effect = ForgeRegistries.POTIONS.getValue(id);
-                int duration = JSONUtils.getAsInt(effectData, "duration", 600);
-                int amplifier = JSONUtils.getAsInt(effectData, "amplifier", 0);
-                boolean ambient = JSONUtils.getAsBoolean(effectData, "ambient", false);
-                boolean visible = JSONUtils.getAsBoolean(effectData, "visible", true);
-                boolean showIcon = JSONUtils.getAsBoolean(effectData, "showIcon", visible);
-                return () -> new EffectInstance(effect, duration, amplifier, ambient, visible, showIcon);
-            });
-            return new SetEffectsProcessor(providers);
-        }
-    }
 }

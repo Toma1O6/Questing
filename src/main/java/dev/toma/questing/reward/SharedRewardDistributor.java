@@ -1,17 +1,15 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.toma.questing.utils.Utils;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.party.QuestParty;
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.utils.JsonHelper;
-import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.world.World;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +17,14 @@ import java.util.stream.Collectors;
 
 public class SharedRewardDistributor implements RewardDistributor {
 
+    public static final Codec<SharedRewardDistributor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            RewardType.CODEC.listOf().optionalFieldOf("rewards", Collections.emptyList()).forGetter(dist -> dist.rewards)
+    ).apply(instance, SharedRewardDistributor::new));
+
     private final List<Reward> rewards;
 
-    public SharedRewardDistributor(Reward[] rewards) {
-        this.rewards = Arrays.asList(rewards);
+    public SharedRewardDistributor(List<Reward> rewards) {
+        this.rewards = rewards;
     }
 
     @Override
@@ -41,19 +43,5 @@ public class SharedRewardDistributor implements RewardDistributor {
     @Override
     public RewardDistributionType<?> getType() {
         return QuestingRegistries.SHARED_REWARD_DISTRIBUTOR;
-    }
-
-    private void giveRewards(PlayerEntity player, Quest quest) {
-        for (Reward reward : rewards) {
-            reward.awardPlayer(player, quest);
-        }
-    }
-
-    public static final class Serializer implements RewardDistributionType.Serializer<SharedRewardDistributor> {
-
-        @Override
-        public SharedRewardDistributor distributorFromJson(JsonObject data) {
-            return new SharedRewardDistributor(JsonHelper.mapArray(JSONUtils.getAsJsonArray(data, "rewards", new JsonArray()), Reward[]::new, RewardType::fromJson));
-        }
     }
 }

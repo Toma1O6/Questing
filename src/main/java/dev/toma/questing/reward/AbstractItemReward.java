@@ -1,13 +1,11 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.utils.JsonHelper;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,14 +14,27 @@ import java.util.function.Function;
 
 public abstract class AbstractItemReward extends VolumeBasedReward {
 
-    private final RewardTransformer<ItemList>[] itemAdjusters;
+    @SuppressWarnings("unchecked")
+    public static final Codec<RewardTransformer<ItemList>> ITEM_ADJUSTER_CODEC = RewardTransformerType.CODEC.flatXmap(transformer -> {
+        RewardTransformerType<?, ?> type = transformer.getType();
+        if (!type.test(ItemList.class)) {
+            return DataResult.error("Incompatible reward transformer type - required ItemList");
+        }
+        RewardTransformer<ItemList> itemTransformer = (RewardTransformer<ItemList>) transformer;
+        return DataResult.success(itemTransformer);
+    }, itemTransformer -> itemTransformer == null ? DataResult.error("Reward transformer is null") : DataResult.success(itemTransformer));
+    private final List<RewardTransformer<ItemList>> itemAdjusters;
 
-    public AbstractItemReward(RewardTransformer<Integer>[] countAdjusters, RewardTransformer<ItemList>[] itemAdjusters) {
+    public AbstractItemReward(List<RewardTransformer<Integer>> countAdjusters, List<RewardTransformer<ItemList>> itemAdjusters) {
         super(countAdjusters);
         this.itemAdjusters = itemAdjusters;
     }
 
     protected abstract ItemList getItems(PlayerEntity player, Quest quest);
+
+    protected List<RewardTransformer<ItemList>> getItemAdjusters() {
+        return itemAdjusters;
+    }
 
     protected List<ItemStack> adjustCount(ItemStack stack, PlayerEntity player, Quest quest) {
         int base = stack.getCount();
@@ -61,11 +72,6 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static RewardTransformer<ItemList>[] resolveItemListTransformers(JsonArray array) {
-        return JsonHelper.mapArray(array, RewardTransformer[]::new, element -> RewardTransformerType.fromJson(element, ItemList.class));
-    }
-
     public static List<ItemStack> createNonstandartSizeItemStacks(Function<Integer, ItemStack> itemFactory, int stackSize, int maxStackSize) {
         List<ItemStack> items = new ArrayList<>();
         int remaining = stackSize;
@@ -76,20 +82,6 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
             items.add(stack);
         }
         return items;
-    }
-
-    public static abstract class AbstractSerializer<R extends AbstractItemReward> implements RewardType.RewardSerializer<R> {
-
-        @Override
-        public final R rewardFromJson(JsonObject data) {
-            JsonArray countTransformers = JSONUtils.getAsJsonArray(data, "countFunctions", new JsonArray());
-            RewardTransformer<Integer>[] counts = resolveCountTransformers(countTransformers);
-            JsonArray itemTransformers = JSONUtils.getAsJsonArray(data, "itemFunctions", new JsonArray());
-            RewardTransformer<ItemList>[] items = resolveItemListTransformers(itemTransformers);
-            return this.resolveJson(data, counts, items);
-        }
-
-        public abstract R resolveJson(JsonObject data, RewardTransformer<Integer>[] counts, RewardTransformer<ItemList>[] items);
     }
 
     public static final class ItemList implements Iterable<ItemStack> {

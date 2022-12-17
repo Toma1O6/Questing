@@ -1,22 +1,20 @@
 package dev.toma.questing.area;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import dev.toma.questing.init.QuestingRegistries;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import dev.toma.questing.utils.IdentifierHolder;
-import dev.toma.questing.utils.JsonHelper;
-import net.minecraft.util.JSONUtils;
+import dev.toma.questing.init.QuestingRegistries;
 import net.minecraft.util.ResourceLocation;
 
 public final class AreaType<P extends AreaProvider<?>> implements IdentifierHolder {
 
     private final ResourceLocation identifier;
-    private final ProviderSerializer<P> serializer;
+    private final Codec<P> codec;
 
-    public AreaType(ResourceLocation identifier, ProviderSerializer<P> serializer) {
+    public AreaType(ResourceLocation identifier, Codec<P> codec) {
         this.identifier = identifier;
-        this.serializer = serializer;
+        this.codec = codec;
     }
 
     @Override
@@ -24,16 +22,19 @@ public final class AreaType<P extends AreaProvider<?>> implements IdentifierHold
         return identifier;
     }
 
-    public static <P extends AreaProvider<?>> P fromJson(JsonElement element) {
-        JsonObject data = JsonHelper.requireObject(element);
-        ResourceLocation id = new ResourceLocation(JSONUtils.getAsString(data, "type"));
-        AreaType<P> type = QuestingRegistries.AREA.<AreaType<P>>getOptionalValueUnsafe(id)
-                .orElseThrow(() -> new JsonSyntaxException("Unknown area type: " + id));
-        return type.serializer.providerFromJson(data);
+    public <R> DataResult<P> decodeData(DynamicOps<R> ops, R data) {
+        return codec.parse(ops, data);
     }
 
-    public interface ProviderSerializer<P extends AreaProvider<?>> {
+    public <R> DataResult<R> encodeData(P type, DynamicOps<R> ops, R data) {
+        return codec.encode(type, ops, data);
+    }
 
-        P providerFromJson(JsonObject data);
+    @SuppressWarnings("unchecked")
+    public static <P extends AreaProvider<?>, T> P decode(DynamicOps<T> ops, T data) {
+        DataResult<AreaType<?>> result = QuestingRegistries.AREA.parse(ops, data);
+        AreaType<P> type = (AreaType<P>) result.getOrThrow(false, s -> {});
+        DataResult<P> providerResult = type.decodeData(ops, data);
+        return providerResult.getOrThrow(false, s -> {});
     }
 }

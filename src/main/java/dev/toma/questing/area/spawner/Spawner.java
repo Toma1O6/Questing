@@ -9,4 +9,6 @@ public interface Spawner {
     void tick(World world, Area area, Quest quest);
 
     SpawnerType<?> getType();
+
+    Spawner copy();
 }

@@ -1,14 +1,12 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.toma.questing.utils.Utils;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.party.QuestParty;
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.utils.JsonHelper;
-import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -16,12 +14,16 @@ import java.util.stream.Collectors;
 
 public class SplitRewardDistributor implements RewardDistributor {
 
+    public static final Codec<SplitRewardDistributor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            RewardType.CODEC.listOf().optionalFieldOf("ownerRewards", Collections.emptyList()).forGetter(type -> type.ownerRewards),
+            RewardType.CODEC.listOf().optionalFieldOf("otherRewards", Collections.emptyList()).forGetter(type -> type.otherRewards)
+    ).apply(instance, SplitRewardDistributor::new));
     private final List<Reward> ownerRewards;
     private final List<Reward> otherRewards;
 
-    public SplitRewardDistributor(Reward[] ownerRewards, Reward[] otherRewards) {
-        this.ownerRewards = Arrays.asList(ownerRewards);
-        this.otherRewards = Arrays.asList(otherRewards);
+    public SplitRewardDistributor(List<Reward> ownerRewards, List<Reward> otherRewards) {
+        this.ownerRewards = ownerRewards;
+        this.otherRewards = otherRewards;
     }
 
     @Override
@@ -45,17 +47,5 @@ public class SplitRewardDistributor implements RewardDistributor {
                 .map(ireward -> Utils.getAwardableReward(ireward, player, quest))
                 .collect(Collectors.toList());
         holder.put(player, rewardList);
-    }
-
-    public static final class Serializer implements RewardDistributionType.Serializer<SplitRewardDistributor> {
-
-        @Override
-        public SplitRewardDistributor distributorFromJson(JsonObject data) {
-            JsonArray owner = JSONUtils.getAsJsonArray(data, "ownerRewards", new JsonArray());
-            JsonArray other = JSONUtils.getAsJsonArray(data, "otherRewards", new JsonArray());
-            Reward[] ownerRewards = JsonHelper.mapArray(owner, Reward[]::new, RewardType::fromJson);
-            Reward[] otherRewards = JsonHelper.mapArray(other, Reward[]::new, RewardType::fromJson);
-            return new SplitRewardDistributor(ownerRewards, otherRewards);
-        }
     }
 }

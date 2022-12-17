@@ -1,17 +1,15 @@
 package dev.toma.questing.area.spawner;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.area.Area;
 import dev.toma.questing.area.spawner.processor.SpawnerProcessor;
 import dev.toma.questing.area.spawner.processor.SpawnerProcessorType;
 import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.utils.JsonHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -19,17 +17,37 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class EntitySpawner implements Spawner {
 
+    public static final Codec<EntitySpawner> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.STRING.flatXmap(string -> {
+                try {
+                    return DataResult.success(SpawnMode.valueOf(string));
+                } catch (IllegalArgumentException e) {
+                    return DataResult.error("Unknown spawn mode " + string);
+                }
+            }, mode -> mode == null ? DataResult.error("Spawn mode is null") : DataResult.success(mode.name())).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
+            ResourceLocation.CODEC.flatXmap(location -> {
+                if (!ForgeRegistries.ENTITIES.containsKey(location)) {
+                    return DataResult.error("Unknown entity " + location);
+                }
+                return DataResult.success(ForgeRegistries.ENTITIES.getValue(location));
+            }, type -> type == null ? DataResult.error("Entity type is null") : DataResult.success(type.getRegistryName())).fieldOf("entity").forGetter(EntitySpawner::getEntity),
+            Codec.intRange(1, 64).optionalFieldOf("min", 1).forGetter(spawner -> spawner.minCount),
+            Codec.intRange(1, 64).optionalFieldOf("max", 1).forGetter(spawner -> spawner.maxCount),
+            SpawnerProcessorType.CODEC.listOf().optionalFieldOf("processors", Collections.emptyList()).forGetter(spawner -> spawner.processors)
+    ).apply(instance, EntitySpawner::new));
     protected final SpawnMode spawnMode;
     protected final EntityType<?> entity;
     private final int minCount;
     private final int maxCount;
-    protected final SpawnerProcessor[] processors;
+    protected final List<SpawnerProcessor> processors;
 
-    public EntitySpawner(SpawnMode spawnMode, EntityType<?> entity, int minCount, int maxCount, SpawnerProcessor[] processors) {
+    public EntitySpawner(SpawnMode spawnMode, EntityType<?> entity, int minCount, int maxCount, List<SpawnerProcessor> processors) {
         this.spawnMode = spawnMode;
         this.entity = entity;
         this.minCount = minCount;
@@ -49,6 +67,11 @@ public class EntitySpawner implements Spawner {
     @Override
     public SpawnerType<?> getType() {
         return QuestingRegistries.ENTITY_SPAWNER;
+    }
+
+    @Override
+    public Spawner copy() {
+        return new EntitySpawner(spawnMode, entity, minCount, maxCount, processors);
     }
 
     protected void spawnMob(World world, Area area, Quest quest) {
@@ -106,33 +129,13 @@ public class EntitySpawner implements Spawner {
         return y;
     }
 
+    protected EntityType getEntity() {
+        return entity;
+    }
+
     public enum SpawnMode {
 
         GROUND,
         AIR
-    }
-
-    public static final class Serializer implements SpawnerType.Serializer<EntitySpawner> {
-
-        @Override
-        public SpawnerProvider<EntitySpawner> spawnerFromJson(JsonObject data) {
-            String modeId = JSONUtils.getAsString(data, "spawnMode", SpawnMode.GROUND.name());
-            SpawnMode mode;
-            try {
-                mode = SpawnMode.valueOf(modeId);
-            } catch (IllegalArgumentException e) {
-                throw new JsonSyntaxException("Unknown spawn mode: " + modeId);
-            }
-            ResourceLocation entityId = new ResourceLocation(JSONUtils.getAsString(data, "entity"));
-            if (!ForgeRegistries.ENTITIES.containsKey(entityId)) {
-                throw new JsonSyntaxException("Unknown entity: " + entityId);
-            }
-            EntityType<?> type = ForgeRegistries.ENTITIES.getValue(entityId);
-            int minCount = JSONUtils.getAsInt(data, "min", 1);
-            int maxCount = JSONUtils.getAsInt(data, "max", minCount);
-            JsonArray processorArray = JSONUtils.getAsJsonArray(data, "processors", new JsonArray());
-            SpawnerProcessor[] processors = JsonHelper.mapArray(processorArray, SpawnerProcessor[]::new, SpawnerProcessorType::fromJson);
-            return () -> new EntitySpawner(mode, type, minCount, maxCount, processors);
-        }
     }
 }

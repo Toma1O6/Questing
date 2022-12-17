@@ -1,39 +1,23 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import dev.toma.questing.init.QuestingRegistries;
+import com.mojang.serialization.Codec;
 import dev.toma.questing.utils.IdentifierHolder;
-import dev.toma.questing.utils.JsonHelper;
-import net.minecraft.util.JSONUtils;
+import dev.toma.questing.init.QuestingRegistries;
 import net.minecraft.util.ResourceLocation;
 
 public final class RewardType<R extends Reward> implements IdentifierHolder {
 
+    public static final Codec<Reward> CODEC = QuestingRegistries.REWARDS.dispatch("type", Reward::getType, type -> type.codec);
     private final ResourceLocation identifier;
-    private final RewardSerializer<R> serializer;
+    private final Codec<R> codec;
 
-    public RewardType(ResourceLocation identifier, RewardSerializer<R> serializer) {
+    public RewardType(ResourceLocation identifier, Codec<R> codec) {
         this.identifier = identifier;
-        this.serializer = serializer;
+        this.codec = codec;
     }
 
     @Override
     public ResourceLocation getIdentifier() {
         return identifier;
-    }
-
-    public static <R extends Reward> R fromJson(JsonElement element) {
-        JsonObject data = JsonHelper.requireObject(element);
-        ResourceLocation location = new ResourceLocation(JSONUtils.getAsString(data, "reward"));
-        RewardType<R> type = QuestingRegistries.REWARDS.<RewardType<R>>getOptionalValueUnsafe(location)
-                .orElseThrow(() -> new JsonSyntaxException("Unknown reward type " + location));
-        return type.serializer.rewardFromJson(data);
-    }
-
-    public interface RewardSerializer<R extends Reward> {
-
-        R rewardFromJson(JsonObject data);
     }
 }

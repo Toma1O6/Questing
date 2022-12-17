@@ -1,39 +1,23 @@
 package dev.toma.questing.area.spawner.processor;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import dev.toma.questing.init.QuestingRegistries;
+import com.mojang.serialization.Codec;
 import dev.toma.questing.utils.IdentifierHolder;
-import dev.toma.questing.utils.JsonHelper;
-import net.minecraft.util.JSONUtils;
+import dev.toma.questing.init.QuestingRegistries;
 import net.minecraft.util.ResourceLocation;
 
 public class SpawnerProcessorType<P extends SpawnerProcessor> implements IdentifierHolder {
 
+    public static final Codec<SpawnerProcessor> CODEC = QuestingRegistries.SPAWNER_PROCESSOR.dispatch("type", SpawnerProcessor::getType, type -> type.codec);
     private final ResourceLocation identifier;
-    private final Serializer<P> serializer;
+    private final Codec<P> codec;
 
-    public SpawnerProcessorType(ResourceLocation identifier, Serializer<P> serializer) {
+    public SpawnerProcessorType(ResourceLocation identifier, Codec<P> codec) {
         this.identifier = identifier;
-        this.serializer = serializer;
+        this.codec = codec;
     }
 
     @Override
     public ResourceLocation getIdentifier() {
         return identifier;
-    }
-
-    public static <P extends SpawnerProcessor> P fromJson(JsonElement element) {
-        JsonObject data = JsonHelper.requireObject(element);
-        ResourceLocation id = new ResourceLocation(JSONUtils.getAsString(data, "type"));
-        SpawnerProcessorType<P> type = QuestingRegistries.SPAWNER_PROCESSOR.<SpawnerProcessorType<P>>getOptionalValueUnsafe(id)
-                .orElseThrow(() -> new JsonSyntaxException("Unknown spawn processor type: " + id));
-        return type.serializer.processorFromJson(data);
-    }
-
-    public interface Serializer<P extends SpawnerProcessor> {
-
-        P processorFromJson(JsonObject data);
     }
 }

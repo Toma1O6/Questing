@@ -8,7 +8,7 @@ import dev.toma.questing.reward.Reward;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,6 +25,12 @@ public final class Utils {
     @SuppressWarnings("unchecked")
     public static <S extends Spawner> List<S> getProvidedSpawners(Stream<SpawnerProvider<?>> stream) {
         return stream.map(provider -> (S) provider.get()).collect(Collectors.toList());
+    }
+
+    public static <T> List<T> instantiate(List<T> inputs, Function<T, T> converter) {
+        return inputs.stream()
+                .map(converter)
+                .collect(Collectors.toList());
     }
 
     private Utils() {}

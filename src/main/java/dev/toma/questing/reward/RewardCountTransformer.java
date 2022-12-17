@@ -1,12 +1,18 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.JSONUtils;
 
 public class RewardCountTransformer implements RewardTransformer<Integer> {
+
+    public static final Codec<RewardCountTransformer> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            Codecs.enumCodec(Operation.class).fieldOf("operation").forGetter(ins -> ins.operation),
+            Codec.FLOAT.fieldOf("value").forGetter(ins -> ins.value)
+    ).apply(builder, RewardCountTransformer::new));
 
     private final Operation operation;
     private final float value;
@@ -19,6 +25,11 @@ public class RewardCountTransformer implements RewardTransformer<Integer> {
     @Override
     public Integer adjust(Integer originalValue, PlayerEntity player, Quest quest) {
         return this.operation.op.combine(originalValue, value);
+    }
+
+    @Override
+    public RewardTransformerType<?, ?> getType() {
+        return QuestingRegistries.REWARD_COUNT_TRANSFORMER;
     }
 
     public enum Operation {
@@ -40,21 +51,5 @@ public class RewardCountTransformer implements RewardTransformer<Integer> {
     public interface NumberCombinationOperator {
 
         int combine(int baseValue, float in);
-    }
-
-    public static final class Serializer implements RewardTransformerType.Serializer<Integer, RewardCountTransformer> {
-
-        @Override
-        public RewardCountTransformer transformerFromJson(JsonObject data) {
-            String opName = JSONUtils.getAsString(data, "operation");
-            Operation operation;
-            try {
-                operation = Operation.valueOf(opName.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new JsonSyntaxException("Unknown operation type: " + opName);
-            }
-            float value = JSONUtils.getAsFloat(data, "value");
-            return new RewardCountTransformer(operation, value);
-        }
     }
 }

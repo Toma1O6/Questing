@@ -1,21 +1,14 @@
 package dev.toma.questing.area;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import dev.toma.questing.Questing;
 import dev.toma.questing.area.spawner.Spawner;
-import dev.toma.questing.area.spawner.SpawnerProvider;
-import dev.toma.questing.area.spawner.SpawnerType;
 import dev.toma.questing.quest.Quest;
 import dev.toma.questing.utils.Utils;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -25,12 +18,12 @@ public abstract class SimpleAreaProvider implements AreaProvider<SimpleArea> {
     private final int distanceMax;
     private final int areaSize;
     private final AreaInteractionMode interactionMode;
-    private final List<SpawnerProvider<?>> mobSpawners;
+    private final List<Spawner> mobSpawners;
     private final int generationAttempts;
 
-    public SimpleAreaProvider(int distanceMin, int distanceMax, int areaSize, AreaInteractionMode interactionMode, List<SpawnerProvider<?>> mobSpawners) {
+    public SimpleAreaProvider(int distanceMin, int distanceMax, int areaSize, AreaInteractionMode interactionMode, List<Spawner> mobSpawners) {
         this.distanceMin = distanceMin;
-        this.distanceMax = distanceMax;
+        this.distanceMax = Math.max(this.distanceMin, distanceMax);
         this.areaSize = areaSize;
         this.interactionMode = interactionMode;
         this.mobSpawners = mobSpawners;
@@ -67,7 +60,7 @@ public abstract class SimpleAreaProvider implements AreaProvider<SimpleArea> {
         if (areaCenter == null) {
             throw new IllegalStateException("Area center is null! " + this);
         }
-        List<Spawner> spawners = Utils.getProvidedSpawners(this.mobSpawners.stream());
+        List<Spawner> spawners = Utils.instantiate(this.mobSpawners, Spawner::copy);
         return new SimpleArea(this, areaCenter, this.interactionMode, this.areaSize, spawners);
     }
 
@@ -88,29 +81,19 @@ public abstract class SimpleAreaProvider implements AreaProvider<SimpleArea> {
         return generatedPosition != null ? generatedPosition.immutable() : new BlockPos(x, y, z);
     }
 
-    public static abstract class AbstractSerializer<P extends AreaProvider<?>> implements AreaType.ProviderSerializer<P> {
+    public int getDistanceMin() {
+        return distanceMin;
+    }
 
-        @Override
-        public final P providerFromJson(JsonObject data) {
-            int distanceMin = JSONUtils.getAsInt(data, "minDistance");
-            int distanceMax = JSONUtils.getAsInt(data, "maxDistance", distanceMin);
-            int size = JSONUtils.getAsInt(data, "size");
-            String modeId = JSONUtils.getAsString(data, "interactionMode", AreaInteractionMode.NO_INTERACTION.name());
-            AreaInteractionMode mode;
-            try {
-                mode = AreaInteractionMode.valueOf(modeId);
-            } catch (IllegalArgumentException e) {
-                throw new JsonSyntaxException("Unknown interaction mode: " + modeId);
-            }
-            JsonArray array = JSONUtils.getAsJsonArray(data, "spawners", new JsonArray());
-            List<SpawnerProvider<?>> providers = new ArrayList<>();
-            array.forEach(element -> {
-                SpawnerProvider<?> provider = SpawnerType.fromJson(element);
-                providers.add(provider);
-            });
-            return this.create(distanceMin, distanceMax, size, mode, providers, data);
-        }
+    public int getDistanceMax() {
+        return distanceMax;
+    }
 
-        public abstract P create(int distanceMin, int distanceMax, int size, AreaInteractionMode interactionMode, List<SpawnerProvider<?>> providers, JsonObject data);
+    public int getAreaSize() {
+        return areaSize;
+    }
+
+    public List<Spawner> getMobSpawners() {
+        return mobSpawners;
     }
 }

@@ -5,5 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 
 public interface RewardTransformer<I> {
 
+    RewardTransformerType<?, ?> getType();
+
     I adjust(I originalValue, PlayerEntity player, Quest quest);
 }

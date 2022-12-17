@@ -1,15 +1,18 @@
 package dev.toma.questing.reward;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.toma.questing.init.QuestingRegistries;
 import dev.toma.questing.quest.Quest;
-import dev.toma.questing.utils.JsonHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
 
 public class RewardItemNbtTransformer implements RewardTransformer<AbstractItemReward.ItemList> {
 
+    public static final Codec<RewardItemNbtTransformer> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            CompoundNBT.CODEC.fieldOf("nbt").forGetter(ins -> ins.nbt)
+    ).apply(builder, RewardItemNbtTransformer::new));
     private final CompoundNBT nbt;
 
     public RewardItemNbtTransformer(CompoundNBT nbt) {
@@ -25,13 +28,8 @@ public class RewardItemNbtTransformer implements RewardTransformer<AbstractItemR
         return originalValue;
     }
 
-    public static final class Serializer implements RewardTransformerType.Serializer<AbstractItemReward.ItemList, RewardItemNbtTransformer> {
-
-        @Override
-        public RewardItemNbtTransformer transformerFromJson(JsonObject data) {
-            String rawNbt = JSONUtils.getAsString(data, "nbt");
-            CompoundNBT nbt = JsonHelper.getNbt(rawNbt);
-            return new RewardItemNbtTransformer(nbt);
-        }
+    @Override
+    public RewardTransformerType<?, ?> getType() {
+        return QuestingRegistries.REWARD_ITEM_NBT_TRANSFORMER;
     }
 }

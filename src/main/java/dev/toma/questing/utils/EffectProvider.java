@@ -1,12 +1,23 @@
 package dev.toma.questing.utils;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.registry.Registry;
 
 import java.util.function.Supplier;
 
 public final class EffectProvider implements Supplier<EffectInstance> {
 
+    public static final Codec<EffectProvider> CODEC = RecordCodecBuilder.create(b -> b.group(
+            Registry.MOB_EFFECT.fieldOf("effect").forGetter(EffectProvider::getEffect),
+            Codec.intRange(1, Integer.MAX_VALUE).fieldOf("duration").orElse(100).forGetter(EffectProvider::getDuration),
+            Codec.intRange(0, 255).fieldOf("amplifier").orElse(0).forGetter(EffectProvider::getAmplifier),
+            Codec.BOOL.optionalFieldOf("ambient", false).forGetter(EffectProvider::isAmbient),
+            Codec.BOOL.optionalFieldOf("visible", true).forGetter(EffectProvider::isVisible),
+            Codec.BOOL.optionalFieldOf("showIcon", true).forGetter(EffectProvider::showIcon)
+    ).apply(b, EffectProvider::new));
     private final Effect effect;
     private final int duration;
     private final int amplifier;

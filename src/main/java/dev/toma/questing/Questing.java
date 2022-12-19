@@ -1,7 +1,7 @@
 package dev.toma.questing;
 
-import dev.toma.questing.command.QuestingDebugCommand;
-import dev.toma.questing.init.QuestingRegistries;
+import dev.toma.questing.common.command.QuestingDebugCommand;
+import dev.toma.questing.common.init.QuestingRegistries;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;

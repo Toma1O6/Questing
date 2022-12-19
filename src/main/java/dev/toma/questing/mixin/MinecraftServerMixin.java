@@ -1,6 +1,6 @@
 package dev.toma.questing.mixin;
 
-import dev.toma.questing.quest.QuestDataFile;
+import dev.toma.questing.common.quest.QuestDataFile;
 import net.minecraft.command.ICommandSource;
 import net.minecraft.profiler.ISnooperInfo;
 import net.minecraft.server.MinecraftServer;

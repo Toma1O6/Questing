@@ -1,10 +1,10 @@
 package dev.toma.questing.utils;
 
-import dev.toma.questing.area.spawner.Spawner;
-import dev.toma.questing.area.spawner.SpawnerProvider;
-import dev.toma.questing.quest.Quest;
-import dev.toma.questing.reward.NestedReward;
-import dev.toma.questing.reward.Reward;
+import dev.toma.questing.common.area.spawner.Spawner;
+import dev.toma.questing.common.area.spawner.SpawnerProvider;
+import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.reward.NestedReward;
+import dev.toma.questing.common.reward.Reward;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.List;

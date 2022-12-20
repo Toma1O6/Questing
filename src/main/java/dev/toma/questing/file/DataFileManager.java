@@ -5,16 +5,16 @@ import com.mojang.serialization.Codec;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-public final class DataFileManager<T> implements Supplier<T> {
+public final class DataFileManager<V, T extends DataFileManager.DataHandler<V>> implements Supplier<T> {
 
-    private static final List<DataFileManager<?>> MANAGERS = new ArrayList<>();
-    private final DataFile<T> file;
+    private static final List<DataFileManager<?, ?>> MANAGERS = new ArrayList<>();
+    private final DataFile<V> file;
     private T value;
 
-    private DataFileManager(DataFile<T> file, T value) {
+    private DataFileManager(DataFile<V> file, T value) {
         this.file = file;
         this.value = value;
     }
@@ -31,30 +31,30 @@ public final class DataFileManager<T> implements Supplier<T> {
         MANAGERS.forEach(DataFileManager::read);
     }
 
-    public static <T> DataFileManager<T> create(String filename, Codec<T> codec, Supplier<T> value) {
-        DataFileManager<T> fileManager = new DataFileManager<>(new DataFile<>(codec, filename), value.get());
+    public static <V, T extends DataHandler<V>> DataFileManager<V, T> create(String filename, Codec<V> codec, Supplier<T> value) {
+        DataFileManager<V, T> fileManager = new DataFileManager<>(new DataFile<>(codec, filename), value.get());
         MANAGERS.add(fileManager);
         return fileManager;
     }
 
     public void read() {
-        value = file.readData();
+        V v = file.readData();
+        this.value.loadData(v);
     }
 
-    public Future<T> readAsync() {
-        return IOHandler.INSTANCE.service.submit(() -> {
-            T t = file.readData();
-            value = t;
-            return t;
-        });
+    public CompletableFuture<?> readAsync() {
+        return CompletableFuture.runAsync(() -> {
+            V v = file.readData();
+            value.loadData(v);
+        }, IOHandler.INSTANCE.service);
     }
 
     public void write() {
-        file.writeData(value);
+        file.writeData(value.getSaveData());
     }
 
-    public Future<?> writeAsync() {
-        return file.writeDataAsync(value);
+    public CompletableFuture<?> writeAsync() {
+        return file.writeDataAsync(value.getSaveData());
     }
 
     @Override
@@ -64,5 +64,12 @@ public final class DataFileManager<T> implements Supplier<T> {
 
     private void setTargetDir(File dir) {
         file.setCurrentWorldDir(dir);
+    }
+
+    public interface DataHandler<V> {
+
+        void loadData(V data);
+
+        V getSaveData();
     }
 }

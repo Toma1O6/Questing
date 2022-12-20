@@ -4,6 +4,7 @@ import dev.toma.questing.common.command.QuestingDebugCommand;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.Player2PartyManager;
+import dev.toma.questing.common.party.QuestParty;
 import dev.toma.questing.file.DataFileManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -16,6 +17,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import java.util.Map;
+import java.util.UUID;
+
 @Mod(Questing.MODID)
 public final class Questing {
 
@@ -27,8 +31,8 @@ public final class Questing {
     public static final Marker MARKER_IO = MarkerManager.getMarker("IO");
     public static final Marker MARKER_AREA = MarkerManager.getMarker("Area");
     // Files
-    public static final DataFileManager<PartyManager> PARTY_MANAGER = DataFileManager.create("parties.dat", PartyManager.CODEC, PartyManager::new);
-    public static final DataFileManager<Player2PartyManager> PLAYER2PARTY_MANAGER = DataFileManager.create("player2party.dat", Player2PartyManager.CODEC, Player2PartyManager::new);
+    public static final DataFileManager<Map<UUID, QuestParty>, PartyManager> PARTY_MANAGER = DataFileManager.create("parties.dat", PartyManager.CODEC, PartyManager::new);
+    public static final DataFileManager<Map<UUID, UUID>, Player2PartyManager> PLAYER2PARTY_MANAGER = DataFileManager.create("player2party.dat", Player2PartyManager.CODEC, Player2PartyManager::new);
 
     public Questing() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

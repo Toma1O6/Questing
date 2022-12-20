@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public class DataFile<T> {
 
@@ -47,8 +47,8 @@ public class DataFile<T> {
         }
     }
 
-    public Future<T> readDataAsync() {
-        return IOHandler.INSTANCE.service.submit(this::readData);
+    public CompletableFuture<T> readDataAsync() {
+        return CompletableFuture.supplyAsync(this::readData, IOHandler.INSTANCE.service);
     }
 
     public void writeData(T data) {
@@ -86,8 +86,8 @@ public class DataFile<T> {
         });
     }
 
-    public Future<?> writeDataAsync(T data) {
-        return IOHandler.INSTANCE.service.submit(() -> writeData(data));
+    public CompletableFuture<?> writeDataAsync(T data) {
+        return CompletableFuture.runAsync(() -> writeData(data), IOHandler.INSTANCE.service);
     }
 
     public void setCurrentWorldDir(File currentWorldDir) {

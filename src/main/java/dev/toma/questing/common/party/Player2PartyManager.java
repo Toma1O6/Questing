@@ -2,15 +2,15 @@ package dev.toma.questing.common.party;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
+import dev.toma.questing.file.DataFileManager;
 import net.minecraft.util.UUIDCodec;
 
 import java.util.*;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
-public final class Player2PartyManager {
+public final class Player2PartyManager implements DataFileManager.DataHandler<Map<UUID, UUID>> {
 
-    public static final Codec<Player2PartyManager> CODEC = Codec.unboundedMap(UUIDCodec.CODEC, UUIDCodec.CODEC)
-            .xmap(Player2PartyManager::new, t -> t.player2party);
+    public static final Codec<Map<UUID, UUID>> CODEC = Codec.unboundedMap(UUIDCodec.CODEC, UUIDCodec.CODEC);
     private final Map<UUID, UUID> player2party;
 
     public Player2PartyManager(Map<UUID, UUID> player2party) {
@@ -27,10 +27,24 @@ public final class Player2PartyManager {
 
     public void registerMembers(UUID party, Set<UUID> members) {
         members.forEach(member -> player2party.put(member, party));
-        this.requestDataSave();
+        this.requestDataSave().exceptionally(throwable -> {
+            Questing.LOGGER.fatal(PartyManager.MARKER, "Player to party data write failed", throwable);
+            return null;
+        });
     }
 
-    private Future<?> requestDataSave() {
+    private CompletableFuture<?> requestDataSave() {
         return Questing.PLAYER2PARTY_MANAGER.writeAsync();
+    }
+
+    @Override
+    public void loadData(Map<UUID, UUID> data) {
+        player2party.clear();
+        player2party.putAll(data);
+    }
+
+    @Override
+    public Map<UUID, UUID> getSaveData() {
+        return player2party;
     }
 }

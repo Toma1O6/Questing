@@ -2,19 +2,19 @@ package dev.toma.questing.common.party;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
+import dev.toma.questing.file.DataFileManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.UUIDCodec;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.util.*;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
-public final class PartyManager {
+public final class PartyManager implements DataFileManager.DataHandler<Map<UUID, QuestParty>> {
 
     public static final Marker MARKER = MarkerManager.getMarker("PartyManager");
-    public static final Codec<PartyManager> CODEC = Codec.unboundedMap(UUIDCodec.CODEC, QuestParty.CODEC)
-            .xmap(PartyManager::new, mng -> mng.partyMap);
+    public static final Codec<Map<UUID, QuestParty>> CODEC = Codec.unboundedMap(UUIDCodec.CODEC, QuestParty.CODEC);
 
     private final Map<UUID, QuestParty> partyMap;
 
@@ -58,7 +58,10 @@ public final class PartyManager {
         p2p.registerMembers(partyId, memberSet);
         partyMap.put(partyId, party);
         Questing.LOGGER.debug(MARKER, "Created ");
-        requestDataWrite();
+        requestDataWrite().exceptionally(throwable -> {
+            Questing.LOGGER.fatal(MARKER, "Party data write failed", throwable);
+            return null;
+        });
     }
 
     public void assignDefaultParty(PlayerEntity player) {
@@ -70,7 +73,18 @@ public final class PartyManager {
         return Optional.ofNullable(this.partyMap.get(partyId));
     }
 
-    public Future<?> requestDataWrite() {
+    public CompletableFuture<?> requestDataWrite() {
         return Questing.PARTY_MANAGER.writeAsync();
+    }
+
+    @Override
+    public void loadData(Map<UUID, QuestParty> data) {
+        partyMap.clear();
+        partyMap.putAll(data);
+    }
+
+    @Override
+    public Map<UUID, QuestParty> getSaveData() {
+        return partyMap;
     }
 }

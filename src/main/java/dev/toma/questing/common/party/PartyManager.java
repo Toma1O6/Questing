@@ -2,9 +2,11 @@ package dev.toma.questing.common.party;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
+import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.file.DataFileManager;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.UUIDCodec;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -14,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 public final class PartyManager implements DataFileManager.DataHandler<Map<UUID, QuestParty>> {
 
     public static final Marker MARKER = MarkerManager.getMarker("PartyManager");
-    public static final Codec<Map<UUID, QuestParty>> CODEC = Codec.unboundedMap(UUIDCodec.CODEC, QuestParty.CODEC);
+    public static final Codec<Map<UUID, QuestParty>> CODEC = Codec.unboundedMap(Codecs.UUID_STRING, QuestParty.CODEC);
 
     private final Map<UUID, QuestParty> partyMap;
 
@@ -26,7 +28,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
         this(new HashMap<>());
     }
 
-    public void onPlayerLoaded(PlayerEntity player) { // TODO call from playerlogin event
+    public void onPlayerLoaded(ServerPlayerEntity player) {
         Player2PartyManager p2p = Questing.PLAYER2PARTY_MANAGER.get();
         UUID playerId = player.getUUID();
         Optional<UUID> partyOccupation = p2p.getPartyOccupation(playerId);
@@ -37,7 +39,6 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
         } else {
             this.assignDefaultParty(player);
         }
-        // TODO send party data
     }
 
     public void partyCreate(QuestParty party) {
@@ -67,6 +68,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     public void assignDefaultParty(PlayerEntity player) {
         QuestParty party = QuestParty.create(player);
         partyCreate(party);
+        PlayerDataProvider.getOptional(player).ifPresent(data -> data.getPartyData().setActiveParty(party));
     }
 
     public Optional<QuestParty> getPartyById(UUID partyId) {

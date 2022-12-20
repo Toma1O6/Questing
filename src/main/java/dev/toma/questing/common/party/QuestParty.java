@@ -3,8 +3,8 @@ package dev.toma.questing.common.party;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.Questing;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.UUIDCodec;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -14,9 +14,9 @@ import java.util.function.Consumer;
 public final class QuestParty {
 
     public static final Codec<QuestParty> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            UUIDCodec.CODEC.fieldOf("owner").forGetter(p -> p.owner),
-            UUIDCodec.CODEC.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("members").forGetter(p -> p.members),
-            Codec.unboundedMap(UUIDCodec.CODEC, Codec.STRING).fieldOf("usernames").forGetter(p -> p.usernameCache)
+            Codecs.UUID_STRING.fieldOf("owner").forGetter(p -> p.owner),
+            Codecs.UUID_STRING.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("members").forGetter(p -> p.members),
+            Codec.unboundedMap(Codecs.UUID_STRING, Codec.STRING).fieldOf("usernames").forGetter(p -> p.usernameCache)
     ).apply(instance, QuestParty::new));
     public static final int MAX_PARTY_SIZE = 16;
     private final UUID owner;

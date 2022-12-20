@@ -8,12 +8,14 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public final class Codecs {
 
+    public static final Codec<UUID> UUID_STRING = Codec.STRING.xmap(UUID::fromString, UUID::toString);
     public static final Codec<ItemStack> SIMPLIFIED_ITEMSTACK = RecordCodecBuilder.create(instance -> instance.group(
             Registry.ITEM.fieldOf("item").forGetter(ItemStack::getItem),
             Codec.INT.optionalFieldOf("count", 1).forGetter(ItemStack::getCount),

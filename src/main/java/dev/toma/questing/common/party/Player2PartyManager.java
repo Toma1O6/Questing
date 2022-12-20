@@ -3,14 +3,14 @@ package dev.toma.questing.common.party;
 import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
 import dev.toma.questing.file.DataFileManager;
-import net.minecraft.util.UUIDCodec;
+import dev.toma.questing.utils.Codecs;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class Player2PartyManager implements DataFileManager.DataHandler<Map<UUID, UUID>> {
 
-    public static final Codec<Map<UUID, UUID>> CODEC = Codec.unboundedMap(UUIDCodec.CODEC, UUIDCodec.CODEC);
+    public static final Codec<Map<UUID, UUID>> CODEC = Codec.unboundedMap(Codecs.UUID_STRING, Codecs.UUID_STRING);
     private final Map<UUID, UUID> player2party;
 
     public Player2PartyManager(Map<UUID, UUID> player2party) {

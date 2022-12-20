@@ -2,7 +2,6 @@ package dev.toma.questing.common.quest;
 
 import dev.toma.questing.common.party.QuestParty;
 import dev.toma.questing.common.trigger.*;
-import dev.toma.questing.trigger.*;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;

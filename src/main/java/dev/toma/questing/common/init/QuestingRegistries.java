@@ -12,7 +12,6 @@ import dev.toma.questing.common.area.spawner.processor.SetEquipmentProcessor;
 import dev.toma.questing.common.area.spawner.processor.SpawnerProcessorType;
 import dev.toma.questing.common.condition.ConditionType;
 import dev.toma.questing.common.reward.*;
-import dev.toma.questing.reward.*;
 import net.minecraft.util.ResourceLocation;
 
 public final class QuestingRegistries {

@@ -1,16 +1,11 @@
 package dev.toma.questing.common.party;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.Questing;
-import dev.toma.questing.common.provider.QuestProvider;
-import dev.toma.questing.utils.NbtHelper;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.nbt.StringNBT;
+import net.minecraft.util.UUIDCodec;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -18,29 +13,35 @@ import java.util.function.Consumer;
 
 public final class QuestParty {
 
-    public static final Codec<QuestParty> CODEC = Codec.unit(null); // TODO
-    private final QuestProvider.Options options;
+    public static final Codec<QuestParty> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            UUIDCodec.CODEC.fieldOf("owner").forGetter(p -> p.owner),
+            UUIDCodec.CODEC.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("members").forGetter(p -> p.members),
+            Codec.unboundedMap(UUIDCodec.CODEC, Codec.STRING).fieldOf("usernames").forGetter(p -> p.usernameCache)
+    ).apply(instance, QuestParty::new));
+    public static final int MAX_PARTY_SIZE = 16;
     private final UUID owner;
-    private final Set<UUID> members = new LinkedHashSet<>();
+    private final LinkedHashSet<UUID> members = new LinkedHashSet<>();
     private final Map<UUID, String> usernameCache = new HashMap<>();
 
-    public QuestParty(QuestProvider.Options options, PlayerEntity owner) {
-        this.options = options;
-        this.owner = owner.getUUID();
-        this.addMember(owner);
+    private QuestParty(UUID owner, Set<UUID> members, Map<UUID, String> usernameCache) {
+        this.owner = owner;
+        this.members.addAll(members);
+        this.usernameCache.putAll(usernameCache);
     }
 
-    // For NBT read ops
-    public QuestParty(QuestProvider.Options options, CompoundNBT nbt) {
-        this.options = options;
-        this.owner = nbt.getUUID("owner");
-        NbtHelper.readCollection(() -> members, nbt.getList("members", Constants.NBT.TAG_INT_ARRAY), NBTUtil::loadUUID);
-        NbtHelper.readMap(() -> usernameCache, nbt.getList("usernamecache", Constants.NBT.TAG_COMPOUND), NBTUtil::loadUUID, INBT::getAsString);
+    public static QuestParty create(PlayerEntity player) {
+        UUID ownerId = player.getUUID();
+        String name = player.getName().getString();
+        Set<UUID> set = new HashSet<>();
+        set.add(ownerId);
+        Map<UUID, String> usernames = new HashMap<>();
+        usernames.put(ownerId, name);
+        return new QuestParty(ownerId, set, usernames);
     }
 
     public boolean canAddNewMember() {
         int size = this.members.size();
-        return size < this.options.maxPartyGroupSize();
+        return size < MAX_PARTY_SIZE;
     }
 
     public void addMember(PlayerEntity member) {
@@ -73,14 +74,6 @@ public final class QuestParty {
         return this.usernameCache.getOrDefault(member, member.toString());
     }
 
-    public CompoundNBT createSaveData() {
-        CompoundNBT nbt = new CompoundNBT();
-        nbt.putUUID("owner", owner);
-        nbt.put("members", NbtHelper.saveCollection(members, (list, uuid) -> list.add(NBTUtil.createUUID(uuid))));
-        nbt.put("usernamecache", NbtHelper.saveMap(usernameCache, NBTUtil::createUUID, StringNBT::valueOf));
-        return nbt;
-    }
-
     public Optional<PlayerEntity> getOwner(World world) {
         return Optional.ofNullable(world.getPlayerByUUID(this.owner));
     }
@@ -95,5 +88,22 @@ public final class QuestParty {
                 action.accept(player);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("QuestParty[id=").append(owner).append(", members=[");
+        Iterator<UUID> iterator = members.iterator();
+        while (iterator.hasNext()) {
+            UUID member = iterator.next();
+            String name = getMemberUsername(member);
+            builder.append(name);
+            if (iterator.hasNext()) {
+                builder.append(",");
+            }
+        }
+        builder.append("]]");
+        return builder.toString();
     }
 }

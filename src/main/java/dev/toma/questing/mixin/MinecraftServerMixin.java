@@ -32,7 +32,7 @@ public abstract class MinecraftServerMixin extends RecursiveEventLoop<TickDelaye
         DataFileManager.forceWrite();
     }
 
-    @Inject(method = "loadLevel", at = @At("RETURN")) // TODO make sure datapacks are loaded first
+    @Inject(method = "loadLevel", at = @At("RETURN"))
     private void questing$loadQuestData(CallbackInfo ci) {
         ServerWorld overworld = this.overworld();
         DimensionSavedDataManager dataManager = overworld.getDataStorage();

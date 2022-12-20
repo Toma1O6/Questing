@@ -9,6 +9,8 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public final class Codecs {
 
@@ -21,6 +23,14 @@ public final class Codecs {
         optionalTag.ifPresent(stack::setTag);
         return stack;
     }));
+    public static final Codec<Pattern> PATTERN_CODEC = Codec.STRING.flatXmap(string -> {
+        try {
+            Pattern pattern = Pattern.compile(string);
+            return DataResult.success(pattern);
+        } catch (PatternSyntaxException e) {
+            return DataResult.error(e.getMessage());
+        }
+    }, pattern -> pattern == null ? DataResult.error("Pattern is null") : DataResult.success(pattern.pattern()));
 
     public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> enumClass) {
         return enumCodec(enumClass, string -> Enum.valueOf(enumClass, string), Enum::name);

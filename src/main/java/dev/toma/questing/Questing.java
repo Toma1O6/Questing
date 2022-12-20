@@ -2,6 +2,9 @@ package dev.toma.questing;
 
 import dev.toma.questing.common.command.QuestingDebugCommand;
 import dev.toma.questing.common.init.QuestingRegistries;
+import dev.toma.questing.common.party.PartyManager;
+import dev.toma.questing.common.party.Player2PartyManager;
+import dev.toma.questing.file.DataFileManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -23,6 +26,9 @@ public final class Questing {
     public static final Marker MARKER_PARTIES = MarkerManager.getMarker("Parties");
     public static final Marker MARKER_IO = MarkerManager.getMarker("IO");
     public static final Marker MARKER_AREA = MarkerManager.getMarker("Area");
+    // Files
+    public static final DataFileManager<PartyManager> PARTY_MANAGER = DataFileManager.create("parties.dat", PartyManager.CODEC, PartyManager::new);
+    public static final DataFileManager<Player2PartyManager> PLAYER2PARTY_MANAGER = DataFileManager.create("player2party.dat", Player2PartyManager.CODEC, Player2PartyManager::new);
 
     public Questing() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

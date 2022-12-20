@@ -1,5 +1,6 @@
 package dev.toma.questing.common.party;
 
+import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.provider.QuestProvider;
 import dev.toma.questing.utils.NbtHelper;
@@ -17,6 +18,7 @@ import java.util.function.Consumer;
 
 public final class QuestParty {
 
+    public static final Codec<QuestParty> CODEC = Codec.unit(null); // TODO
     private final QuestProvider.Options options;
     private final UUID owner;
     private final Set<UUID> members = new LinkedHashSet<>();

@@ -1,6 +1,6 @@
 package dev.toma.questing.mixin;
 
-import dev.toma.questing.common.quest.QuestDataFile;
+import dev.toma.questing.file.DataFileManager;
 import net.minecraft.command.ICommandSource;
 import net.minecraft.profiler.ISnooperInfo;
 import net.minecraft.server.MinecraftServer;
@@ -28,13 +28,15 @@ public abstract class MinecraftServerMixin extends RecursiveEventLoop<TickDelaye
     private void questing$saveQuestData(boolean b1, boolean b2, boolean b3, CallbackInfoReturnable<Boolean> cir) {
         ServerWorld overworld = this.overworld();
         DimensionSavedDataManager dataManager = overworld.getDataStorage();
-        QuestDataFile.getFile().saveData(dataManager.dataFolder);
+        DataFileManager.setCurrentWorldDirectory(dataManager.dataFolder);
+        DataFileManager.forceWrite();
     }
 
-    @Inject(method = "loadLevel", at = @At("RETURN"))
+    @Inject(method = "loadLevel", at = @At("RETURN")) // TODO make sure datapacks are loaded first
     private void questing$loadQuestData(CallbackInfo ci) {
         ServerWorld overworld = this.overworld();
         DimensionSavedDataManager dataManager = overworld.getDataStorage();
-        QuestDataFile.getFile().loadData(dataManager.dataFolder);
+        DataFileManager.setCurrentWorldDirectory(dataManager.dataFolder);
+        DataFileManager.forceRead();
     }
 }

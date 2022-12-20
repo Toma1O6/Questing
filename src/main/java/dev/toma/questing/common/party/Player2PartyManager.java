@@ -40,7 +40,9 @@ public final class Player2PartyManager implements DataFileManager.DataHandler<Ma
     @Override
     public void loadData(Map<UUID, UUID> data) {
         player2party.clear();
-        player2party.putAll(data);
+        if (data != null) {
+            player2party.putAll(data);
+        }
     }
 
     @Override

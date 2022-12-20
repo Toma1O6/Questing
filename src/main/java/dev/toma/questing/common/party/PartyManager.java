@@ -80,7 +80,9 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     @Override
     public void loadData(Map<UUID, QuestParty> data) {
         partyMap.clear();
-        partyMap.putAll(data);
+        if (data != null) {
+            partyMap.putAll(data);
+        }
     }
 
     @Override

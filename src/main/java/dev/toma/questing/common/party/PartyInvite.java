@@ -20,28 +20,31 @@ public final class PartyInvite {
             Codecs.UUID_STRING.fieldOf("invited").forGetter(inv -> inv.inviteeId),
             Codecs.UUID_STRING.fieldOf("sentBy").forGetter(inv -> inv.inviteSentById),
             Codec.STRING.fieldOf("partyName").forGetter(inv -> inv.partyName),
-            Codec.STRING.fieldOf("senderName").forGetter(inv -> inv.senderName)
+            Codec.STRING.fieldOf("senderName").forGetter(inv -> inv.senderName),
+            Codec.STRING.fieldOf("invitedName").forGetter(inv -> inv.invitedName)
     ).apply(instance, PartyInvite::new));
     private final UUID partyId;
     private final UUID inviteeId;
     private final UUID inviteSentById;
     private final String partyName;
     private final String senderName;
+    private final String invitedName;
     private InviteResponseEvent onAccept;
     private InviteResponseEvent onDecline;
 
-    private PartyInvite(UUID partyId, UUID inviteeId, UUID inviteSentById, String partyName, String senderName) {
+    private PartyInvite(UUID partyId, UUID inviteeId, UUID inviteSentById, String partyName, String senderName, String invitedName) {
         this.partyId = partyId;
         this.inviteeId = inviteeId;
         this.inviteSentById = inviteSentById;
         this.partyName = partyName;
         this.senderName = senderName;
+        this.invitedName = invitedName;
         this.onAccept = (party, player) -> {};
         this.onDecline = (party, player) -> {};
     }
 
     public static PartyInvite createInvite(PlayerEntity toInvite, PlayerEntity inviteSource, UUID partyId, String partyName) {
-        return new PartyInvite(partyId, toInvite.getUUID(), inviteSource.getUUID(), partyName, inviteSource.getName().getString());
+        return new PartyInvite(partyId, toInvite.getUUID(), inviteSource.getUUID(), partyName, inviteSource.getName().getString(), toInvite.getName().getString());
     }
 
     public static PartyInvite createInvite(PlayerEntity toInvite, PlayerEntity inviteSource) {
@@ -53,7 +56,7 @@ public final class PartyInvite {
         if (partyOptional.isPresent()) {
             partyName = partyOptional.get().getName();
         }
-        return new PartyInvite(partyId, toInvite.getUUID(), inviteSource.getUUID(), partyName, senderName);
+        return new PartyInvite(partyId, toInvite.getUUID(), inviteSource.getUUID(), partyName, senderName, toInvite.getName().getString());
     }
 
     public void setResponseHandlers(InviteResponseEvent onAccept, InviteResponseEvent onDecline) {
@@ -79,6 +82,18 @@ public final class PartyInvite {
 
     public UUID getInviteSentById() {
         return inviteSentById;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public String getPartyName() {
+        return partyName;
+    }
+
+    public String getInvitedName() {
+        return invitedName;
     }
 
     @Override

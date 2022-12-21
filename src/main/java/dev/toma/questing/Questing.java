@@ -111,7 +111,7 @@ public final class Questing {
         private PropertyHolder(BinaryOperator<T> adjuster, Class<T> type, T initialValue) {
             this.adjuster = adjuster;
             this.type = type;
-            this.setValue(initialValue);
+            this.value = initialValue;
         }
 
         public void setValue(T value) {

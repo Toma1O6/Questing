@@ -21,7 +21,7 @@ public final class QuestsScreen extends Screen {
     private PartyWidget partyWidget;
 
     public QuestsScreen() {
-        super(new TranslationTextComponent("questing.screen.quest_screen"));
+        super(new TranslationTextComponent("screen.questing.quest_screen"));
     }
 
     @Override

@@ -89,6 +89,7 @@ public final class Party {
     public void invite(PlayerEntity sender, PlayerEntity receiver) {
         this.executeWithAuthorization(PartyPermission.INVITE_PLAYERS, sender.getUUID(), () -> {
             PartyInvite invite = PartyInvite.createInvite(receiver, sender);
+            invite.setResponseHandlers(this::onInviteAccepted, this::onInviteDeclined);
             activeInvites.add(invite);
             Questing.PARTY_MANAGER.get().sendClientData(sender.level, this);
             PlayerDataProvider.getOptional(receiver).ifPresent(playerData -> {

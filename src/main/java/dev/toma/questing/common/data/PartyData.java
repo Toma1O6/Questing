@@ -28,10 +28,10 @@ public interface PartyData {
 
         static final Codec<Impl> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codecs.UUID_STRING.fieldOf("partyId").forGetter(Impl::getPartyId),
-                PartyInvite.CODEC.listOf().xmap(HashSet::new, ArrayList::new).fieldOf("invites").forGetter(t -> t.invites)
+                PartyInvite.CODEC.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("invites").forGetter(t -> t.invites)
         ).apply(instance, Impl::new));
         private UUID partyId;
-        private final HashSet<PartyInvite> invites = new HashSet<>();
+        private final LinkedHashSet<PartyInvite> invites = new LinkedHashSet<>();
 
         public Impl() {
             this(Util.NIL_UUID, Collections.emptySet());
@@ -50,6 +50,8 @@ public interface PartyData {
         @Override
         public void resolve(Impl partyData) {
             this.partyId = partyData.partyId;
+            this.invites.clear();
+            this.invites.addAll(partyData.invites);
         }
 
         @Override

@@ -2,6 +2,7 @@ package dev.toma.questing.client.screen.widget;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.InviteToPartyScreen;
+import dev.toma.questing.client.screen.ManagePartyScreen;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
@@ -41,33 +42,30 @@ public final class PartyWidget extends ContainerWidget {
         Set<UUID> memberSet = party.getMembers();
         UUID owner = party.getOwner();
         if (memberSet.size() > this.maxDisplayedPlayerCount) {
-            PlayerProfileWidget widget = addWidget(new PlayerProfileWidget(x + width - 20, y, 20, 20, owner));
-            widget.setFrame(Minecraft.getInstance().player.getUUID().equals(owner) ? 2 : 1, 0xFFFFFF00);
+            PlayerProfileWidget widget = addWidget(new PlayerProfileWidget(x + width - 20, y, 18, 18, owner));
+            widget.setFrame(1, 0xFFFFFF00);
             widget.forceTooltipText(party.getMemberUsername(owner));
-            addWidget(new TextButton(x + width - 45, y, 20, 20, new StringTextComponent("..."), this::showPlayerListButtonClicked));
+            widget.showOnlineStatus(true);
+            addWidget(new TextButton(x + width - 45, y, 20, 20, new StringTextComponent("..."), this::managePartyButtonClicked));
             addWidget(new TextButton(x + width - 70, y, 20, 20, new StringTextComponent("+"), this::inviteButtonClicked));
         } else {
             int index = 0;
             for (UUID uuid : memberSet) {
                 int px = this.x + this.width - 20;
-                PlayerProfileWidget widget = addWidget(new PlayerProfileWidget(px - index * 25, this.y, 20, 20, uuid));
-                widget.setClickResponder(this::showContextMenu, -1);
+                PlayerProfileWidget widget = addWidget(new PlayerProfileWidget(px - index * 25 + 1, this.y + 1, 18, 18, uuid));
                 boolean isOwner = uuid.equals(owner);
-                boolean isMe = Minecraft.getInstance().player.getUUID().equals(uuid);
-                widget.setFrame(isMe ? 2 : 1, isOwner ? 0xFFFFFF00 : 0xFF888888);
+                widget.setFrame(1, isOwner ? 0xFFFFFF00 : 0xFF888888);
                 widget.forceTooltipText(party.getMemberUsername(uuid));
+                widget.showOnlineStatus(true);
                 ++index;
             }
-            addWidget(new TextButton(x + width - 20 - index * 25, y, 20, 20, new StringTextComponent("+"), this::inviteButtonClicked));
+            addWidget(new TextButton(x + width - 20 - index * 25, y, 20, 20, new StringTextComponent("..."), this::managePartyButtonClicked));
+            addWidget(new TextButton(x + width - 20 - (index + 1) * 25, y, 20, 20, new StringTextComponent("+"), this::inviteButtonClicked));
         }
     }
 
-    private void showContextMenu(int mouseX, int mouseY, PlayerProfileWidget profileWidget) {
-
-    }
-
-    private void showPlayerListButtonClicked(Button button) {
-
+    private void managePartyButtonClicked(Button button) {
+        Minecraft.getInstance().setScreen(new ManagePartyScreen(parentScreen, party));
     }
 
     private void inviteButtonClicked(Button button) {

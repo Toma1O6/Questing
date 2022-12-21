@@ -54,7 +54,16 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     public void partyRegister(Party party) {
         UUID partyId = party.getOwner();
         partyMap.put(partyId, party);
-        Questing.LOGGER.debug(MARKER, "Created ");
+        Questing.LOGGER.debug(MARKER, "Created new party with ID {}", partyId);
+        requestDataWrite().exceptionally(throwable -> {
+            Questing.LOGGER.fatal(MARKER, "Party data write failed", throwable);
+            return null;
+        });
+    }
+
+    public void partyDelete(Party party) {
+        partyMap.remove(party.getOwner());
+        Questing.LOGGER.debug(MARKER, "Deleted party with ID {}", party.getOwner());
         requestDataWrite().exceptionally(throwable -> {
             Questing.LOGGER.fatal(MARKER, "Party data write failed", throwable);
             return null;

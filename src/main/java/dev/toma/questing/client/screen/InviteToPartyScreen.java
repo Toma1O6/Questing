@@ -6,6 +6,7 @@ import dev.toma.questing.client.screen.widget.TextboxWidget;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.c2s.C2S_RequestInviteCreation;
+import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class InviteToPartyScreen extends OverlayScreen {
 
-    private static final ITextComponent CLOSE = new TranslationTextComponent("text.questing.close");
+    public static final ITextComponent CLOSE = new TranslationTextComponent("text.questing.close");
     private static final ITextComponent INVITE = new TranslationTextComponent("text.questing.send_invite");
     private static final String PLAYER_NOT_FOUND = "text.questing.error.player_not_found";
     private static final String TOO_MANY_PLAYERS_FOUND = "text.questing.error.too_many_players_found";
@@ -57,7 +58,7 @@ public class InviteToPartyScreen extends OverlayScreen {
 
     @Override
     protected void drawContent(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-        fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, 0xFF << 24);
+        fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, RenderUtils.DEFAULT_DIALOG_BG);
     }
 
     @Override

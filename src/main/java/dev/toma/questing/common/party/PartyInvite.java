@@ -7,6 +7,8 @@ import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Util;
 import net.minecraft.world.World;
 
 import java.util.Objects;
@@ -41,6 +43,10 @@ public final class PartyInvite {
         this.invitedName = invitedName;
         this.onAccept = (party, player) -> {};
         this.onDecline = (party, player) -> {};
+    }
+
+    public static PartyInvite dummy(UUID partyId, ServerPlayerEntity player) {
+        return new PartyInvite(partyId, player.getUUID(), Util.NIL_UUID, "", "", "");
     }
 
     public static PartyInvite createInvite(PlayerEntity toInvite, PlayerEntity inviteSource, UUID partyId, String partyName) {

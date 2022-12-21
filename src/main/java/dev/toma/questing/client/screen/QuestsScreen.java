@@ -30,7 +30,7 @@ public final class QuestsScreen extends Screen {
         partyWidget = addButton(new PartyWidget(width - ELEMENT_MARGIN - 20 - ELEMENT_MARGIN - 130, ELEMENT_MARGIN, 130, 20, this::getPlayersParty, this));
         partyWidget.setPlayerDisplayLimit(5);
 
-        addButton(new Button(width - ELEMENT_MARGIN - 20, ELEMENT_MARGIN, 20, 20, new StringTextComponent("i"), b -> {}));
+        addButton(new Button(width - ELEMENT_MARGIN - 20, ELEMENT_MARGIN, 20, 20, new StringTextComponent("M"), this::partyInvitesClicked));
     }
 
     @Override
@@ -50,5 +50,9 @@ public final class QuestsScreen extends Screen {
         return PlayerDataProvider.getOptional(player)
                 .map(d -> d.getPartyData().getPartyInstance().orElse(null))
                 .orElse(null);
+    }
+
+    private void partyInvitesClicked(Button button) {
+        minecraft.setScreen(new PartyInvitesScreen(this));
     }
 }

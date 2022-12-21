@@ -15,6 +15,8 @@ import java.util.function.BiFunction;
 
 public final class RenderUtils {
 
+    public static final int DEFAULT_DIALOG_BG = 0x66 << 24;
+
     public static void blit(MatrixStack stack, int x1, int y1, int x2, int y2, float u1, float v1, float u2, float v2) {
         Matrix4f pose = stack.last().pose();
         BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();

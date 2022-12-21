@@ -88,6 +88,19 @@ public final class Party {
         });
     }
 
+    public void disband(PlayerEntity owner) {
+        PartyManager manager = Questing.PARTY_MANAGER.get();
+        this.forEachOnlineMemberExcept(owner.getUUID(), owner.level, player -> {
+            manager.assignDefaultParty(player);
+            PlayerDataProvider.getOptional(player).ifPresent(data -> {
+                PartyData partyData = data.getPartyData();
+                UUID partyId = partyData.getPartyId();
+                manager.getPartyById(partyId).ifPresent(party -> manager.sendClientData(player.level, party));
+            });
+        });
+        manager.partyDelete(this);
+    }
+
     public void invite(PlayerEntity sender, PlayerEntity receiver) {
         this.executeWithAuthorization(PartyPermission.INVITE_PLAYERS, sender.getUUID(), () -> {
             PartyInvite invite = PartyInvite.createInvite(receiver, sender);
@@ -128,6 +141,17 @@ public final class Party {
 
     public boolean isAuthorized(PartyPermission type, UUID uuid) {
         return PartyPermission.isAllowed(type, this.permissionMap.getOrDefault(uuid, PartyPermission.USER.getAsInt()));
+    }
+
+    public boolean hasAnyProfile(UUID uuid, PartyPermission... profiles) {
+        boolean found = false;
+        for (PartyPermission profile : profiles) {
+            if (this.isAuthorized(profile, uuid)) {
+                found = true;
+                break;
+            }
+        }
+        return found;
     }
 
     public String getName() {
@@ -188,33 +212,44 @@ public final class Party {
     }
 
     private void onInviteAccepted(PartyInvite invite, PlayerEntity invited) {
-        if (this.canAddNewMember()) {
-            this.addMember(invited);
-        }
-        this.activeInvites.remove(invite);
-        if (!this.canAddNewMember()) {
-            // Cancel pending invites on client side when no more members can be added
-            this.activeInvites.forEach(activeInvite -> {
-                UUID invitee = activeInvite.getInviteeId();
-                PlayerEntity player = invited.level.getPlayerByUUID(invitee);
-                if (player != null) {
-                    PlayerDataProvider.getOptional(player).ifPresent(data -> {
-                        PartyData partyData = data.getPartyData();
-                        partyData.removeInvite(activeInvite);
-                        data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
-                    });
+        PlayerDataProvider.getOptional(invited).ifPresent(data -> {
+            PartyData partyData = data.getPartyData();
+            UUID originalParty = partyData.getPartyId();
+            PartyManager manager = Questing.PARTY_MANAGER.get();
+            Optional<Party> oldParty = manager.getPartyById(originalParty);
+            // Handle old party
+            oldParty.ifPresent(party -> {
+                // If user was owner of the party, it needs to be disbanded
+                if (party.getOwner().equals(invited.getUUID())) {
+                    party.disband(invited);
+                } else { // Otherwise just delete the member from party
+                    party.removeMember(invited, invite.getInviteeId());
                 }
             });
-            // Remove all party stored invites
-            this.activeInvites.clear();
-        }
-        if (!invited.level.isClientSide) {
-            S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
-            this.forEachOnlineMemberExcept(null, invited.level, player -> {
-                ServerPlayerEntity member = (ServerPlayerEntity) player;
-                Networking.toClient(member, packet);
-            });
-        }
+            if (this.canAddNewMember()) {
+                this.addMember(invited);
+                partyData.setActiveParty(this);
+                data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
+            }
+            this.activeInvites.remove(invite);
+            if (!this.canAddNewMember()) {
+                // Cancel pending invites on client side when no more members can be added
+                this.activeInvites.forEach(activeInvite -> {
+                    partyData.removeInvite(activeInvite);
+                    data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
+                });
+                // Remove all party stored invites
+                this.activeInvites.clear();
+            }
+            // synchronize data
+            if (!invited.level.isClientSide) {
+                S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
+                this.forEachOnlineMemberExcept(null, invited.level, player -> {
+                    ServerPlayerEntity member = (ServerPlayerEntity) player;
+                    Networking.toClient(member, packet);
+                });
+            }
+        });
     }
 
     private void onInviteDeclined(PartyInvite invite, PlayerEntity invited) {

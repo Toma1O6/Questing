@@ -1,11 +1,18 @@
 {
   "screen.questing.quest_screen": "Quest Overview",
   "screen.questing.invite_to_party": "Invite to party",
+  "screen.questing.manage_party": "Manage Party",
+  "screen.questing.invites": "Party Invites",
 
   "text.questing.confirm": "Confirm",
   "text.questing.cancel": "Cancel",
   "text.questing.close": "Close",
   "text.questing.send_invite": "Invite",
+  "text.questing.accept": "Accept",
+  "text.questing.decline": "Decline",
+  "text.questing.new_party_invitation": "New party invite",
+  "text.questing.invitation_content": "You have been invited to '%s'",
+  "text.questing.invitation_content.sender": "Sent by %s",
 
   "text.questing.error.player_not_found": "Player '%s' not found",
   "text.questing.error.too_many_players_found": "Specify player name. '%s' is too general",

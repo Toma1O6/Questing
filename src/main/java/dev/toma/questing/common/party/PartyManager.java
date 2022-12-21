@@ -2,6 +2,7 @@ package dev.toma.questing.common.party;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
+import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.file.DataFileManager;
 import dev.toma.questing.network.Networking;
@@ -9,11 +10,15 @@ import dev.toma.questing.network.packet.s2c.S2C_SynchronizePartyData;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Util;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public final class PartyManager implements DataFileManager.DataHandler<Map<UUID, Party>> {
@@ -32,34 +37,22 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     }
 
     public void onPlayerLoaded(ServerPlayerEntity player) {
-        Player2PartyManager p2p = Questing.PLAYER2PARTY_MANAGER.get();
-        UUID playerId = player.getUUID();
-        Optional<UUID> partyOccupation = p2p.getPartyOccupation(playerId);
-        if (partyOccupation.isPresent()) {
-            if (!this.getPartyById(partyOccupation.get()).isPresent()) {
+        PlayerDataProvider.getOptional(player).ifPresent(data -> {
+            PartyData partyData = data.getPartyData();
+            UUID partyOccupation = partyData.getPartyId();
+            if (!partyOccupation.equals(Util.NIL_UUID)) {
+                if (!this.getPartyById(partyOccupation).isPresent()) {
+                    this.assignDefaultParty(player);
+                }
+            } else {
                 this.assignDefaultParty(player);
             }
-        } else {
-            this.assignDefaultParty(player);
-        }
+            this.getPartyById(partyData.getPartyId()).ifPresent(party -> Networking.toClient(player, new S2C_SynchronizePartyData(party)));
+        });
     }
 
-    public void partyCreate(Party party) {
-        Set<UUID> memberSet = party.getMembers();
-        Player2PartyManager p2p = Questing.PLAYER2PARTY_MANAGER.get();
-        for (UUID uuid : memberSet) {
-            Optional<UUID> partyOccupation = p2p.getPartyOccupation(uuid);
-            if (partyOccupation.isPresent()) {
-                UUID occupiedPartyId = partyOccupation.get();
-                boolean valid = !this.getPartyById(occupiedPartyId).isPresent();
-                if (!valid) {
-                    Questing.LOGGER.warn(MARKER, "Unable to create new party due to already existing occupation by {} in {}", uuid, occupiedPartyId);
-                    return;
-                }
-            }
-        }
+    public void partyRegister(Party party) {
         UUID partyId = party.getOwner();
-        p2p.registerMembers(partyId, memberSet);
         partyMap.put(partyId, party);
         Questing.LOGGER.debug(MARKER, "Created ");
         requestDataWrite().exceptionally(throwable -> {
@@ -70,7 +63,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
 
     public void assignDefaultParty(PlayerEntity player) {
         Party party = Party.create(player);
-        partyCreate(party);
+        partyRegister(party);
         PlayerDataProvider.getOptional(player).ifPresent(data -> data.getPartyData().setActiveParty(party));
     }
 

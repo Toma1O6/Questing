@@ -2,6 +2,7 @@ package dev.toma.questing.network;
 
 import dev.toma.questing.Questing;
 import dev.toma.questing.network.packet.Packet;
+import dev.toma.questing.network.packet.c2s.C2S_RequestInviteCreation;
 import dev.toma.questing.network.packet.s2c.S2C_SendPlayerData;
 import dev.toma.questing.network.packet.s2c.S2C_SynchronizePartyData;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -44,6 +45,8 @@ public final class Networking {
         public static void registerPackets() {
             registerPacket(S2C_SendPlayerData.class, S2C_SendPlayerData::new);
             registerPacket(S2C_SynchronizePartyData.class, S2C_SynchronizePartyData::new);
+
+            registerPacket(C2S_RequestInviteCreation.class, C2S_RequestInviteCreation::new);
         }
 
         private static <P extends Packet<P>> void registerPacket(Class<P> packetType, Function<PacketBuffer, P> decoder) {

@@ -4,6 +4,8 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.widget.SearchFieldWidget;
 import dev.toma.questing.client.screen.widget.TextboxWidget;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.network.Networking;
+import dev.toma.questing.network.packet.c2s.C2S_RequestInviteCreation;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,7 +13,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -38,23 +39,14 @@ public class InviteToPartyScreen extends OverlayScreen {
         super.init();
         int margin = 5;
         Set<UUID> members = this.currentParty.getMembers();
-        List<? extends PlayerEntity> list = minecraft.level.players().stream()
+        searchFieldWidget = addButton(new SearchFieldWidget<>(font, leftPos + margin, topPos + margin, innerWidth - 2 * margin, 20, () -> minecraft.level.players().stream()
                 .filter(player -> !members.contains(player.getUUID()))
-                .collect(Collectors.toList());
-        PlayerEntity p = minecraft.level.players().get(0);
-        List<PlayerEntity> dummyList = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            dummyList.add(p);
-        }
-        // add search field for players
-        searchFieldWidget = addButton(new SearchFieldWidget<>(font, leftPos + margin, topPos + margin, innerWidth - 2 * margin, 20, () -> dummyList));
+                .collect(Collectors.toList())));
         searchFieldWidget.setTextFormatter(player -> player.getName().getString());
         searchFieldWidget.suggests(10);
         searchFieldWidget.assignDefaultValue();
-        // add textbox for errors
         textboxWidget = addButton(new TextboxWidget(leftPos + margin, topPos + innerHeight - 45, innerWidth - 10, 15, StringTextComponent.EMPTY, font));
         textboxWidget.setTextColor(0xFF4444);
-        // add cancel/confirm buttons
         int btnY = this.topPos + this.innerHeight - margin - 20;
         Button close = new Button(0, btnY, 0, 20, CLOSE, this::closeClicked);
         Button invite = new Button(0, btnY, 0, 20, INVITE, this::inviteClicked);
@@ -100,9 +92,9 @@ public class InviteToPartyScreen extends OverlayScreen {
             if (partyMembers.contains(result.getUUID())) {
                 this.textboxWidget.setMessage(new TranslationTextComponent(PLAYER_ALREADY_IN_PARTY, result.getName().getString()));
             } else {
-                // TODO send invite
-                // this.currentParty.invite(result.getMapped());
-                this.closeClicked(button); // close overlay
+                C2S_RequestInviteCreation packet = new C2S_RequestInviteCreation(result.getUUID());
+                Networking.toServer(packet);
+                this.closeClicked(button);
             }
         }
     }

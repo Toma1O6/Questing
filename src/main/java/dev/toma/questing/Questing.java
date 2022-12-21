@@ -6,9 +6,8 @@ import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.event.PlayerLoginEventHandler;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.party.PartyManager;
-import dev.toma.questing.common.party.Player2PartyManager;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.file.DataFileManager;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.utils.CapabilityDataStorage;
@@ -43,7 +42,6 @@ public final class Questing {
     public static final Marker MARKER_AREA = MarkerManager.getMarker("Area");
     // Files
     public static final DataFileManager<Map<UUID, Party>, PartyManager> PARTY_MANAGER = DataFileManager.create("parties.dat", PartyManager.CODEC, PartyManager::new);
-    public static final DataFileManager<Map<UUID, UUID>, Player2PartyManager> PLAYER2PARTY_MANAGER = DataFileManager.create("player2party.dat", Player2PartyManager.CODEC, Player2PartyManager::new);
 
     public Questing() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

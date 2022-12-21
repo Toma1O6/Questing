@@ -1,6 +1,7 @@
 package dev.toma.questing.client.screen.widget;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
@@ -53,6 +54,7 @@ public final class PlayerProfileWidget extends ContainerWidget {
 
     @Override
     public void renderButton(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         if (frameSize > 0) {
             fill(stack, x - frameSize, y - frameSize, x + width + frameSize, y + height + frameSize, frameColor);
             fill(stack, x, y, x + width, y + height, 0xFF << 24);

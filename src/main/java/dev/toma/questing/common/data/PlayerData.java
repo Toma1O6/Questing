@@ -79,7 +79,7 @@ public interface PlayerData extends INBTSerializable<CompoundNBT> {
         private <T extends Encodeable<T>> void serializeObject(String key, T t, CompoundNBT out) {
             Codec<T> codec = t.codec();
             DataResult<INBT> dataResult = codec.encodeStart(NBTDynamicOps.INSTANCE, t);
-            Optional<INBT> optional = dataResult.resultOrPartial(str -> Questing.LOGGER.error(Questing.MARKER_MAIN, "Unable to serialize save data - {}", str));
+            Optional<INBT> optional = dataResult.resultOrPartial(str -> Questing.LOGGER.error(Questing.MARKER, "Unable to serialize save data - {}", str));
             optional.ifPresent(inbt -> out.put(key, inbt));
         }
 
@@ -88,7 +88,7 @@ public interface PlayerData extends INBTSerializable<CompoundNBT> {
             if (in.contains(key, Constants.NBT.TAG_COMPOUND)) {
                 INBT inbt = in.get(key);
                 DataResult<T> result = codec.parse(NBTDynamicOps.INSTANCE, inbt);
-                Optional<T> optional = result.resultOrPartial(str -> Questing.LOGGER.error(Questing.MARKER_MAIN, "Unable to deserialize save data - {}", str));
+                Optional<T> optional = result.resultOrPartial(str -> Questing.LOGGER.error(Questing.MARKER, "Unable to deserialize save data - {}", str));
                 optional.ifPresent(t::resolve);
             }
         }
@@ -97,7 +97,7 @@ public interface PlayerData extends INBTSerializable<CompoundNBT> {
             T t = obj.value;
             Codec<T> codec = t.codec();
             DataResult<INBT> dataResult = codec.encodeStart(NBTDynamicOps.INSTANCE, t);
-            Optional<INBT> optional = dataResult.resultOrPartial(string -> Questing.LOGGER.error(Questing.MARKER_MAIN, "Unable to serialize client data - {}", string));
+            Optional<INBT> optional = dataResult.resultOrPartial(string -> Questing.LOGGER.error(Questing.MARKER, "Unable to serialize client data - {}", string));
             optional.filter(inbt -> inbt.getType().equals(CompoundNBT.TYPE)).map(inbt -> (CompoundNBT) inbt).ifPresent(nbt -> {
                 String key = String.valueOf(obj.index);
                 out.put(key, nbt);
@@ -111,7 +111,7 @@ public interface PlayerData extends INBTSerializable<CompoundNBT> {
             if (data.contains(key, Constants.NBT.TAG_COMPOUND)) {
                 CompoundNBT nbt = data.getCompound(key);
                 DataResult<T> result = codec.parse(NBTDynamicOps.INSTANCE, nbt);
-                Optional<T> optional = result.resultOrPartial(string -> Questing.LOGGER.error(Questing.MARKER_MAIN, "Unable to deserialize client data - {}", string));
+                Optional<T> optional = result.resultOrPartial(string -> Questing.LOGGER.error(Questing.MARKER, "Unable to deserialize client data - {}", string));
                 optional.ifPresent(t::resolve);
             }
         }

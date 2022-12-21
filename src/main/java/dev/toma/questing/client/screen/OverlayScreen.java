@@ -18,6 +18,7 @@ public abstract class OverlayScreen extends Screen {
 
     @Override
     protected void init() {
+        this.layeredScreen.init(minecraft, width, height);
         this.setDimensions(176, 166);
     }
 

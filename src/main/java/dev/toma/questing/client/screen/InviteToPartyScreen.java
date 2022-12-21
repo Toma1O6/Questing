@@ -11,6 +11,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -37,11 +38,18 @@ public class InviteToPartyScreen extends OverlayScreen {
         super.init();
         int margin = 5;
         Set<UUID> members = this.currentParty.getMembers();
-        // add search field for players
-        searchFieldWidget = addButton(new SearchFieldWidget<>(font, leftPos + margin, topPos + margin, innerWidth - 2 * margin, 20, () -> minecraft.level.players().stream()
+        List<? extends PlayerEntity> list = minecraft.level.players().stream()
                 .filter(player -> !members.contains(player.getUUID()))
-                .collect(Collectors.toList())));
+                .collect(Collectors.toList());
+        PlayerEntity p = minecraft.level.players().get(0);
+        List<PlayerEntity> dummyList = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            dummyList.add(p);
+        }
+        // add search field for players
+        searchFieldWidget = addButton(new SearchFieldWidget<>(font, leftPos + margin, topPos + margin, innerWidth - 2 * margin, 20, () -> dummyList));
         searchFieldWidget.setTextFormatter(player -> player.getName().getString());
+        searchFieldWidget.suggests(10);
         searchFieldWidget.assignDefaultValue();
         // add textbox for errors
         textboxWidget = addButton(new TextboxWidget(leftPos + margin, topPos + innerHeight - 45, innerWidth - 10, 15, StringTextComponent.EMPTY, font));

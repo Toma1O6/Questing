@@ -64,10 +64,10 @@ public class SearchFieldWidget<IN> extends TextFieldWidget {
                 String displayText = toStringFormatter.apply(result);
                 boolean tabSelected = tabIndex == i;
                 int suggestHeight = 10;
-                int sy1 = y + height + 3;
-                int sy2 = sy1 + i * suggestHeight;
-                fill(stack, x, sy1, x + width, sy2, tabSelected ? 0xFFFFFFFF : 0xFF000044);
-                RenderUtils.drawAlignedText(Alignment.VERTICAL, stack, displayText, x, sy1, width, suggestHeight, tabSelected ? 0xFFFF00 : 0xFFFFFF, FontRenderer::width, FontRenderer::draw);
+                int sy1 = y + height + 1 + i * suggestHeight;
+                int sy2 = sy1 + suggestHeight;
+                fill(stack, x, sy1, x + width, sy2, tabSelected ? 0xFF00005C : 0xFF000010);
+                RenderUtils.drawAlignedText(Alignment.VERTICAL, stack, displayText, x + 1, sy1 + 1, width, suggestHeight, 0xFFFFFF, FontRenderer::width, tabSelected ? FontRenderer::drawShadow : FontRenderer::draw);
             }
         }
     }
@@ -76,7 +76,7 @@ public class SearchFieldWidget<IN> extends TextFieldWidget {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (this.isFocused()) {
             if (keyCode == GLFW.GLFW_KEY_TAB) {
-                this.tabIndex = (++this.tabIndex) % results.size();
+                this.tabIndex = (++this.tabIndex) % Math.min(results.size(), suggestionsSize);
                 if (results.size() == 0) {
                     this.tabIndex = -1;
                 }
@@ -86,6 +86,7 @@ public class SearchFieldWidget<IN> extends TextFieldWidget {
                     IN resultVal = this.results.get(tabIndex);
                     String text = toStringFormatter.apply(resultVal);
                     this.setValue(text);
+                    // TODO make sure this selects only single entry as this would cause issues with names like Toma and Tomano
                 }
                 return true;
             }

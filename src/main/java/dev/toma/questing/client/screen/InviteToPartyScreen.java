@@ -3,7 +3,7 @@ package dev.toma.questing.client.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.widget.SearchFieldWidget;
 import dev.toma.questing.client.screen.widget.TextboxWidget;
-import dev.toma.questing.common.party.QuestParty;
+import dev.toma.questing.common.party.Party;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,11 +24,11 @@ public class InviteToPartyScreen extends OverlayScreen {
     private static final String PLAYER_NOT_FOUND = "text.questing.error.player_not_found";
     private static final String TOO_MANY_PLAYERS_FOUND = "text.questing.error.too_many_players_found";
     private static final String PLAYER_ALREADY_IN_PARTY = "text.questing.error.player_already_in_party";
-    private final QuestParty currentParty;
+    private final Party currentParty;
     private SearchFieldWidget<? extends PlayerEntity> searchFieldWidget;
     private TextboxWidget textboxWidget;
 
-    public InviteToPartyScreen(Screen layeredScreen, QuestParty currentParty) {
+    public InviteToPartyScreen(Screen layeredScreen, Party currentParty) {
         super(new TranslationTextComponent("screen.questing.invite_to_party"), layeredScreen);
         this.currentParty = currentParty;
     }

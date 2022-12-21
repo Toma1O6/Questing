@@ -2,7 +2,7 @@ package dev.toma.questing.client.screen.widget;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.InviteToPartyScreen;
-import dev.toma.questing.common.party.QuestParty;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
@@ -18,12 +18,12 @@ import java.util.function.Supplier;
 
 public final class PartyWidget extends ContainerWidget {
 
-    private final Supplier<QuestParty> provider;
+    private final Supplier<Party> provider;
     private final Screen parentScreen;
-    private QuestParty party;
+    private Party party;
     private int maxDisplayedPlayerCount = 5;
 
-    public PartyWidget(int x, int y, int width, int height, Supplier<QuestParty> provider, Screen parentScreen) {
+    public PartyWidget(int x, int y, int width, int height, Supplier<Party> provider, Screen parentScreen) {
         super(x, y, width, height, StringTextComponent.EMPTY);
         this.provider = provider;
         this.parentScreen = parentScreen;

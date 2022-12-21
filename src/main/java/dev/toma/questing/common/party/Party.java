@@ -11,32 +11,32 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
-public final class QuestParty {
+public final class Party {
 
-    public static final Codec<QuestParty> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<Party> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codecs.UUID_STRING.fieldOf("owner").forGetter(p -> p.owner),
             Codecs.UUID_STRING.listOf().xmap(LinkedHashSet::new, ArrayList::new).fieldOf("members").forGetter(p -> p.members),
             Codec.unboundedMap(Codecs.UUID_STRING, Codec.STRING).fieldOf("usernames").forGetter(p -> p.usernameCache)
-    ).apply(instance, QuestParty::new));
+    ).apply(instance, Party::new));
     public static final int MAX_PARTY_SIZE = 16;
     private final UUID owner;
     private final LinkedHashSet<UUID> members = new LinkedHashSet<>();
     private final Map<UUID, String> usernameCache = new HashMap<>();
 
-    private QuestParty(UUID owner, Set<UUID> members, Map<UUID, String> usernameCache) {
+    private Party(UUID owner, Set<UUID> members, Map<UUID, String> usernameCache) {
         this.owner = owner;
         this.members.addAll(members);
         this.usernameCache.putAll(usernameCache);
     }
 
-    public static QuestParty create(PlayerEntity player) {
+    public static Party create(PlayerEntity player) {
         UUID ownerId = player.getUUID();
         String name = player.getName().getString();
         Set<UUID> set = new HashSet<>();
         set.add(ownerId);
         Map<UUID, String> usernames = new HashMap<>();
         usernames.put(ownerId, name);
-        return new QuestParty(ownerId, set, usernames);
+        return new Party(ownerId, set, usernames);
     }
 
     public boolean canAddNewMember() {

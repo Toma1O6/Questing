@@ -13,14 +13,14 @@ import org.apache.logging.log4j.MarkerManager;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public final class PartyManager implements DataFileManager.DataHandler<Map<UUID, QuestParty>> {
+public final class PartyManager implements DataFileManager.DataHandler<Map<UUID, Party>> {
 
     public static final Marker MARKER = MarkerManager.getMarker("PartyManager");
-    public static final Codec<Map<UUID, QuestParty>> CODEC = Codec.unboundedMap(Codecs.UUID_STRING, QuestParty.CODEC);
+    public static final Codec<Map<UUID, Party>> CODEC = Codec.unboundedMap(Codecs.UUID_STRING, Party.CODEC);
 
-    private final Map<UUID, QuestParty> partyMap;
+    private final Map<UUID, Party> partyMap;
 
-    public PartyManager(Map<UUID, QuestParty> map) {
+    public PartyManager(Map<UUID, Party> map) {
         partyMap = map;
     }
 
@@ -41,7 +41,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
         }
     }
 
-    public void partyCreate(QuestParty party) {
+    public void partyCreate(Party party) {
         Set<UUID> memberSet = party.getMembers();
         Player2PartyManager p2p = Questing.PLAYER2PARTY_MANAGER.get();
         for (UUID uuid : memberSet) {
@@ -66,12 +66,12 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     }
 
     public void assignDefaultParty(PlayerEntity player) {
-        QuestParty party = QuestParty.create(player);
+        Party party = Party.create(player);
         partyCreate(party);
         PlayerDataProvider.getOptional(player).ifPresent(data -> data.getPartyData().setActiveParty(party));
     }
 
-    public Optional<QuestParty> getPartyById(UUID partyId) {
+    public Optional<Party> getPartyById(UUID partyId) {
         return Optional.ofNullable(this.partyMap.get(partyId));
     }
 
@@ -80,7 +80,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     }
 
     @Override
-    public void loadData(Map<UUID, QuestParty> data) {
+    public void loadData(Map<UUID, Party> data) {
         partyMap.clear();
         if (data != null) {
             partyMap.putAll(data);
@@ -88,7 +88,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     }
 
     @Override
-    public Map<UUID, QuestParty> getSaveData() {
+    public Map<UUID, Party> getSaveData() {
         return partyMap;
     }
 }

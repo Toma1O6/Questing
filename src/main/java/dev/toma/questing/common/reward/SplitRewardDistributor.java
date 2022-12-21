@@ -3,7 +3,7 @@ package dev.toma.questing.common.reward;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.party.QuestParty;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,7 +28,7 @@ public class SplitRewardDistributor implements RewardDistributor {
 
     @Override
     public Map<PlayerEntity, List<Reward>> generateDistributedRewards(World world, Quest quest) {
-        QuestParty party = quest.getParty();
+        Party party = quest.getParty();
         UUID ownerId = party.getOwner();
         Map<PlayerEntity, List<Reward>> rewards = new HashMap<>();
         party.getOwner(world)

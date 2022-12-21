@@ -2,7 +2,7 @@ package dev.toma.questing.common.data;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
-import dev.toma.questing.common.party.QuestParty;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.util.Util;
 
@@ -11,11 +11,11 @@ import java.util.UUID;
 
 public interface PartyData {
 
-    void setActiveParty(QuestParty party);
+    void setActiveParty(Party party);
 
     UUID getPartyId();
 
-    Optional<QuestParty> getPartyInstance();
+    Optional<Party> getPartyInstance();
 
     class Impl implements PartyData, Encodeable<Impl> {
 
@@ -37,7 +37,7 @@ public interface PartyData {
         }
 
         @Override
-        public void setActiveParty(QuestParty party) {
+        public void setActiveParty(Party party) {
             this.partyId = party.getOwner();
         }
 
@@ -47,7 +47,7 @@ public interface PartyData {
         }
 
         @Override
-        public Optional<QuestParty> getPartyInstance() {
+        public Optional<Party> getPartyInstance() {
             return Questing.PARTY_MANAGER.get().getPartyById(partyId);
         }
     }

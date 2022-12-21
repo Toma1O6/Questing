@@ -1,6 +1,6 @@
 package dev.toma.questing.common.quest;
 
-import dev.toma.questing.common.party.QuestParty;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.trigger.*;
 
 import javax.annotation.Nullable;
@@ -10,7 +10,7 @@ import java.util.Map;
 public abstract class Quest {
 
     private final TriggerContainer triggerStore = new TriggerContainer();
-    private QuestParty party;
+    private Party party;
     private QuestStatus status = QuestStatus.NEW;
 
     public Quest() {
@@ -19,7 +19,7 @@ public abstract class Quest {
 
     public abstract void registerTriggers(TriggerRegisterHandler registerHandler);
 
-    public QuestParty getParty() {
+    public Party getParty() {
         return party;
     }
 

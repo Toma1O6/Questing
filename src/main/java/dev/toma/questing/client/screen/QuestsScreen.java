@@ -3,7 +3,7 @@ package dev.toma.questing.client.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.widget.PartyWidget;
 import dev.toma.questing.common.data.PlayerDataProvider;
-import dev.toma.questing.common.party.QuestParty;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
@@ -45,7 +45,7 @@ public final class QuestsScreen extends Screen {
         RenderUtils.drawAlignedText(Alignment.VERTICAL, stack, font, title, ELEMENT_MARGIN, 0, width, HEADER_HEIGHT, 0xFFFFFF, FontRenderer::width, FontRenderer::drawShadow);
     }
 
-    private QuestParty getPlayersParty() {
+    private Party getPlayersParty() {
         PlayerEntity player = minecraft.player;
         return PlayerDataProvider.getOptional(player)
                 .map(d -> d.getPartyData().getPartyInstance().orElse(null))

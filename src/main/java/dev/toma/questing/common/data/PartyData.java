@@ -22,6 +22,8 @@ public interface PartyData {
 
     void addInvite(PartyInvite invite);
 
+    void removeInvite(PartyInvite invite);
+
     class Impl implements PartyData, Encodeable<Impl> {
 
         static final Codec<Impl> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -68,6 +70,11 @@ public interface PartyData {
         @Override
         public void addInvite(PartyInvite invite) {
             this.invites.add(invite);
+        }
+
+        @Override
+        public void removeInvite(PartyInvite invite) {
+            this.invites.remove(invite);
         }
 
         @Override

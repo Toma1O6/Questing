@@ -6,8 +6,11 @@ import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
+import dev.toma.questing.network.Networking;
+import dev.toma.questing.network.packet.s2c.S2C_SynchronizePartyData;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
@@ -27,7 +30,6 @@ public final class Party {
             Codec.STRING.fieldOf("name").forGetter(p -> p.partyName),
             Codec.unboundedMap(Codecs.UUID_STRING, Codec.INT).fieldOf("permissions").forGetter(p -> p.permissionMap)
     ).apply(instance, Party::new));
-    public static final int MAX_PARTY_SIZE = 16; // TODO config option
     private final UUID owner;
     private final LinkedHashSet<UUID> members = new LinkedHashSet<>();
     private final Map<UUID, String> usernameCache = new HashMap<>();
@@ -60,7 +62,7 @@ public final class Party {
 
     public boolean canAddNewMember() {
         int size = this.members.size();
-        return size < MAX_PARTY_SIZE;
+        return size < Questing.<Integer>getProperty(Questing.Properties.PARTY_SIZE).orElse(5);
     }
 
     public void addMember(PlayerEntity member) {
@@ -144,9 +146,17 @@ public final class Party {
         }
     }
 
-    public void setPartyName(String partyName) {
-        this.partyName = partyName;
-        // TODO synchronize
+    public void setPartyName(PlayerEntity origin, String partyName) {
+        this.executeWithAuthorization(PartyPermission.MANAGE_PARTY, origin.getUUID(), () -> {
+            this.partyName = partyName;
+            if (origin.level.isClientSide)
+                return;
+            S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
+            forEachOnlineMemberExcept(null, origin.level, player -> {
+                ServerPlayerEntity member = (ServerPlayerEntity) player;
+                Networking.toClient(member, packet);
+            });
+        });
     }
 
     public Optional<PartyInvite> findActiveInviteFor(UUID receiver) {
@@ -180,16 +190,41 @@ public final class Party {
     private void onInviteAccepted(PartyInvite invite, PlayerEntity invited) {
         if (this.canAddNewMember()) {
             this.addMember(invited);
-            // TODO synchronize data
         }
         this.activeInvites.remove(invite);
         if (!this.canAddNewMember()) {
-            // TODO cancel all pending invites
+            // Cancel pending invites on client side when no more members can be added
+            this.activeInvites.forEach(activeInvite -> {
+                UUID invitee = activeInvite.getInviteeId();
+                PlayerEntity player = invited.level.getPlayerByUUID(invitee);
+                if (player != null) {
+                    PlayerDataProvider.getOptional(player).ifPresent(data -> {
+                        PartyData partyData = data.getPartyData();
+                        partyData.removeInvite(activeInvite);
+                        data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
+                    });
+                }
+            });
+            // Remove all party stored invites
             this.activeInvites.clear();
+        }
+        if (!invited.level.isClientSide) {
+            S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
+            this.forEachOnlineMemberExcept(null, invited.level, player -> {
+                ServerPlayerEntity member = (ServerPlayerEntity) player;
+                Networking.toClient(member, packet);
+            });
         }
     }
 
     private void onInviteDeclined(PartyInvite invite, PlayerEntity invited) {
         this.activeInvites.remove(invite);
+        if (!invited.level.isClientSide) {
+            S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
+            this.forEachOnlineMemberExcept(null, invited.level, player -> {
+                ServerPlayerEntity member = (ServerPlayerEntity) player;
+                Networking.toClient(member, packet);
+            });
+        }
     }
 }

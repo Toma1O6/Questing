@@ -40,6 +40,10 @@ public final class PartyInvite {
         this.onDecline = (party, player) -> {};
     }
 
+    public static PartyInvite createInvite(PlayerEntity toInvite, PlayerEntity inviteSource, UUID partyId, String partyName) {
+        return new PartyInvite(partyId, toInvite.getUUID(), inviteSource.getUUID(), partyName, inviteSource.getName().getString());
+    }
+
     public static PartyInvite createInvite(PlayerEntity toInvite, PlayerEntity inviteSource) {
         PlayerData data = PlayerDataProvider.getUnsafe(inviteSource);
         UUID partyId = data.getPartyData().getPartyId();

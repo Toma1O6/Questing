@@ -8,6 +8,7 @@ import dev.toma.questing.utils.Codecs;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+@Deprecated
 public final class Player2PartyManager implements DataFileManager.DataHandler<Map<UUID, UUID>> {
 
     public static final Codec<Map<UUID, UUID>> CODEC = Codec.unboundedMap(Codecs.UUID_STRING, Codecs.UUID_STRING);

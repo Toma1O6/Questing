@@ -4,9 +4,12 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.file.DataFileManager;
+import dev.toma.questing.network.Networking;
+import dev.toma.questing.network.packet.s2c.S2C_SynchronizePartyData;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -90,5 +93,16 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
     @Override
     public Map<UUID, Party> getSaveData() {
         return partyMap;
+    }
+
+    public void set(Party party) {
+        this.partyMap.put(party.getOwner(), party);
+    }
+
+    public void sendClientData(World world, Party party) {
+        if (world.isClientSide)
+            return;
+        S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(party);
+        party.forEachOnlineMemberExcept(null, world, player -> Networking.toClient((ServerPlayerEntity) player, packet));
     }
 }

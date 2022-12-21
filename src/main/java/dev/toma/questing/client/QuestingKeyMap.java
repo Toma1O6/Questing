@@ -11,7 +11,7 @@ import org.lwjgl.glfw.GLFW;
 
 public final class QuestingKeyMap {
 
-    public static final String KEYBIND_CATEGORY = "questing";
+    public static final String KEYBIND_CATEGORY = "key." + Questing.MODID + ".category";
 
     public static final KeyBinding VIEW_QUESTS = createKeybind("view_quests", GLFW.GLFW_KEY_P);
 

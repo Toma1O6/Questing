@@ -9,5 +9,8 @@
 
   "text.questing.error.player_not_found": "Player '%s' not found",
   "text.questing.error.too_many_players_found": "Specify player name. '%s' is too general",
-  "text.questing.error.player_already_in_party": "'%s' is already in party"
+  "text.questing.error.player_already_in_party": "'%s' is already in party",
+
+  "key.questing.category": "Questing",
+  "key.questing.view_quests": "View Quests"
 }

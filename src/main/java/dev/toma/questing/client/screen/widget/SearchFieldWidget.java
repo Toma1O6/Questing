@@ -86,7 +86,7 @@ public class SearchFieldWidget<IN> extends TextFieldWidget {
                     IN resultVal = this.results.get(tabIndex);
                     String text = toStringFormatter.apply(resultVal);
                     this.setValue(text);
-                    // TODO make sure this selects only single entry as this would cause issues with names like Toma and Tomano
+                    this.results = Collections.singletonList(resultVal);
                 }
                 return true;
             }

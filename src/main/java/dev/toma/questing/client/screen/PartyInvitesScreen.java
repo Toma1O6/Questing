@@ -13,12 +13,15 @@ import dev.toma.questing.network.packet.c2s.C2S_SendInviteResponse;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
 import java.util.Set;
 
 public class PartyInvitesScreen extends OverlayScreen implements SynchronizeListener {
+
+    public static final ITextComponent NO_INVITES = new TranslationTextComponent("text.questing.no_invites_received");
 
     public PartyInvitesScreen(Screen parentScreen) {
         super(new TranslationTextComponent("screen.questing.invites"), parentScreen);
@@ -44,6 +47,7 @@ public class PartyInvitesScreen extends OverlayScreen implements SynchronizeList
             PartyData partyData = data.getPartyData();
             Set<PartyInvite> inviteList = partyData.getMyInvites();
             ScrollableWidgetList<PartyInvite, PartyInviteWidget> list = addButton(new ScrollableWidgetList<>(leftPos + 5, topPos + 5, innerWidth - 10, innerHeight - 35, new ArrayList<>(inviteList), this::construct));
+            list.setMessage(NO_INVITES);
             list.setEntryHeight(60);
         });
         addButton(new Button(leftPos + 5, topPos + innerHeight - 25, innerWidth - 10, 20, InviteToPartyScreen.CLOSE, this::closeClicked));

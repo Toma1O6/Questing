@@ -14,6 +14,7 @@
   "text.questing.new_party_invitation": "New party invite",
   "text.questing.invitation_content": "You have been invited to '%s'",
   "text.questing.invitation_content.sender": "Sent by %s",
+  "text.questing.no_invites_received": "You have no active invites",
 
   "text.questing.error.player_not_found": "Player '%s' not found",
   "text.questing.error.too_many_players_found": "Specify player name. '%s' is too general",

@@ -1,8 +1,12 @@
 package dev.toma.questing.client.screen.widget;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
 import java.util.List;
@@ -50,6 +54,20 @@ public class ScrollableWidgetList<T, W extends Widget> extends ContainerWidget {
             fill(stack, x1, y1, x2, y2, 0xFF888888);
             fill(stack, x1, y1, x2 - 1, y2 - 1, 0xFFEEEEEE);
             fill(stack, x1 + 1, y1 + 1, x2 - 1, y2 - 1, 0xFFCCCCCC);
+        }
+        ITextComponent text = this.getMessage();
+        FontRenderer font = Minecraft.getInstance().font;
+        if (this.data.isEmpty() && text != null) {
+            int textFieldWidth = this.width - 10;
+            List<IReorderingProcessor> lines = font.split(text, textFieldWidth);
+            int lineCount = lines.size();
+            int textHeight = lineCount * 10;
+            float textY = this.y + (this.height - textHeight) / 2.0F;
+            for (int i = 0; i < lineCount; i++) {
+                IReorderingProcessor processor = lines.get(i);
+                float textX = this.x + 5 + (textFieldWidth - font.width(processor)) / 2.0F;
+                font.draw(stack, processor, textX, textY + i * 10, 0xFFFFFF);
+            }
         }
     }
 

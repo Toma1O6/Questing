@@ -18,6 +18,7 @@ import org.apache.logging.log4j.MarkerManager;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class Party {
 
@@ -141,7 +142,14 @@ public final class Party {
     }
 
     public boolean isAuthorized(PartyPermission type, UUID uuid) {
-        return PartyPermission.isAllowed(type, this.permissionMap.getOrDefault(uuid, PartyPermission.USER.getAsInt()));
+        Set<PartyPermission> permissions = this.getMemberProfiles(uuid);
+        int requiredPermLevel = type.getPermissionLevel() + 1;
+        for (PartyPermission permission : permissions) {
+            if (type == permission || permission.getPermissionLevel() >= requiredPermLevel) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean hasAnyProfile(UUID uuid, PartyPermission... profiles) {
@@ -153,6 +161,13 @@ public final class Party {
             }
         }
         return found;
+    }
+
+    public Set<PartyPermission> getMemberProfiles(UUID member) {
+        int value = this.permissionMap.getOrDefault(member, 0);
+        return Arrays.stream(PartyPermission.values())
+                .filter(perm -> PartyPermission.is(perm, value))
+                .collect(Collectors.toSet());
     }
 
     public boolean isMember(UUID member) {
@@ -168,6 +183,19 @@ public final class Party {
         }
         int value = activeRoles.stream().mapToInt(PartyPermission::getAsInt).reduce(0, (a, b) -> a | b);
         this.permissionMap.put(member, value);
+    }
+
+    public List<UUID> getMembersSortedByRoles() {
+        return this.members.stream()
+                .sorted(Comparator.comparingInt(this::getMemberSortIndexByRoles))
+                .collect(Collectors.toList());
+    }
+
+    public int getMemberSortIndexByRoles(UUID member) {
+        return this.getMemberProfiles(member).stream()
+                .min(Comparator.comparingInt(Enum::ordinal))
+                .map(Enum::ordinal)
+                .orElse(Integer.MAX_VALUE);
     }
 
     public String getName() {

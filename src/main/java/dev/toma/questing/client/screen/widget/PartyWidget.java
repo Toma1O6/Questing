@@ -13,7 +13,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public final class PartyWidget extends ContainerWidget {
@@ -36,9 +36,9 @@ public final class PartyWidget extends ContainerWidget {
 
     private void init() {
         this.clear();
-        Set<UUID> memberSet = party.getMembers();
+        List<UUID> members = party.getMembersSortedByRoles();
         UUID owner = party.getOwner();
-        if (memberSet.size() > this.maxDisplayedPlayerCount) {
+        if (members.size() > this.maxDisplayedPlayerCount) {
             PlayerProfileWidget widget = addWidget(new PlayerProfileWidget(x + width - 20, y, 18, 18, owner));
             widget.setFrame(1, 0xFFFFFF00);
             widget.forceTooltipText(party.getMemberUsername(owner));
@@ -47,7 +47,7 @@ public final class PartyWidget extends ContainerWidget {
             addWidget(new TextButton(x + width - 70, y, 20, 20, new StringTextComponent("+"), this::inviteButtonClicked));
         } else {
             int index = 0;
-            for (UUID uuid : memberSet) {
+            for (UUID uuid : members) {
                 int px = this.x + this.width - 20;
                 PlayerProfileWidget widget = addWidget(new PlayerProfileWidget(px - index * 25 + 1, this.y + 1, 18, 18, uuid));
                 boolean isOwner = uuid.equals(owner);

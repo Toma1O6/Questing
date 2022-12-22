@@ -20,9 +20,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ManagePartyScreen extends OverlayScreen implements SynchronizeListener {
 
@@ -63,8 +64,9 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
             textbox.setTextRenderer(FontRenderer::drawShadow);
             textbox.setTextAlignment(Alignment.VERTICAL);
         }
-        // TODO sort by permission level
-        List<UUID> members = new ArrayList<>(this.party.getMembers());
+        List<UUID> members = this.party.getMembers().stream()
+                .sorted(Comparator.comparingInt(party::getMemberSortIndexByRoles))
+                .collect(Collectors.toList());
         memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
         memberList.setEntryHeight(30);
 

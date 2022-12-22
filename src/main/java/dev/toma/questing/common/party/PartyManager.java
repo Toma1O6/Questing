@@ -41,7 +41,8 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
             PartyData partyData = data.getPartyData();
             UUID partyOccupation = partyData.getPartyId();
             if (!partyOccupation.equals(Util.NIL_UUID)) {
-                if (!this.getPartyById(partyOccupation).isPresent()) {
+                Optional<Party> occupiedParty = this.getPartyById(partyOccupation);
+                if (!occupiedParty.isPresent() || !occupiedParty.get().getMembers().contains(player.getUUID())) {
                     this.assignDefaultParty(player);
                 }
             } else {

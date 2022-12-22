@@ -77,7 +77,8 @@ public final class Party {
     }
 
     public void removeMember(PlayerEntity source, UUID member) {
-        this.executeWithAuthorization(PartyPermission.MANAGE_MEMBERS, source.getUUID(), () -> {
+        PartyPermission permission = source.getUUID().equals(member) ? PartyPermission.USER : PartyPermission.MANAGE_MEMBERS;
+        this.executeWithAuthorization(permission, source.getUUID(), () -> {
             if (member.equals(owner)) {
                 throw new UnsupportedOperationException("Cannot remove owner of quest party");
             }
@@ -94,8 +95,8 @@ public final class Party {
             manager.assignDefaultParty(player);
             PlayerDataProvider.getOptional(player).ifPresent(data -> {
                 PartyData partyData = data.getPartyData();
-                UUID partyId = partyData.getPartyId();
-                manager.getPartyById(partyId).ifPresent(party -> manager.sendClientData(player.level, party));
+                manager.getPartyById(partyData.getPartyId()).ifPresent(party -> manager.sendClientData(player.level, party));
+                data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
             });
         });
         manager.partyDelete(this);

@@ -6,6 +6,10 @@ import dev.toma.questing.client.screen.widget.ScrollableWidgetList;
 import dev.toma.questing.client.screen.widget.TextboxWidget;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyPermission;
+import dev.toma.questing.network.Networking;
+import dev.toma.questing.network.packet.Packet;
+import dev.toma.questing.network.packet.c2s.C2S_LeaveParty;
+import dev.toma.questing.network.packet.c2s.C2S_RemovePartyMember;
 import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
@@ -45,6 +49,7 @@ public class ManagePartyScreen extends OverlayScreen {
             textbox.setTextRenderer(FontRenderer::drawShadow);
             textbox.setTextAlignment(Alignment.VERTICAL);
         }
+        // TODO sort by permission level
         List<UUID> members = new ArrayList<>(this.party.getMembers());
         memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
         memberList.setEntryHeight(30);
@@ -56,22 +61,23 @@ public class ManagePartyScreen extends OverlayScreen {
     }
 
     private PlayerProfileWidget constructPlayerProfileWidget(UUID uuid, int x, int y, int width, int height) {
-        PlayerProfileWidget widget = new PlayerProfileWidget(x, y, width, height, uuid);
+        PlayerProfileWidget widget = new PlayerProfileWidget(x + 2, y + 2, width, height - 4, uuid);
         widget.forceTooltipText(party.getMemberUsername(uuid));
         widget.setFrame(0, 0x00000000);
         UUID me = minecraft.player.getUUID();
         boolean isMe = uuid.equals(me);
         boolean imOwner = party.isAuthorized(PartyPermission.OWNER, me);
         boolean hasEditRights = party.isAuthorized(PartyPermission.MANAGE_MEMBERS, me);
-        boolean isAdministrator = party.hasAnyProfile(uuid, PartyPermission.OWNER, PartyPermission.MANAGE_PARTY, PartyPermission.MANAGE_INVITES, PartyPermission.MANAGE_MEMBERS);
+        boolean isAdministrator = party.hasAnyProfile(uuid, PartyPermission.ADMIN_ROLES);
         int offsetIndex = 0;
-        if (isMe) {
+        if (isMe || imOwner || (hasEditRights && !isAdministrator)) {
             widget.addWidget(new Button(x + width - 20 - offsetIndex * 25, y + 5, 20, 20, new StringTextComponent("x"), btn -> {
-                // TODO handle leave
+                Packet<?> packet = isMe ? new C2S_LeaveParty() : new C2S_RemovePartyMember(uuid);
+                Networking.toServer(packet);
             }));
             ++offsetIndex;
         }
-        if (!isMe && (imOwner || (hasEditRights && isAdministrator))) {
+        if (!isMe && (imOwner || (hasEditRights && !isAdministrator))) {
             widget.addWidget(new Button(x + width - 20 - offsetIndex * 25, y + 5, 20, 20, new StringTextComponent("E"), btn -> {
                 // TODO handle edit
             }));

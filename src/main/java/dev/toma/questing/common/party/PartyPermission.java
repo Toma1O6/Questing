@@ -19,6 +19,13 @@ public enum PartyPermission implements IntSupplier {
             INVITE_PLAYERS,
             MANAGE_PARTY
     );
+    public static final PartyPermission[] ADMIN_ROLES = {
+            OWNER,
+            MANAGE_INVITES,
+            MANAGE_MEMBERS,
+            INVITE_PLAYERS,
+            MANAGE_PARTY
+    };
     private final int value;
 
     PartyPermission() {

@@ -2,6 +2,8 @@ package dev.toma.questing.network;
 
 import dev.toma.questing.Questing;
 import dev.toma.questing.network.packet.Packet;
+import dev.toma.questing.network.packet.c2s.C2S_LeaveParty;
+import dev.toma.questing.network.packet.c2s.C2S_RemovePartyMember;
 import dev.toma.questing.network.packet.c2s.C2S_RequestInviteCreation;
 import dev.toma.questing.network.packet.c2s.C2S_SendInviteResponse;
 import dev.toma.questing.network.packet.s2c.S2C_SendPlayerData;
@@ -49,6 +51,8 @@ public final class Networking {
 
             registerPacket(C2S_RequestInviteCreation.class, C2S_RequestInviteCreation::new);
             registerPacket(C2S_SendInviteResponse.class, C2S_SendInviteResponse::new);
+            registerPacket(C2S_LeaveParty.class, pb -> new C2S_LeaveParty());
+            registerPacket(C2S_RemovePartyMember.class, C2S_RemovePartyMember::new);
         }
 
         private static <P extends Packet<P>> void registerPacket(Class<P> packetType, Function<PacketBuffer, P> decoder) {

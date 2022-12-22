@@ -54,6 +54,7 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         editingName = party.isAuthorized(PartyPermission.MANAGE_PARTY, minecraft.player.getUUID());
         String partyName = party.getName();
         int margin = 5;
+        this.setDimensions(this.innerWidth, 4 * margin + 20 + 20 + 150);
         if (editingName) {
             nameField = addButton(new TextFieldWidget(font, leftPos + margin, topPos + margin, innerWidth - margin * 2, 20, StringTextComponent.EMPTY));
             nameField.setValue(partyName);
@@ -66,6 +67,13 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         List<UUID> members = new ArrayList<>(this.party.getMembers());
         memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
         memberList.setEntryHeight(30);
+
+        Button cancel = addButton(new Button(leftPos + margin, topPos + innerHeight - 20 - margin, innerWidth - margin * 2, 20, InviteToPartyScreen.CLOSE, this::close));
+        if (this.editingName) {
+            Button confirm = addButton(new Button(0, topPos + innerHeight - 20 - margin, 0, 20, DialogScreen.TEXT_CONFIRM, this::confirm));
+            this.spaceEqually(cancel, confirm, margin);
+        }
+
     }
 
     @Override
@@ -97,5 +105,13 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
             }));
         }
         return widget;
+    }
+
+    private void close(Button button) {
+        this.minecraft.setScreen(this.getLayeredScreen());
+    }
+
+    private void confirm(Button button) {
+        this.close(button);
     }
 }

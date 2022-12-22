@@ -47,7 +47,7 @@ public final class Questing {
     public static final Marker MARKER = MarkerManager.getMarker("Main");
     public static final Marker MARKER_AREA = MarkerManager.getMarker("Area");
     // Files
-    public static final DataFileManager<Map<UUID, Party>, PartyManager> PARTY_MANAGER = DataFileManager.create("parties.dat", PartyManager.CODEC, PartyManager::new);
+    public static final DataFileManager<Map<UUID, Party>, PartyManager> PARTY_MANAGER = DataFileManager.create("questing/parties.dat", PartyManager.CODEC, PartyManager::new);
     // Properties
     private static final Map<String, PropertyHolder<?>> PROPERTIES = new HashMap<>();
 

@@ -83,7 +83,7 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
     }
 
     private PlayerProfileWidget constructPlayerProfileWidget(UUID uuid, int x, int y, int width, int height) {
-        PlayerProfileWidget widget = new PlayerProfileWidget(x + 2, y + 2, width, height - 4, uuid);
+        PlayerProfileWidget widget = new PlayerProfileWidget(x + 2, y + 2, width - 4, height - 4, uuid);
         widget.forceTooltipText(party.getMemberUsername(uuid));
         widget.setFrame(0, 0x00000000);
         UUID me = minecraft.player.getUUID();
@@ -93,14 +93,14 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         boolean isAdministrator = party.hasAnyProfile(uuid, PartyPermission.ADMIN_ROLES);
         int offsetIndex = 0;
         if (isMe || imOwner || (hasEditRights && !isAdministrator)) {
-            widget.addWidget(new Button(x + width - 20 - offsetIndex * 25, y + 5, 20, 20, new StringTextComponent("x"), btn -> {
+            widget.addWidget(new Button(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, new StringTextComponent("x"), btn -> {
                 Packet<?> packet = isMe ? new C2S_LeaveParty() : new C2S_RemovePartyMember(uuid);
                 Networking.toServer(packet);
             }));
             ++offsetIndex;
         }
         if (!isMe && (imOwner || (hasEditRights && !isAdministrator))) {
-            widget.addWidget(new Button(x + width - 20 - offsetIndex * 25, y + 5, 20, 20, new StringTextComponent("E"), btn -> {
+            widget.addWidget(new Button(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, new StringTextComponent("E"), btn -> {
                 EditMemberPermissionsScreen permissionsScreen = new EditMemberPermissionsScreen(this, party, uuid);
                 permissionsScreen.setzIndex(401);
                 minecraft.setScreen(permissionsScreen);

@@ -25,6 +25,7 @@ public class ScrollableWidgetList<T, W extends Widget> extends ContainerWidget {
         super(x, y, width, height, StringTextComponent.EMPTY);
         this.data = data;
         this.factory = factory;
+        this.showScrollbar = true;
     }
 
     public void setScrollbarVisible(boolean visible) {

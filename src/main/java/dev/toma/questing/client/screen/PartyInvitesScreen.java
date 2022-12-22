@@ -41,12 +41,12 @@ public class PartyInvitesScreen extends OverlayScreen implements SynchronizeList
     @Override
     protected void init() {
         super.init();
-        setDimensions(230, 210);
+        setDimensions(230, 215);
 
         PlayerDataProvider.getOptional(minecraft.player).ifPresent(data -> {
             PartyData partyData = data.getPartyData();
             Set<PartyInvite> inviteList = partyData.getMyInvites();
-            ScrollableWidgetList<PartyInvite, PartyInviteWidget> list = addButton(new ScrollableWidgetList<>(leftPos + 5, topPos + 5, innerWidth - 10, innerHeight - 35, new ArrayList<>(inviteList), this::construct));
+            ScrollableWidgetList<PartyInvite, PartyInviteWidget> list = addButton(new ScrollableWidgetList<>(leftPos + 5, topPos + 5, innerWidth - 10, 180, new ArrayList<>(inviteList), this::construct));
             list.setMessage(NO_INVITES);
             list.setEntryHeight(60);
         });

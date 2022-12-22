@@ -48,7 +48,7 @@ public class PartyInviteWidget extends ContainerWidget {
                 this.font.draw(stack, processor, x + 3, y + 13 + i * 10, 0xFFFFFF);
             }
         }
-        fill(stack, x, y + height - 1, x + width, y + height, 0xFFFFFFFF);
+        fill(stack, x + 3, y + height - 1, x + width - 3, y + height, 0xFFFFFFFF);
         if (isHovered) {
             fill(stack, x, y, x + width, y + height, 0x44FFFFFF);
         }

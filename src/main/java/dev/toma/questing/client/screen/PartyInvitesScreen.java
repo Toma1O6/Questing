@@ -30,6 +30,7 @@ public class PartyInvitesScreen extends OverlayScreen implements SynchronizeList
     @Override
     public void onPlayerDataUpdated(PlayerEntity player, PlayerData data) {
         init(minecraft, width, height);
+        propagateListenerEvent(l -> l.onPlayerDataUpdated(player, data));
     }
 
     @Override

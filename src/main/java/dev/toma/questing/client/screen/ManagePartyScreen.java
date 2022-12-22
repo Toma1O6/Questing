@@ -102,6 +102,7 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         if (!isMe && (imOwner || (hasEditRights && !isAdministrator))) {
             widget.addWidget(new Button(x + width - 20 - offsetIndex * 25, y + 5, 20, 20, new StringTextComponent("E"), btn -> {
                 EditMemberPermissionsScreen permissionsScreen = new EditMemberPermissionsScreen(this, party, uuid);
+                permissionsScreen.setzIndex(401);
                 minecraft.setScreen(permissionsScreen);
             }));
         }

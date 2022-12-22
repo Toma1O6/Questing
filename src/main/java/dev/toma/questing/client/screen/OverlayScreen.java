@@ -14,6 +14,7 @@ public abstract class OverlayScreen extends Screen {
     private final Screen layeredScreen;
     protected int leftPos, topPos;
     protected int innerWidth, innerHeight;
+    private int zIndex = 400;
 
     public OverlayScreen(ITextComponent title, Screen layeredScreen) {
         super(title);
@@ -38,8 +39,15 @@ public abstract class OverlayScreen extends Screen {
     @Override
     public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         this.layeredScreen.render(stack, mouseX, mouseY, partialTicks);
+        stack.pushPose();
+        stack.translate(0, 0, zIndex);
         this.drawContent(stack, mouseX, mouseY, partialTicks);
         super.render(stack, mouseX, mouseY, partialTicks);
+        stack.popPose();
+    }
+
+    public void setzIndex(int zIndex) {
+        this.zIndex = zIndex;
     }
 
     @Override

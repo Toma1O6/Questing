@@ -58,7 +58,7 @@ public class InviteToPartyScreen extends OverlayScreen {
 
     @Override
     protected void drawContent(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-        fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, RenderUtils.DEFAULT_DIALOG_BG);
+        outlinedFill(stack, 1);
     }
 
     @Override

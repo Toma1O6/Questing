@@ -3,6 +3,7 @@
   "screen.questing.invite_to_party": "Invite to party",
   "screen.questing.manage_party": "Manage Party",
   "screen.questing.invites": "Party Invites",
+  "screen.questing.manage_permissions": "Manage Permissions",
 
   "text.questing.confirm": "Confirm",
   "text.questing.cancel": "Cancel",
@@ -17,6 +18,13 @@
   "text.questing.error.player_not_found": "Player '%s' not found",
   "text.questing.error.too_many_players_found": "Specify player name. '%s' is too general",
   "text.questing.error.player_already_in_party": "'%s' is already in party",
+
+  "permission.questing.owner": "Owner",
+  "permission.questing.manage_invites": "Manage invites",
+  "permission.questing.manage_members": "Manage members",
+  "permission.questing.invite_players": "Invite players",
+  "permission.questing.manage_party": "Manage party",
+  "permission.questing.user": "User",
 
   "key.questing.category": "Questing",
   "key.questing.view_quests": "View Quests"

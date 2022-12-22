@@ -11,7 +11,6 @@ import dev.toma.questing.network.packet.Packet;
 import dev.toma.questing.network.packet.c2s.C2S_LeaveParty;
 import dev.toma.questing.network.packet.c2s.C2S_RemovePartyMember;
 import dev.toma.questing.utils.Alignment;
-import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -57,7 +56,7 @@ public class ManagePartyScreen extends OverlayScreen {
 
     @Override
     protected void drawContent(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-        fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, RenderUtils.DEFAULT_DIALOG_BG);
+        outlinedFill(stack, 1);
     }
 
     private PlayerProfileWidget constructPlayerProfileWidget(UUID uuid, int x, int y, int width, int height) {
@@ -79,7 +78,8 @@ public class ManagePartyScreen extends OverlayScreen {
         }
         if (!isMe && (imOwner || (hasEditRights && !isAdministrator))) {
             widget.addWidget(new Button(x + width - 20 - offsetIndex * 25, y + 5, 20, 20, new StringTextComponent("E"), btn -> {
-                // TODO handle edit
+                EditMemberPermissionsScreen permissionsScreen = new EditMemberPermissionsScreen(this, party, uuid);
+                minecraft.setScreen(permissionsScreen);
             }));
         }
         return widget;

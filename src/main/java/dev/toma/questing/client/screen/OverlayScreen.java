@@ -52,4 +52,13 @@ public abstract class OverlayScreen extends Screen {
         w1.x = xPosW1;
         w2.x = xPosW2;
     }
+
+    protected void outlinedFill(MatrixStack stack, int frameSize) {
+        outlinedFill(stack, frameSize, 0xFFFFFFFF, 0xFF << 24);
+    }
+
+    protected void outlinedFill(MatrixStack stack, int frameSize, int outlineColor, int backgroundColor) {
+        fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, outlineColor);
+        fill(stack, leftPos + frameSize, topPos + frameSize, leftPos + innerWidth - frameSize, topPos + innerHeight - frameSize, backgroundColor);
+    }
 }

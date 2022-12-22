@@ -8,7 +8,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 public class DialogScreen extends OverlayScreen {
 
     public static final ITextComponent TEXT_CONFIRM = new TranslationTextComponent("text.questing.confirm");
-    public static final ITextComponent TEXT_CANCEL = new TranslationTextComponent("text.questing..cancel");
+    public static final ITextComponent TEXT_CANCEL = new TranslationTextComponent("text.questing.cancel");
 
     private RespondEvent onConfirm;
     private RespondEvent onCancel;

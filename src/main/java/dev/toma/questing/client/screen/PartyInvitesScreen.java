@@ -37,8 +37,7 @@ public class PartyInvitesScreen extends OverlayScreen {
 
     @Override
     protected void drawContent(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-        fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, 0xFFFFFFFF);
-        fill(stack, leftPos + 1, topPos + 1, leftPos + innerWidth - 1, topPos + innerHeight - 1, 0xFF << 24);
+        outlinedFill(stack, 1);
     }
 
     private PartyInviteWidget construct(PartyInvite invite, int x, int y, int width, int height) {

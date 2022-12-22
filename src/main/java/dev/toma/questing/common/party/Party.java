@@ -155,6 +155,21 @@ public final class Party {
         return found;
     }
 
+    public boolean isMember(UUID member) {
+        return this.members.contains(member);
+    }
+
+    public void readjustRoles(UUID member, Set<PartyPermission> activeRoles) {
+        if (isAuthorized(PartyPermission.OWNER, member)) {
+            activeRoles.add(PartyPermission.OWNER);
+        }
+        if (isAuthorized(PartyPermission.USER, member)) {
+            activeRoles.add(PartyPermission.USER);
+        }
+        int value = activeRoles.stream().mapToInt(PartyPermission::getAsInt).reduce(0, (a, b) -> a | b);
+        this.permissionMap.put(member, value);
+    }
+
     public String getName() {
         return partyName;
     }
@@ -193,6 +208,19 @@ public final class Party {
             }
         }
         return invite != null ? Optional.of(invite) : Optional.empty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Party party = (Party) o;
+        return owner.equals(party.owner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(owner);
     }
 
     @Override

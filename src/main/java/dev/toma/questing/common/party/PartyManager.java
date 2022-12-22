@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 public final class PartyManager implements DataFileManager.DataHandler<Map<UUID, Party>> {
 
@@ -56,19 +55,11 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
         UUID partyId = party.getOwner();
         partyMap.put(partyId, party);
         Questing.LOGGER.debug(MARKER, "Created new party with ID {}", partyId);
-        requestDataWrite().exceptionally(throwable -> {
-            Questing.LOGGER.fatal(MARKER, "Party data write failed", throwable);
-            return null;
-        });
     }
 
     public void partyDelete(Party party) {
         partyMap.remove(party.getOwner());
         Questing.LOGGER.debug(MARKER, "Deleted party with ID {}", party.getOwner());
-        requestDataWrite().exceptionally(throwable -> {
-            Questing.LOGGER.fatal(MARKER, "Party data write failed", throwable);
-            return null;
-        });
     }
 
     public void assignDefaultParty(PlayerEntity player) {
@@ -79,10 +70,6 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
 
     public Optional<Party> getPartyById(UUID partyId) {
         return Optional.ofNullable(this.partyMap.get(partyId));
-    }
-
-    public CompletableFuture<?> requestDataWrite() {
-        return Questing.PARTY_MANAGER.writeAsync();
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.widget.PlayerProfileWidget;
 import dev.toma.questing.client.screen.widget.ScrollableWidgetList;
 import dev.toma.questing.client.screen.widget.TextboxWidget;
+import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyPermission;
 import dev.toma.questing.network.Networking;
@@ -15,6 +16,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -22,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ManagePartyScreen extends OverlayScreen {
+public class ManagePartyScreen extends OverlayScreen implements SynchronizeListener {
 
-    private final Party party;
+    private Party party;
     private boolean editingName;
     private TextFieldWidget nameField;
     private ScrollableWidgetList<UUID, PlayerProfileWidget> memberList;
@@ -32,6 +34,18 @@ public class ManagePartyScreen extends OverlayScreen {
     public ManagePartyScreen(Screen parentScreen, Party party) {
         super(new TranslationTextComponent("screen.questing.manage_party"), parentScreen);
         this.party = party;
+    }
+
+    @Override
+    public void onPartyUpdated(Party party) {
+        this.party = party;
+        this.init(minecraft, width, height);
+        this.propagateListenerEvent(l -> l.onPartyUpdated(party));
+    }
+
+    @Override
+    public void onPlayerDataUpdated(PlayerEntity player, PlayerData data) {
+        this.propagateListenerEvent(l -> l.onPlayerDataUpdated(player, data));
     }
 
     @Override

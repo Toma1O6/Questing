@@ -12,6 +12,6 @@ public final class PlayerLoginEventHandler {
         ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
         Questing.PARTY_MANAGER.get().onPlayerLoaded(player);
 
-        PlayerDataProvider.getOptional(player).ifPresent(playerData -> playerData.sendDataToClient(PlayerDataSynchronizationFlags.WILDCARD));
+        PlayerDataProvider.getOptional(player).ifPresent(playerData -> playerData.sendDataToClient(PlayerDataSynchronizationFlags.ALL));
     }
 }

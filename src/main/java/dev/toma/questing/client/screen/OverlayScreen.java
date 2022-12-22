@@ -5,6 +5,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.text.ITextComponent;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 public abstract class OverlayScreen extends Screen {
 
     private final Screen layeredScreen;
@@ -38,6 +42,11 @@ public abstract class OverlayScreen extends Screen {
         super.render(stack, mouseX, mouseY, partialTicks);
     }
 
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
     protected Screen getLayeredScreen() {
         return layeredScreen;
     }
@@ -60,5 +69,17 @@ public abstract class OverlayScreen extends Screen {
     protected void outlinedFill(MatrixStack stack, int frameSize, int outlineColor, int backgroundColor) {
         fill(stack, leftPos, topPos, leftPos + innerWidth, topPos + innerHeight, outlineColor);
         fill(stack, leftPos + frameSize, topPos + frameSize, leftPos + innerWidth - frameSize, topPos + innerHeight - frameSize, backgroundColor);
+    }
+
+    public void propagateListenerEvent(Consumer<SynchronizeListener> dispatcher) {
+        this.propagate(s -> s instanceof SynchronizeListener, s -> (SynchronizeListener) s, dispatcher);
+    }
+
+    public <S> void propagate(Predicate<Screen> predicate, Function<Screen, S> mapper, Consumer<S> dispatcher) {
+        Screen parent = this.getLayeredScreen();
+        if (predicate.test(parent)) {
+            S s = mapper.apply(parent);
+            dispatcher.accept(s);
+        }
     }
 }

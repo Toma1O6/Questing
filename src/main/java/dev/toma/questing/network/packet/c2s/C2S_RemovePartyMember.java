@@ -44,8 +44,8 @@ public class C2S_RemovePartyMember extends AbstractPacket<C2S_RemovePartyMember>
                 Set<UUID> members = party.getMembers();
                 if (!members.contains(removeMemberId))
                     return;
-                boolean isTargetAnAdmin = party.hasAnyProfile(removeMemberId, PartyPermission.ADMIN_ROLES);
-                if (isTargetAnAdmin)
+                boolean isTargetAnAdmin = party.isAuthorized(PartyPermission.MANAGE_MEMBERS, removeMemberId);
+                if (isTargetAnAdmin && !party.isAuthorized(PartyPermission.OWNER, player.getUUID()))
                     return;
                 party.executeWithAuthorization(PartyPermission.MANAGE_MEMBERS, player.getUUID(), () -> {
                     party.removeMember(player, removeMemberId);

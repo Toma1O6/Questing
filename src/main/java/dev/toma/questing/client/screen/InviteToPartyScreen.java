@@ -19,20 +19,27 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class InviteToPartyScreen extends OverlayScreen {
+public class InviteToPartyScreen extends OverlayScreen implements SynchronizeListener {
 
     public static final ITextComponent CLOSE = new TranslationTextComponent("text.questing.close");
     private static final ITextComponent INVITE = new TranslationTextComponent("text.questing.send_invite");
     private static final String PLAYER_NOT_FOUND = "text.questing.error.player_not_found";
     private static final String TOO_MANY_PLAYERS_FOUND = "text.questing.error.too_many_players_found";
     private static final String PLAYER_ALREADY_IN_PARTY = "text.questing.error.player_already_in_party";
-    private final Party currentParty;
+    private Party currentParty;
     private SearchFieldWidget<? extends PlayerEntity> searchFieldWidget;
     private TextboxWidget textboxWidget;
 
     public InviteToPartyScreen(Screen layeredScreen, Party currentParty) {
         super(new TranslationTextComponent("screen.questing.invite_to_party"), layeredScreen);
         this.currentParty = currentParty;
+    }
+
+    @Override
+    public void onPartyUpdated(Party party) {
+        this.currentParty = party;
+        this.init(minecraft, width, height);
+        this.propagateListenerEvent(l -> l.onPartyUpdated(party));
     }
 
     @Override

@@ -2,13 +2,18 @@ package dev.toma.questing.network.packet.s2c;
 
 import com.mojang.serialization.DataResult;
 import dev.toma.questing.Questing;
+import dev.toma.questing.client.screen.SynchronizeListener;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.network.packet.AbstractPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.Optional;
@@ -36,11 +41,16 @@ public class S2C_SynchronizePartyData extends AbstractPacket<S2C_SynchronizePart
         buffer.writeNbt(nbt);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void handle(NetworkEvent.Context context) {
         if (party != null) {
             PartyManager manager = Questing.PARTY_MANAGER.get();
             manager.set(party);
+            Screen screen = Minecraft.getInstance().screen;
+            if (screen instanceof SynchronizeListener) {
+                ((SynchronizeListener) screen).onPartyUpdated(party);
+            }
         }
     }
 }

@@ -15,30 +15,27 @@ import net.minecraft.util.text.StringTextComponent;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public final class PartyWidget extends ContainerWidget {
 
-    private final Supplier<Party> provider;
     private final Screen parentScreen;
-    private Party party;
+    private final Party party;
     private int maxDisplayedPlayerCount = 5;
 
-    public PartyWidget(int x, int y, int width, int height, Supplier<Party> provider, Screen parentScreen) {
+    public PartyWidget(int x, int y, int width, int height, Party party, Screen parentScreen) {
         super(x, y, width, height, StringTextComponent.EMPTY);
-        this.provider = provider;
         this.parentScreen = parentScreen;
-        this.refreshCachedData();
+        this.party = party;
+        this.init();
     }
 
     public void setPlayerDisplayLimit(int limit) {
         maxDisplayedPlayerCount = limit;
-        this.refreshCachedData();
+        this.init();
     }
 
-    private void refreshCachedData() {
+    private void init() {
         this.clear();
-        this.party = provider.get();
         Set<UUID> memberSet = party.getMembers();
         UUID owner = party.getOwner();
         if (memberSet.size() > this.maxDisplayedPlayerCount) {

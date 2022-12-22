@@ -2,7 +2,6 @@ package dev.toma.questing.common.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.toma.questing.Questing;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyInvite;
 import dev.toma.questing.utils.Codecs;
@@ -15,8 +14,6 @@ public interface PartyData {
     void setActiveParty(Party party);
 
     UUID getPartyId();
-
-    Optional<Party> getPartyInstance();
 
     Set<PartyInvite> getMyInvites();
 
@@ -62,11 +59,6 @@ public interface PartyData {
         @Override
         public UUID getPartyId() {
             return partyId;
-        }
-
-        @Override
-        public Optional<Party> getPartyInstance() {
-            return Questing.PARTY_MANAGER.get().getPartyById(partyId);
         }
 
         @Override

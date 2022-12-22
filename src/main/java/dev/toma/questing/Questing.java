@@ -4,6 +4,7 @@ import dev.toma.questing.client.QuestingClient;
 import dev.toma.questing.common.command.QuestingDebugCommand;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
+import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
 import dev.toma.questing.common.event.PlayerLoginEventHandler;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
@@ -13,12 +14,14 @@ import dev.toma.questing.network.Networking;
 import dev.toma.questing.utils.CapabilityDataStorage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -55,6 +58,8 @@ public final class Questing {
         modEventBus.addListener(this::setup);
         forgeEventBus.addListener(this::registerCommands);
         forgeEventBus.addListener(PlayerLoginEventHandler::onPlayerLoggedIn);
+        forgeEventBus.addListener(this::clonePlayer);
+        forgeEventBus.addListener(this::changeDimension);
         forgeEventBus.addGenericListener(Entity.class, this::attachPlayerCapabilities);
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> QuestingClient.CLIENT::construct);
@@ -95,6 +100,22 @@ public final class Questing {
             PlayerEntity player = (PlayerEntity) entity;
             event.addCapability(new ResourceLocation(MODID, "player_data"), new PlayerDataProvider(player));
         }
+    }
+
+    private void changeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        PlayerDataProvider.getOptional(event.getPlayer()).ifPresent(data -> data.sendDataToClient(PlayerDataSynchronizationFlags.ALL));
+    }
+
+    private void clonePlayer(PlayerEvent.Clone event) {
+        PlayerEntity newPlayer = event.getPlayer();
+        PlayerEntity oldPlayer = event.getPlayer();
+        PlayerDataProvider.getOptional(oldPlayer).ifPresent(oldData -> {
+            CompoundNBT nbt = oldData.serializeNBT();
+            PlayerDataProvider.getOptional(newPlayer).ifPresent(newData -> {
+                newData.deserializeNBT(nbt);
+                newData.sendDataToClient(PlayerDataSynchronizationFlags.ALL);
+            });
+        });
     }
 
     public static final class Properties {

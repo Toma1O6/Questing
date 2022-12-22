@@ -4,21 +4,35 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.widget.PartyInviteWidget;
 import dev.toma.questing.client.screen.widget.ScrollableWidgetList;
 import dev.toma.questing.common.data.PartyData;
+import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyInvite;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.c2s.C2S_SendInviteResponse;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.ArrayList;
 import java.util.Set;
 
-public class PartyInvitesScreen extends OverlayScreen {
+public class PartyInvitesScreen extends OverlayScreen implements SynchronizeListener {
 
     public PartyInvitesScreen(Screen parentScreen) {
         super(new TranslationTextComponent("screen.questing.invites"), parentScreen);
+    }
+
+    @Override
+    public void onPlayerDataUpdated(PlayerEntity player, PlayerData data) {
+        init(minecraft, width, height);
+    }
+
+    @Override
+    public void onPartyUpdated(Party party) {
+        init(minecraft, width, height);
+        propagateListenerEvent(l -> l.onPartyUpdated(party));
     }
 
     @Override

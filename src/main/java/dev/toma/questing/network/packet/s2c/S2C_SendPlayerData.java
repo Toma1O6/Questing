@@ -1,11 +1,13 @@
 package dev.toma.questing.network.packet.s2c;
 
 import dev.toma.questing.Questing;
+import dev.toma.questing.client.screen.SynchronizeListener;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -53,5 +55,9 @@ public class S2C_SendPlayerData extends AbstractPacket<S2C_SendPlayerData> {
             return;
         }
         playerData.receiveClientData(values, data);
+        Screen screen = client.screen;
+        if (screen instanceof SynchronizeListener) {
+            ((SynchronizeListener) screen).onPlayerDataUpdated(player, playerData);
+        }
     }
 }

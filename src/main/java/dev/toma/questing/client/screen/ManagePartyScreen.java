@@ -11,6 +11,7 @@ import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.Packet;
 import dev.toma.questing.network.packet.c2s.C2S_LeaveParty;
 import dev.toma.questing.network.packet.c2s.C2S_RemovePartyMember;
+import dev.toma.questing.network.packet.c2s.C2S_RenameParty;
 import dev.toma.questing.utils.Alignment;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -28,9 +29,7 @@ import java.util.stream.Collectors;
 public class ManagePartyScreen extends OverlayScreen implements SynchronizeListener {
 
     private Party party;
-    private boolean editingName;
     private TextFieldWidget nameField;
-    private ScrollableWidgetList<UUID, PlayerProfileWidget> memberList;
 
     public ManagePartyScreen(Screen parentScreen, Party party) {
         super(new TranslationTextComponent("screen.questing.manage_party"), parentScreen);
@@ -52,7 +51,7 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
     @Override
     protected void init() {
         super.init();
-        editingName = party.isAuthorized(PartyPermission.MANAGE_PARTY, minecraft.player.getUUID());
+        boolean editingName = party.isAuthorized(PartyPermission.MANAGE_PARTY, minecraft.player.getUUID());
         String partyName = party.getName();
         int margin = 5;
         this.setDimensions(this.innerWidth, 4 * margin + 20 + 20 + 150);
@@ -67,11 +66,11 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         List<UUID> members = this.party.getMembers().stream()
                 .sorted(Comparator.comparingInt(party::getMemberSortIndexByRoles))
                 .collect(Collectors.toList());
-        memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
+        ScrollableWidgetList<UUID, PlayerProfileWidget> memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
         memberList.setEntryHeight(30);
 
         Button cancel = addButton(new Button(leftPos + margin, topPos + innerHeight - 20 - margin, innerWidth - margin * 2, 20, InviteToPartyScreen.CLOSE, this::close));
-        if (this.editingName) {
+        if (editingName) {
             Button confirm = addButton(new Button(0, topPos + innerHeight - 20 - margin, 0, 20, DialogScreen.TEXT_CONFIRM, this::confirm));
             this.spaceEqually(cancel, confirm, margin);
         }
@@ -114,6 +113,12 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
     }
 
     private void confirm(Button button) {
+        String originalPartyName = party.getName();
+        String newName = this.nameField.getValue();
+        if (!newName.equals(originalPartyName)) {
+            C2S_RenameParty packet = new C2S_RenameParty(newName);
+            Networking.toServer(packet);
+        }
         this.close(button);
     }
 }

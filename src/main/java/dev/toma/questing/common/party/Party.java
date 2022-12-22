@@ -214,17 +214,8 @@ public final class Party {
         }
     }
 
-    public void setPartyName(PlayerEntity origin, String partyName) {
-        this.executeWithAuthorization(PartyPermission.MANAGE_PARTY, origin.getUUID(), () -> {
-            this.partyName = partyName;
-            if (origin.level.isClientSide)
-                return;
-            S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
-            forEachOnlineMemberExcept(null, origin.level, player -> {
-                ServerPlayerEntity member = (ServerPlayerEntity) player;
-                Networking.toClient(member, packet);
-            });
-        });
+    public void setPartyName(String partyName) {
+        this.partyName = partyName;
     }
 
     public Optional<PartyInvite> findActiveInviteFor(UUID receiver) {

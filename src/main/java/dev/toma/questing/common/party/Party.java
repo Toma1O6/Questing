@@ -261,6 +261,8 @@ public final class Party {
 
     private void onInviteAccepted(PartyInvite invite, PlayerEntity invited) {
         PlayerDataProvider.getOptional(invited).ifPresent(data -> {
+            if (!this.canAddNewMember())
+                return;
             PartyData partyData = data.getPartyData();
             UUID originalParty = partyData.getPartyId();
             PartyManager manager = Questing.PARTY_MANAGER.get();
@@ -274,11 +276,9 @@ public final class Party {
                     party.removeMember(invited, invite.getInviteeId());
                 }
             });
-            if (this.canAddNewMember()) {
-                this.addMember(invited);
-                partyData.setActiveParty(this);
-                data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
-            }
+            this.addMember(invited);
+            partyData.setActiveParty(this);
+            data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
             this.activeInvites.remove(invite);
             if (!this.canAddNewMember()) {
                 // Cancel pending invites on client side when no more members can be added

@@ -27,6 +27,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -127,10 +128,14 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         boolean isAdministrator = party.hasAnyProfile(uuid, PartyPermission.ADMIN_ROLES);
         int offsetIndex = 0;
         if (isMe || imOwner || (hasEditRights && !isAdministrator)) {
-            widget.addWidget(new Button(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, new StringTextComponent("x"), btn -> {
+            Button leave = widget.addWidget(new Button(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, new StringTextComponent("x"), btn -> {
                 Packet<?> packet = isMe ? new C2S_LeaveParty() : new C2S_RemovePartyMember(uuid);
                 Networking.toServer(packet);
             }));
+            Set<UUID> memberSet = party.getMembers();
+            if (memberSet.size() == 1 && memberSet.contains(me)) {
+                leave.active = false;
+            }
             ++offsetIndex;
         }
         if (!isMe && (imOwner || (hasEditRights && !isAdministrator))) {

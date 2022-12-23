@@ -5,6 +5,7 @@ import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.PartyPermission;
+import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -37,6 +38,7 @@ public class C2S_RenameParty extends AbstractPacket<C2S_RenameParty> {
             PartyData partyData = data.getPartyData();
             manager.getPartyById(partyData.getPartyId()).ifPresent(party -> {
                 UUID senderId = player.getUUID();
+                Questing.LOGGER.debug(Networking.MARKER, "Processing rename request for {} by {}", party, player);
                 party.executeWithAuthorization(PartyPermission.MANAGE_PARTY, senderId, () -> {
                     party.setPartyName(partyName);
                     manager.sendClientData(player.level, party);

@@ -66,6 +66,7 @@ public final class PartyManager implements DataFileManager.DataHandler<Map<UUID,
         Party party = Party.create(player);
         partyRegister(party);
         PlayerDataProvider.getOptional(player).ifPresent(data -> data.getPartyData().setActiveParty(party));
+        Questing.LOGGER.debug(MARKER, "Adding {} to default party", player);
     }
 
     public Optional<Party> getPartyById(UUID partyId) {

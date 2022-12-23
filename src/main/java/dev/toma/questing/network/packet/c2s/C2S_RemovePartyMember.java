@@ -7,6 +7,7 @@ import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.PartyPermission;
+import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -42,11 +43,16 @@ public class C2S_RemovePartyMember extends AbstractPacket<C2S_RemovePartyMember>
             PartyManager manager = Questing.PARTY_MANAGER.get();
             manager.getPartyById(partyData.getPartyId()).ifPresent(party -> {
                 Set<UUID> members = party.getMembers();
-                if (!members.contains(removeMemberId))
+                if (!members.contains(removeMemberId)) {
+                    Questing.LOGGER.warn(Networking.MARKER, "Unable to remove {} from {} by {}, player is not member of party", removeMemberId, party, player);
                     return;
+                }
                 boolean isTargetAnAdmin = party.isAuthorized(PartyPermission.MANAGE_MEMBERS, removeMemberId);
-                if (isTargetAnAdmin && !party.isAuthorized(PartyPermission.OWNER, player.getUUID()))
+                if (isTargetAnAdmin && !party.isAuthorized(PartyPermission.OWNER, player.getUUID())) {
+                    Questing.LOGGER.warn(Networking.MARKER, "Unable to remove {} from {} by {}, member has same rights", removeMemberId, party, player);
                     return;
+                }
+                Questing.LOGGER.debug(Networking.MARKER, "Removing {} from {}", party.getMemberUsername(removeMemberId), party);
                 party.executeWithAuthorization(PartyPermission.MANAGE_MEMBERS, player.getUUID(), () -> {
                     party.removeMember(player, removeMemberId);
                     manager.sendClientData(player.level, party);

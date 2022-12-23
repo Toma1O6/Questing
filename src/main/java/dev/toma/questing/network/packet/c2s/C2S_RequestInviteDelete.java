@@ -5,6 +5,7 @@ import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.party.PartyInvite;
 import dev.toma.questing.common.party.PartyManager;
+import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -37,6 +38,7 @@ public class C2S_RequestInviteDelete extends AbstractPacket<C2S_RequestInviteDel
             PartyManager manager = Questing.PARTY_MANAGER.get();
             PartyData partyData = data.getPartyData();
             manager.getPartyById(partyData.getPartyId()).ifPresent(party -> {
+                Questing.LOGGER.debug(Networking.MARKER, "Processing invite cancel request by {} in {}. Invitee {}", player, party, invitedMember);
                 Optional<PartyInvite> inviteOptional = party.findActiveInviteFor(invitedMember);
                 inviteOptional.ifPresent(invite -> {
                     party.cancelInvite(player, invite);

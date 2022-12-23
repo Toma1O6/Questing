@@ -5,6 +5,7 @@ import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.PartyPermission;
+import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -49,12 +50,10 @@ public class C2S_UpdateMemberRoles extends AbstractPacket<C2S_UpdateMemberRoles>
             PartyData partyData = data.getPartyData();
             manager.getPartyById(partyData.getPartyId()).ifPresent(party -> {
                 if (!party.isMember(member)) {
+                    Questing.LOGGER.warn(Networking.MARKER, "Unable to update user roles by {} in {}, user is not a member", player, party);
                     return;
                 }
-                boolean hasUserMngRole = party.isAuthorized(PartyPermission.MANAGE_MEMBERS, member);
-                if (hasUserMngRole && !player.getUUID().equals(party.getOwner())) {
-                    return;
-                }
+                Questing.LOGGER.debug(Networking.MARKER, "Processing role update in {} by {}. Roles {}", player, party, roles);
                 party.executeWithAuthorization(PartyPermission.MANAGE_MEMBERS, player.getUUID(), () -> {
                     party.readjustRoles(member, roles);
                     manager.sendClientData(player.level, party);

@@ -75,6 +75,7 @@ public final class Party {
         this.members.add(uuid);
         this.usernameCache.put(uuid, member.getName().getString());
         this.permissionMap.put(uuid, PartyPermission.USER.getAsInt());
+        Questing.LOGGER.debug(MARKER, "Added new member {} to {}", member, this);
     }
 
     public void removeMember(PlayerEntity source, UUID member) {
@@ -87,10 +88,12 @@ public final class Party {
             this.usernameCache.remove(member);
             this.permissionMap.remove(member);
             Questing.PARTY_MANAGER.get().sendClientData(source.level, this);
+            Questing.LOGGER.debug(MARKER, "Removed member ID {} from party {}", member, this);
         });
     }
 
     public void disband(PlayerEntity owner) {
+        Questing.LOGGER.debug(MARKER, "Disbanding {}...", this);
         PartyManager manager = Questing.PARTY_MANAGER.get();
         this.forEachOnlineMemberExcept(owner.getUUID(), owner.level, player -> {
             manager.assignDefaultParty(player);
@@ -104,10 +107,12 @@ public final class Party {
     }
 
     public void invite(PlayerEntity sender, PlayerEntity receiver) {
+        Questing.LOGGER.debug(MARKER, "Creating new invite for {} in {}...", receiver, this);
         this.executeWithAuthorization(PartyPermission.INVITE_PLAYERS, sender.getUUID(), () -> {
             PartyInvite invite = PartyInvite.createInvite(receiver, sender);
             invite.setResponseHandlers(this::onInviteAccepted, this::onInviteDeclined);
             activeInvites.add(invite);
+            Questing.LOGGER.debug(MARKER, "Invite created {}, sending to client", invite);
             Questing.PARTY_MANAGER.get().sendClientData(sender.level, this);
             PlayerDataProvider.getOptional(receiver).ifPresent(playerData -> {
                 PartyData data = playerData.getPartyData();
@@ -118,9 +123,11 @@ public final class Party {
     }
 
     public void cancelInvite(PlayerEntity sender, PartyInvite invite) {
+        Questing.LOGGER.debug(MARKER, "Cancelling invite {} in {}", invite, this);
         this.executeWithAuthorization(PartyPermission.MANAGE_INVITES, sender.getUUID(), () -> {
             if (this.activeInvites.contains(invite)) {
                 this.activeInvites.remove(invite);
+                Questing.LOGGER.debug(MARKER, "Cancelled invite {}, sending to client", invite);
                 PlayerEntity invitee = sender.level.getPlayerByUUID(invite.getInviteeId());
                 if (invitee != null) {
                     PlayerDataProvider.getOptional(invitee).ifPresent(data -> {
@@ -193,6 +200,7 @@ public final class Party {
     }
 
     public void readjustRoles(UUID member, Set<PartyPermission> activeRoles) {
+        Questing.LOGGER.debug(MARKER, "Readjusting member {} roles in {}", member, this);
         if (isAuthorized(PartyPermission.OWNER, member)) {
             activeRoles.add(PartyPermission.OWNER);
         }
@@ -233,6 +241,7 @@ public final class Party {
     }
 
     public void setPartyName(String partyName) {
+        Questing.LOGGER.debug(MARKER, "Updating party {} name to {}", this, partyName);
         this.partyName = partyName;
     }
 
@@ -285,14 +294,17 @@ public final class Party {
 
     private void onInviteAccepted(PartyInvite invite, PlayerEntity invited) {
         PlayerDataProvider.getOptional(invited).ifPresent(data -> {
-            if (!this.canAddNewMember())
+            if (!this.canAddNewMember()) {
+                Questing.LOGGER.warn(MARKER, "Unable to complete invite {} in {}, party is full", invite, this);
                 return;
+            }
             PartyData partyData = data.getPartyData();
             UUID originalParty = partyData.getPartyId();
             PartyManager manager = Questing.PARTY_MANAGER.get();
             Optional<Party> oldParty = manager.getPartyById(originalParty);
             // Handle old party
             oldParty.ifPresent(party -> {
+                Questing.LOGGER.debug(MARKER, "Removing {} from old party", invited);
                 // If user was owner of the party, it needs to be disbanded
                 if (party.getOwner().equals(invited.getUUID())) {
                     party.disband(invited);
@@ -304,7 +316,9 @@ public final class Party {
             partyData.setActiveParty(this);
             data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
             this.activeInvites.remove(invite);
+            Questing.LOGGER.debug(MARKER, "Deleted used invite {} in {}", invite, this);
             if (!this.canAddNewMember()) {
+                Questing.LOGGER.debug(MARKER, "{} is now full, cancelling all pending invites", this);
                 // Cancel pending invites on client side when no more members can be added
                 this.activeInvites.forEach(activeInvite -> {
                     partyData.removeInvite(activeInvite);
@@ -315,17 +329,20 @@ public final class Party {
             }
             // synchronize data
             if (!invited.level.isClientSide) {
+                Questing.LOGGER.debug(MARKER, "Sending client data");
                 S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
                 this.forEachOnlineMemberExcept(null, invited.level, player -> {
                     ServerPlayerEntity member = (ServerPlayerEntity) player;
                     Networking.toClient(member, packet);
                 });
             }
+            Questing.LOGGER.debug(MARKER, "Invite acceptance process completed in {} for {}", this, invite);
         });
     }
 
     private void onInviteDeclined(PartyInvite invite, PlayerEntity invited) {
         this.activeInvites.remove(invite);
+        Questing.LOGGER.debug(MARKER, "Removing declined invite {} in {}", invite, this);
         if (!invited.level.isClientSide) {
             S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
             this.forEachOnlineMemberExcept(null, invited.level, player -> {

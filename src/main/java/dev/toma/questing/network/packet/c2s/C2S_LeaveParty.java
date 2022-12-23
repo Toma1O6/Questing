@@ -5,10 +5,12 @@ import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
 import dev.toma.questing.common.party.PartyManager;
+import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractActionPacket;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class C2S_LeaveParty extends AbstractActionPacket<C2S_LeaveParty> {
@@ -21,7 +23,9 @@ public class C2S_LeaveParty extends AbstractActionPacket<C2S_LeaveParty> {
             PartyManager manager = Questing.PARTY_MANAGER.get();
             manager.getPartyById(partyData.getPartyId()).ifPresent(party -> {
                 // If player is in "empty" party, simply ignore
-                if (party.getMembers().size() == 1) {
+                Set<UUID> members = party.getMembers();
+                if (members.size() == 1 && members.contains(player.getUUID())) {
+                    Questing.LOGGER.warn(Networking.MARKER, "{} tried to abandon default party {}, ignoring request", player, party);
                     return;
                 }
                 UUID uuid = player.getUUID();

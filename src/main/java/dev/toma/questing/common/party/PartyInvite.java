@@ -115,6 +115,18 @@ public final class PartyInvite {
         return Objects.hash(partyId, inviteeId);
     }
 
+    @Override
+    public String toString() {
+        return "PartyInvite{" +
+                "partyId=" + partyId +
+                ", inviteeId=" + inviteeId +
+                ", inviteSentById=" + inviteSentById +
+                ", partyName='" + partyName + '\'' +
+                ", senderName='" + senderName + '\'' +
+                ", invitedName='" + invitedName + '\'' +
+                '}';
+    }
+
     private Optional<PlayerEntity> getInvitee(World world) {
         PlayerEntity player = world.getPlayerByUUID(this.inviteeId);
         if (player == null) {

@@ -17,9 +17,11 @@ public class PartyInviteWidget extends ContainerWidget {
     public static final ITextComponent ACCEPT = new TranslationTextComponent("text.questing.accept");
     public static final ITextComponent DECLINE = new TranslationTextComponent("text.questing.decline");
 
-    private static final ITextComponent HEADER = new TranslationTextComponent("text.questing.new_party_invitation").withStyle(TextFormatting.BOLD);
-    private static final Function<String, ITextComponent> TEXT = (partyName) -> new TranslationTextComponent("text.questing.invitation_content", partyName);
+    private static final ITextComponent RECEIVER_HEADER = new TranslationTextComponent("text.questing.new_party_invitation").withStyle(TextFormatting.BOLD);
+    private static final ITextComponent MANAGER_HEADER = new TranslationTextComponent("text.questing.sent_party_invitation").withStyle(TextFormatting.BOLD);
+    private static final Function<String, ITextComponent> RECEIVER_TEXT = (partyName) -> new TranslationTextComponent("text.questing.invitation_content", partyName);
     private static final Function<String, ITextComponent> SENDER = (senderName) -> new TranslationTextComponent("text.questing.invitation_content.sender", senderName);
+    private static final Function<String, ITextComponent> INVITEE = (inviteeName) -> new TranslationTextComponent("text.questing.invitation_content.invitee", inviteeName);
 
     private final FontRenderer font;
     private final PartyInvite invite;
@@ -38,11 +40,13 @@ public class PartyInviteWidget extends ContainerWidget {
     @Override
     public void renderButton(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         if (this.senderView) {
-            // TODO
+            this.font.draw(stack, MANAGER_HEADER, x + 3, y + 3, 0xFFFFFF);
+            this.font.draw(stack, INVITEE.apply(invite.getInvitedName()), x + 3, y + 15, 0xFFFFFF);
+            this.font.draw(stack, SENDER.apply(invite.getSenderName()), x + 3, y + 27, 0xFFFFFF);
         } else {
-            this.font.draw(stack, HEADER, x + 3, y + 3, 0xFFFFFF);
+            this.font.draw(stack, RECEIVER_HEADER, x + 3, y + 3, 0xFFFFFF);
             this.font.draw(stack, SENDER.apply(invite.getSenderName()), x + 3, y + height - 13, 0xFFFFFF);
-            List<IReorderingProcessor> content = font.split(TEXT.apply(invite.getPartyName()), width - 10);
+            List<IReorderingProcessor> content = font.split(RECEIVER_TEXT.apply(invite.getPartyName()), width - 10);
             for (int i = 0; i < Math.min(content.size(), 2); i++) {
                 IReorderingProcessor processor = content.get(i);
                 this.font.draw(stack, processor, x + 3, y + 13 + i * 10, 0xFFFFFF);

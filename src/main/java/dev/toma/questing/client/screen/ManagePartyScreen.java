@@ -1,23 +1,27 @@
 package dev.toma.questing.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import dev.toma.questing.client.screen.widget.PartyInviteWidget;
 import dev.toma.questing.client.screen.widget.PlayerProfileWidget;
 import dev.toma.questing.client.screen.widget.ScrollableWidgetList;
 import dev.toma.questing.client.screen.widget.TextboxWidget;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.party.PartyInvite;
 import dev.toma.questing.common.party.PartyPermission;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.Packet;
 import dev.toma.questing.network.packet.c2s.C2S_LeaveParty;
 import dev.toma.questing.network.packet.c2s.C2S_RemovePartyMember;
 import dev.toma.questing.network.packet.c2s.C2S_RenameParty;
+import dev.toma.questing.network.packet.c2s.C2S_RequestInviteDelete;
 import dev.toma.questing.utils.Alignment;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -28,11 +32,16 @@ import java.util.stream.Collectors;
 
 public class ManagePartyScreen extends OverlayScreen implements SynchronizeListener {
 
+    public static final ITextComponent MANAGE_PARTY = new TranslationTextComponent("screen.questing.manage_party");
+    public static final ITextComponent MANAGE_INVITES = new TranslationTextComponent("screen.questing.manage_party_invites");
+    public static final ITextComponent NO_INVITES_SENT = new TranslationTextComponent("text.questing.no_invites_sent");
+
     private Party party;
     private TextFieldWidget nameField;
+    private boolean isInviteView;
 
     public ManagePartyScreen(Screen parentScreen, Party party) {
-        super(new TranslationTextComponent("screen.questing.manage_party"), parentScreen);
+        super(MANAGE_PARTY, parentScreen);
         this.party = party;
     }
 
@@ -48,29 +57,51 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
         this.propagateListenerEvent(l -> l.onPlayerDataUpdated(player, data));
     }
 
+    public void setInviteView(boolean inviteView) {
+        this.isInviteView = inviteView;
+        this.init(minecraft, width, height);
+    }
+
     @Override
     protected void init() {
         super.init();
-        boolean editingName = party.isAuthorized(PartyPermission.MANAGE_PARTY, minecraft.player.getUUID());
+        UUID playerId = minecraft.player.getUUID();
+        boolean editingName = party.isAuthorized(PartyPermission.MANAGE_PARTY, playerId);
+        boolean canManageInvites = party.isAuthorized(PartyPermission.MANAGE_INVITES, playerId);
         String partyName = party.getName();
         int margin = 5;
-        this.setDimensions(this.innerWidth, 4 * margin + 20 + 20 + 150);
-        if (editingName) {
-            nameField = addButton(new TextFieldWidget(font, leftPos + margin, topPos + margin, innerWidth - margin * 2, 20, StringTextComponent.EMPTY));
-            nameField.setValue(partyName);
-        } else {
-            TextboxWidget textbox = addButton(new TextboxWidget(leftPos + margin, topPos + margin, innerWidth - margin * 2, 20, new StringTextComponent(partyName), font));
-            textbox.setTextRenderer(FontRenderer::drawShadow);
-            textbox.setTextAlignment(Alignment.VERTICAL);
+        int windowHeight = 4 * margin + 20 + 20 + 150;
+        if (!this.isInviteView || canManageInvites) {
+            windowHeight += 25;
         }
-        List<UUID> members = this.party.getMembers().stream()
-                .sorted(Comparator.comparingInt(party::getMemberSortIndexByRoles))
-                .collect(Collectors.toList());
-        ScrollableWidgetList<UUID, PlayerProfileWidget> memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
-        memberList.setEntryHeight(30);
+        this.setDimensions(this.innerWidth, windowHeight);
+        if (this.isInviteView) {
+            List<PartyInvite> invites = this.party.getActiveInvites();
+            ScrollableWidgetList<PartyInvite, PartyInviteWidget> inviteList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 20, innerWidth - 2 * margin, 160, invites, this::constructInviteWidget));
+            inviteList.setEntryHeight(40);
+            inviteList.setMessage(NO_INVITES_SENT);
+            addButton(new Button(leftPos + margin, topPos + 185, innerWidth - 2 * margin, 20, MANAGE_PARTY, btn -> setInviteView(false)));
+        } else {
+            if (editingName) {
+                nameField = addButton(new TextFieldWidget(font, leftPos + margin, topPos + margin, innerWidth - margin * 2, 20, StringTextComponent.EMPTY));
+                nameField.setValue(partyName);
+            } else {
+                TextboxWidget textbox = addButton(new TextboxWidget(leftPos + margin, topPos + margin, innerWidth - margin * 2, 20, new StringTextComponent(partyName), font));
+                textbox.setTextRenderer(FontRenderer::drawShadow);
+                textbox.setTextAlignment(Alignment.VERTICAL);
+            }
+            List<UUID> members = this.party.getMembers().stream()
+                    .sorted(Comparator.comparingInt(party::getMemberSortIndexByRoles))
+                    .collect(Collectors.toList());
+            ScrollableWidgetList<UUID, PlayerProfileWidget> memberList = addButton(new ScrollableWidgetList<>(leftPos + margin, topPos + 2 * margin + 20, innerWidth - margin * 2, 150, members, this::constructPlayerProfileWidget));
+            memberList.setEntryHeight(30);
+            if (canManageInvites) {
+                addButton(new Button(leftPos + margin, topPos + innerHeight - 2 * (margin + 20), innerWidth - margin * 2, 20, MANAGE_INVITES, btn -> setInviteView(true)));
+            }
+        }
 
         Button cancel = addButton(new Button(leftPos + margin, topPos + innerHeight - 20 - margin, innerWidth - margin * 2, 20, InviteToPartyScreen.CLOSE, this::close));
-        if (editingName) {
+        if (editingName && !this.isInviteView) {
             Button confirm = addButton(new Button(0, topPos + innerHeight - 20 - margin, 0, 20, DialogScreen.TEXT_CONFIRM, this::confirm));
             this.spaceEqually(cancel, confirm, margin);
         }
@@ -80,6 +111,9 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
     @Override
     protected void drawContent(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         outlinedFill(stack, 1);
+        if (this.isInviteView) {
+            this.font.draw(stack, MANAGE_INVITES, leftPos + 5, topPos + 5, 0xFFFFFF);
+        }
     }
 
     private PlayerProfileWidget constructPlayerProfileWidget(UUID uuid, int x, int y, int width, int height) {
@@ -106,6 +140,16 @@ public class ManagePartyScreen extends OverlayScreen implements SynchronizeListe
                 minecraft.setScreen(permissionsScreen);
             }));
         }
+        return widget;
+    }
+
+    private PartyInviteWidget constructInviteWidget(PartyInvite invite, int x, int y, int width, int height) {
+        PartyInviteWidget widget = new PartyInviteWidget(x, y, width, height, font, invite);
+        widget.setSenderView(true);
+        widget.addWidget(new Button(x + width - 65, y + height - 25, 60, 20, DialogScreen.TEXT_CANCEL, button -> {
+            C2S_RequestInviteDelete packet = new C2S_RequestInviteDelete(invite.getInviteeId());
+            Networking.toServer(packet);
+        }));
         return widget;
     }
 

@@ -117,6 +117,24 @@ public final class Party {
         });
     }
 
+    public void cancelInvite(PlayerEntity sender, PartyInvite invite) {
+        this.executeWithAuthorization(PartyPermission.MANAGE_INVITES, sender.getUUID(), () -> {
+            if (this.activeInvites.contains(invite)) {
+                this.activeInvites.remove(invite);
+                PlayerEntity invitee = sender.level.getPlayerByUUID(invite.getInviteeId());
+                if (invitee != null) {
+                    PlayerDataProvider.getOptional(invitee).ifPresent(data -> {
+                        PartyData partyData = data.getPartyData();
+                        partyData.removeInvite(invite);
+                        data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
+                    });
+                }
+            } else {
+                Questing.LOGGER.warn(MARKER, "Attempted to cancel non-existent invite. Request origin: {}, invite: {}", sender, invite);
+            }
+        });
+    }
+
     public UUID getOwner() {
         return owner;
     }
@@ -227,6 +245,12 @@ public final class Party {
             }
         }
         return invite != null ? Optional.of(invite) : Optional.empty();
+    }
+
+    public List<PartyInvite> getActiveInvites() {
+        return this.activeInvites.stream()
+                .sorted(Comparator.comparing(PartyInvite::getInvitedName))
+                .collect(Collectors.toList());
     }
 
     @Override

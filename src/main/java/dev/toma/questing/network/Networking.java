@@ -53,6 +53,7 @@ public final class Networking {
             registerPacket(C2S_UpdateMemberRoles.class, C2S_UpdateMemberRoles::new);
             registerPacket(C2S_RenameParty.class, C2S_RenameParty::new);
             registerPacket(C2S_RequestInviteDelete.class, C2S_RequestInviteDelete::new);
+            registerPacket(C2S_CheckMyInvites.class, pb -> new C2S_CheckMyInvites());
         }
 
         private static <P extends Packet<P>> void registerPacket(Class<P> packetType, Function<PacketBuffer, P> decoder) {

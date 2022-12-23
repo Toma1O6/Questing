@@ -7,6 +7,8 @@ import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyManager;
+import dev.toma.questing.network.Networking;
+import dev.toma.questing.network.packet.c2s.C2S_CheckMyInvites;
 import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
@@ -40,6 +42,7 @@ public final class QuestsScreen extends Screen implements SynchronizeListener {
     @Override
     protected void init() {
         // HEADER
+        Networking.toServer(new C2S_CheckMyInvites());
         PlayerDataProvider.getOptional(minecraft.player).ifPresent(data -> {
             PartyManager manager = Questing.PARTY_MANAGER.get();
             manager.getPartyById(data.getPartyData().getPartyId()).ifPresent(party -> {

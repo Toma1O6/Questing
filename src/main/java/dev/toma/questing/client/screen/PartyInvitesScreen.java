@@ -9,6 +9,7 @@ import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyInvite;
 import dev.toma.questing.network.Networking;
+import dev.toma.questing.network.packet.c2s.C2S_CheckMyInvites;
 import dev.toma.questing.network.packet.c2s.C2S_SendInviteResponse;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -41,6 +42,7 @@ public class PartyInvitesScreen extends OverlayScreen implements SynchronizeList
 
     @Override
     protected void init() {
+        Networking.toServer(new C2S_CheckMyInvites());
         super.init();
         setDimensions(230, 215);
 

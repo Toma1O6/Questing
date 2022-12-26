@@ -11,6 +11,8 @@ import java.util.List;
 public final class NotificationRendererProvider implements NotificationManager.NotificationListener {
 
     public static final long RENDERER_TIMEOUT = 100L; // render should never take longer than 2 ticks
+    public static final int NOTIFICATION_WIDTH = 100;
+    public static final int NOTIFICATION_HEIGHT = 30;
 
     private final List<NotificationRenderer> renderers = new ArrayList<>();
     private Notification notification;

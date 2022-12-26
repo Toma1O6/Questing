@@ -2,6 +2,8 @@ package dev.toma.questing.common.notification;
 
 import dev.toma.questing.utils.RenderUtils;
 import dev.toma.questing.utils.Utils;
+import net.minecraft.util.IReorderingProcessor;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
@@ -24,7 +26,7 @@ public class Notification {
     private int currentAppearTimer;
     private int lastAppearTimer;
 
-    private Notification(NotificationIcon<?> icon, ITextComponent header, ITextComponent[] content, int renderTimer, int appearTimer) {
+    protected Notification(NotificationIcon<?> icon, ITextComponent header, ITextComponent[] content, int renderTimer, int appearTimer) {
         this.icon = icon;
         this.header = header;
         this.content = content;
@@ -38,7 +40,7 @@ public class Notification {
             if (++timer > renderTimer) {
                 timer = 0;
                 lastTimer = 0;
-                if (renderIndex++ >= content.length) {
+                if (renderIndex++ >= this.getContentSize()) {
                     this.advanceStage();
                 }
             }
@@ -60,6 +62,19 @@ public class Notification {
         return 1.0F - interpolated;
     }
 
+    public void copyRenderingAttributes(Notification other) {
+        this.setStage(other.stage);
+        this.renderIndex = MathHelper.clamp(other.renderIndex, 0, this.getContentSize() - 1);
+        this.timer = other.timer;
+        this.lastTimer = other.lastTimer;
+        this.currentAppearTimer = other.currentAppearTimer;
+        this.lastAppearTimer = other.lastAppearTimer;
+    }
+
+    public boolean isFirstOrLastStage() {
+        return renderIndex == 0 || renderIndex == this.getContentSize() - 1;
+    }
+
     public boolean isForRemoval() {
         return this.stage == NotificationStage.COMPLETED;
     }
@@ -76,8 +91,24 @@ public class Notification {
         return header;
     }
 
-    public ITextComponent getContent() {
-        return content[renderIndex];
+    public int getRenderTimer() {
+        return renderTimer;
+    }
+
+    public int getAppearTimer() {
+        return appearTimer;
+    }
+
+    public int getRenderIndex() {
+        return renderIndex;
+    }
+
+    public ITextComponent[] getAllContents() {
+        return this.content;
+    }
+
+    protected int getContentSize() {
+        return this.content.length;
     }
 
     private void advanceStage() {

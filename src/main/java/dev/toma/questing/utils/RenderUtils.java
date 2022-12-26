@@ -17,7 +17,7 @@ public final class RenderUtils {
 
     public static final int DEFAULT_DIALOG_BG = 0x66 << 24;
 
-    public static void blit(MatrixStack stack, int x1, int y1, int x2, int y2, float u1, float v1, float u2, float v2) {
+    public static void blit(MatrixStack stack, float x1, float y1, float x2, float y2, float u1, float v1, float u2, float v2) {
         Matrix4f pose = stack.last().pose();
         BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
@@ -51,6 +51,10 @@ public final class RenderUtils {
 
     public static float getCenter(float start, float containerSize, float objectSize) {
         return start + (containerSize - objectSize) / 2.0F;
+    }
+
+    public static float linearInterpolate(float last, float current, float partial) {
+        return last + (current - last) * partial;
     }
 
     private RenderUtils() {}

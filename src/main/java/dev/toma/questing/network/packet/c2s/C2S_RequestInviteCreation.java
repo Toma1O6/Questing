@@ -7,6 +7,7 @@ import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
+import dev.toma.questing.utils.PlayerLookup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -42,7 +43,7 @@ public class C2S_RequestInviteCreation extends AbstractPacket<C2S_RequestInviteC
             PartyManager manager = Questing.PARTY_MANAGER.get();
             Optional<Party> partyOptional = manager.getPartyById(partyId);
             partyOptional.ifPresent(party -> {
-                PlayerEntity invitee = packetSrc.level.getPlayerByUUID(invite);
+                ServerPlayerEntity invitee = PlayerLookup.findServerPlayer(packetSrc.getLevel(), invite);
                 if (invitee == null) {
                     Questing.LOGGER.warn(Networking.MARKER, "{} cannot invite player {}, no player found", packetSrc, invite);
                     return;

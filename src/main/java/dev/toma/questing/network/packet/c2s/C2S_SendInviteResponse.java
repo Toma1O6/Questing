@@ -59,9 +59,9 @@ public class C2S_SendInviteResponse extends AbstractPacket<C2S_SendInviteRespons
                 }
                 Questing.LOGGER.debug(Networking.MARKER, "Processing {} response in {}. Accepted: {}", activeInvite, party, accepted);
                 if (accepted) {
-                    activeInvite.acceptInvite(player.level);
+                    activeInvite.acceptInvite(player.getLevel());
                 } else {
-                    activeInvite.declineInvite(player.level);
+                    activeInvite.declineInvite(player.getLevel());
                 }
             });
         });

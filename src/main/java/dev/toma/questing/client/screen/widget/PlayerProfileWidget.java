@@ -3,13 +3,13 @@ package dev.toma.questing.client.screen.widget;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.toma.questing.utils.Alignment;
+import dev.toma.questing.utils.PlayerLookup;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 
@@ -32,11 +32,11 @@ public final class PlayerProfileWidget extends ContainerWidget {
         this.playerId = playerId;
         this.canShowName = Math.abs(height - width) > 25;
         this.pictureSize = Math.min(width, height);
-        PlayerEntity player = Minecraft.getInstance().level.getPlayerByUUID(playerId);
+        NetworkPlayerInfo playerInfo = PlayerLookup.findClientPlayerInfo(playerId);
         if (this.canShowName) {
-            this.tooltipText = player != null ? player.getName().getString() : "Unknown player";
+            this.tooltipText = playerInfo != null ? playerInfo.getProfile().getName() : "Unknown player";
         }
-        this.isOnline = player != null;
+        this.isOnline = playerInfo != null;
     }
 
     public void forceTooltipText(@Nullable String text) {
@@ -61,10 +61,10 @@ public final class PlayerProfileWidget extends ContainerWidget {
         }
         Minecraft client = Minecraft.getInstance();
         TextureManager textureManager = client.getTextureManager();
-        PlayerEntity player = client.player.level.getPlayerByUUID(this.playerId);
+        NetworkPlayerInfo playerInfo = PlayerLookup.findClientPlayerInfo(this.playerId);
         ResourceLocation skinTexture = DefaultPlayerSkin.getDefaultSkin(this.playerId);
-        if (player != null) {
-            skinTexture = ((AbstractClientPlayerEntity) player).getSkinTextureLocation();
+        if (playerInfo != null) {
+            skinTexture = playerInfo.getSkinLocation();
         }
         textureManager.bind(skinTexture);
         float min =  8.0F / 64.0F;

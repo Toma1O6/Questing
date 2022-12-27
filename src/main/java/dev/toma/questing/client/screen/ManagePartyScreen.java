@@ -69,6 +69,9 @@ public class ManagePartyScreen extends NotificationOverlayScreen implements Sync
         UUID playerId = minecraft.player.getUUID();
         boolean editingName = party.isAuthorized(PartyPermission.MANAGE_PARTY, playerId);
         boolean canManageInvites = party.isAuthorized(PartyPermission.MANAGE_INVITES, playerId);
+        if (this.isInviteView && !canManageInvites) {
+            this.isInviteView = false;
+        }
         String partyName = party.getName();
         int margin = 5;
         int windowHeight = 4 * margin + 20 + 20 + 150;

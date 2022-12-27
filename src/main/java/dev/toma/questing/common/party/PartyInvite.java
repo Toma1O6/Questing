@@ -6,10 +6,12 @@ import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.utils.Codecs;
+import dev.toma.questing.utils.PlayerLookup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Util;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -70,11 +72,11 @@ public final class PartyInvite {
         this.onDecline = Objects.requireNonNull(onDecline);
     }
 
-    public void acceptInvite(World world) {
+    public void acceptInvite(ServerWorld world) {
         this.getInvitee(world).ifPresent(player -> this.onAccept.onEvent(this, player));
     }
 
-    public void declineInvite(World world) {
+    public void declineInvite(ServerWorld world) {
         this.getInvitee(world).ifPresent(player -> this.onDecline.onEvent(this, player));
     }
 
@@ -127,8 +129,8 @@ public final class PartyInvite {
                 '}';
     }
 
-    private Optional<PlayerEntity> getInvitee(World world) {
-        PlayerEntity player = world.getPlayerByUUID(this.inviteeId);
+    private Optional<ServerPlayerEntity> getInvitee(ServerWorld world) {
+        ServerPlayerEntity player = PlayerLookup.findServerPlayer(world, inviteeId);
         if (player == null) {
             Questing.LOGGER.error(Party.MARKER, "Unable to process invite event, invited player is null and thus couldn't complete the invite. Party {}, Invitee {}", partyId, inviteeId);
             return Optional.empty();

@@ -1,5 +1,6 @@
 package dev.toma.questing.client.screen;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.screen.widget.SearchFieldWidget;
 import dev.toma.questing.client.screen.widget.TextboxWidget;
@@ -8,7 +9,7 @@ import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.c2s.C2S_RequestInviteCreation;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -26,7 +27,7 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
     private static final String TOO_MANY_PLAYERS_FOUND = "text.questing.error.too_many_players_found";
     private static final String PLAYER_ALREADY_IN_PARTY = "text.questing.error.player_already_in_party";
     private Party currentParty;
-    private SearchFieldWidget<? extends PlayerEntity> searchFieldWidget;
+    private SearchFieldWidget<NetworkPlayerInfo> searchFieldWidget;
     private TextboxWidget textboxWidget;
 
     public InviteToPartyScreen(Screen layeredScreen, Party currentParty) {
@@ -46,10 +47,10 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
         super.init();
         int margin = 5;
         Set<UUID> members = this.currentParty.getMembers();
-        searchFieldWidget = addButton(new SearchFieldWidget<>(font, leftPos + margin, topPos + margin, innerWidth - 2 * margin, 20, () -> minecraft.level.players().stream()
-                .filter(player -> !members.contains(player.getUUID()))
+        searchFieldWidget = addButton(new SearchFieldWidget<>(font, leftPos + margin, topPos + margin, innerWidth - 2 * margin, 20, () -> minecraft.getConnection().getOnlinePlayers().stream()
+                .filter(info -> !members.contains(info.getProfile().getId()))
                 .collect(Collectors.toList())));
-        searchFieldWidget.setTextFormatter(player -> player.getName().getString());
+        searchFieldWidget.setTextFormatter(info -> info.getProfile().getName());
         searchFieldWidget.suggests(10);
         searchFieldWidget.assignDefaultValue();
         textboxWidget = addButton(new TextboxWidget(leftPos + margin, topPos + innerHeight - 45, innerWidth - 10, 15, StringTextComponent.EMPTY, font));
@@ -86,7 +87,7 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
 
     private void inviteClicked(Button button) {
         this.textboxWidget.setMessage(StringTextComponent.EMPTY);
-        List<? extends PlayerEntity> queryResults = this.searchFieldWidget.getResults();
+        List<NetworkPlayerInfo> queryResults = this.searchFieldWidget.getResults();
         if (queryResults.size() == 0) {
             this.textboxWidget.setMessage(new TranslationTextComponent(PLAYER_NOT_FOUND, this.searchFieldWidget.getValue()));
         } else if (queryResults.size() > 1) {
@@ -95,11 +96,12 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
         ITextComponent message = this.textboxWidget.getMessage();
         if (message.equals(StringTextComponent.EMPTY)) {
             Set<UUID> partyMembers = this.currentParty.getMembers();
-            PlayerEntity result = queryResults.get(0);
-            if (partyMembers.contains(result.getUUID())) {
-                this.textboxWidget.setMessage(new TranslationTextComponent(PLAYER_ALREADY_IN_PARTY, result.getName().getString()));
+            NetworkPlayerInfo result = queryResults.get(0);
+            GameProfile profile = result.getProfile();
+            if (partyMembers.contains(profile.getId())) {
+                this.textboxWidget.setMessage(new TranslationTextComponent(PLAYER_ALREADY_IN_PARTY, profile.getName()));
             } else {
-                C2S_RequestInviteCreation packet = new C2S_RequestInviteCreation(result.getUUID());
+                C2S_RequestInviteCreation packet = new C2S_RequestInviteCreation(profile.getId());
                 Networking.toServer(packet);
                 this.closeClicked(button);
             }

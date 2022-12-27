@@ -11,9 +11,11 @@ import dev.toma.questing.common.notification.NotificationsHelper;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.s2c.S2C_SynchronizePartyData;
 import dev.toma.questing.utils.Codecs;
+import dev.toma.questing.utils.PlayerLookup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
@@ -127,13 +129,13 @@ public final class Party {
         });
     }
 
-    public void cancelInvite(PlayerEntity sender, PartyInvite invite) {
+    public void cancelInvite(ServerPlayerEntity sender, PartyInvite invite) {
         Questing.LOGGER.debug(MARKER, "Cancelling invite {} in {}", invite, this);
         this.executeWithAuthorization(PartyPermission.MANAGE_INVITES, sender.getUUID(), () -> {
             if (this.activeInvites.contains(invite)) {
                 this.activeInvites.remove(invite);
                 Questing.LOGGER.debug(MARKER, "Cancelled invite {}, sending to client", invite);
-                PlayerEntity invitee = sender.level.getPlayerByUUID(invite.getInviteeId());
+                ServerPlayerEntity invitee = PlayerLookup.findServerPlayer(sender.getLevel(), invite.getInviteeId());
                 if (invitee != null) {
                     PlayerDataProvider.getOptional(invitee).ifPresent(data -> {
                         PartyData partyData = data.getPartyData();
@@ -160,8 +162,8 @@ public final class Party {
         return this.usernameCache.getOrDefault(member, member.toString());
     }
 
-    public Optional<PlayerEntity> getOwner(World world) {
-        return Optional.ofNullable(world.getPlayerByUUID(this.owner));
+    public Optional<ServerPlayerEntity> getOwner(ServerWorld world) {
+        return Optional.ofNullable(PlayerLookup.findServerPlayer(world, owner));
     }
 
     public void executeWithAuthorization(PartyPermission type, UUID id, Runnable onSuccess) {
@@ -235,11 +237,13 @@ public final class Party {
     }
 
     public void forEachOnlineMemberExcept(@Nullable UUID exception, World world, Consumer<PlayerEntity> action) {
+        if (world.isClientSide)
+            return;
         for (UUID memberId : members) {
             if (Objects.equals(memberId, exception)) {
                 continue;
             }
-            PlayerEntity player = world.getPlayerByUUID(memberId);
+            PlayerEntity player = PlayerLookup.findServerPlayer((ServerWorld) world, memberId);
             if (player != null) {
                 action.accept(player);
             }

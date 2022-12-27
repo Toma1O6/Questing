@@ -11,7 +11,7 @@ import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.PartyPermission;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
-import net.minecraft.entity.player.PlayerEntity;
+import dev.toma.questing.utils.PlayerLookup;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -60,7 +60,7 @@ public class C2S_RemovePartyMember extends AbstractPacket<C2S_RemovePartyMember>
                     party.removeMember(player, removeMemberId);
                     manager.sendClientData(player.level, party);
                     party.forEachOnlineMemberExcept(null, player.level, pl -> NotificationsHelper.sendNotification(pl, NotificationFactory.getMemberKickedNotification(party, oldMemberName, player.getUUID())));
-                    PlayerEntity removedPlayer = player.level.getPlayerByUUID(removeMemberId);
+                    ServerPlayerEntity removedPlayer = PlayerLookup.findServerPlayer(player.getLevel(), removeMemberId);
                     if (removedPlayer != null) {
                         manager.assignDefaultParty(removedPlayer);
                         NotificationsHelper.sendNotification(removedPlayer, NotificationFactory.getKickedNotification(party.getName(), player.getUUID()));

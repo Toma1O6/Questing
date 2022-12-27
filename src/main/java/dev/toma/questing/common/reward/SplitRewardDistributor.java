@@ -8,6 +8,7 @@ import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,10 +29,12 @@ public class SplitRewardDistributor implements RewardDistributor {
 
     @Override
     public Map<PlayerEntity, List<Reward>> generateDistributedRewards(World world, Quest quest) {
+        if (world.isClientSide)
+            return Collections.emptyMap();
         Party party = quest.getParty();
         UUID ownerId = party.getOwner();
         Map<PlayerEntity, List<Reward>> rewards = new HashMap<>();
-        party.getOwner(world)
+        party.getOwner((ServerWorld) world)
                 .ifPresent(owner -> generateRewards(owner, quest, rewards, ownerRewards));
         party.forEachOnlineMemberExcept(ownerId, world, player -> generateRewards(player, quest, rewards, otherRewards));
         return rewards;

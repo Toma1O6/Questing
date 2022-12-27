@@ -2,10 +2,13 @@ package dev.toma.questing.common.notification;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.Questing;
+import dev.toma.questing.utils.PlayerLookup;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.network.play.NetworkPlayerInfo;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -190,9 +193,9 @@ public class NotificationIcon<T> {
         public void drawIcon(MatrixStack stack, float x, float y, int width, int height) {
             Minecraft client = Minecraft.getInstance();
             if (cachedLocation == null) {
-                ClientWorld world = client.level;
-                AbstractClientPlayerEntity clientPlayer = (AbstractClientPlayerEntity) world.getPlayerByUUID(this.getIconData());
-                this.cachedLocation = clientPlayer.getSkinTextureLocation();
+                UUID playerId = this.getIconData();
+                NetworkPlayerInfo playerInfo = PlayerLookup.findClientPlayerInfo(playerId);
+                this.cachedLocation = playerInfo != null ? playerInfo.getSkinLocation() : DefaultPlayerSkin.getDefaultSkin(playerId);
             }
             client.getTextureManager().bind(cachedLocation);
             float min =  8.0F / 64.0F;

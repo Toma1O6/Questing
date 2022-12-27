@@ -67,7 +67,7 @@ public final class Party {
 
     public boolean canAddNewMember() {
         int size = this.members.size();
-        return size < Questing.<Integer>getProperty(Questing.Properties.PARTY_SIZE).orElse(5);
+        return size < Questing.config.maxPartySize;
     }
 
     public void addMember(PlayerEntity member) {
@@ -183,17 +183,6 @@ public final class Party {
             }
         }
         return false;
-    }
-
-    public boolean hasAnyProfile(UUID uuid, PartyPermission... profiles) {
-        boolean found = false;
-        for (PartyPermission profile : profiles) {
-            if (this.isAuthorized(profile, uuid)) {
-                found = true;
-                break;
-            }
-        }
-        return found;
     }
 
     public Set<PartyPermission> getMemberProfiles(UUID member) {

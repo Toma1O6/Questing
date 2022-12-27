@@ -55,5 +55,9 @@
   "permission.questing.user": "User",
 
   "key.questing.category": "Questing",
-  "key.questing.view_quests": "View Quests"
+  "key.questing.view_quests": "View Quests",
+
+  "config.screen.questing": "Questing Configuration",
+  "config.questing.option.receiveNotifications": "Receive Notifications",
+  "config.questing.option.maxPartySize": "Max Party Size"
 }

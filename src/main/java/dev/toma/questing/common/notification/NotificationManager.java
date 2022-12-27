@@ -2,6 +2,7 @@ package dev.toma.questing.common.notification;
 
 import com.google.common.collect.Queues;
 import dev.toma.questing.Questing;
+import dev.toma.questing.config.QuestingConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,9 @@ public final class NotificationManager {
     private Notification activeNotification;
 
     public void enqueue(Notification notification) {
+        if (!Questing.config.receiveNotifications) {
+            return;
+        }
         if (!this.notifications.offer(notification)) {
             Questing.LOGGER.error(Notification.MARKER, "Failed to enqueue notification: {}", notification);
             return;

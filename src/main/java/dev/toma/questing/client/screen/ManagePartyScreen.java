@@ -131,7 +131,7 @@ public class ManagePartyScreen extends NotificationOverlayScreen implements Sync
         boolean isMe = uuid.equals(me);
         boolean imOwner = party.isAuthorized(PartyPermission.OWNER, me);
         boolean hasEditRights = party.isAuthorized(PartyPermission.MANAGE_MEMBERS, me);
-        boolean isAdministrator = party.hasAnyProfile(uuid, PartyPermission.ADMIN_ROLES);
+        boolean isAdministrator = party.isAuthorized(PartyPermission.MANAGE_MEMBERS, uuid);
         int offsetIndex = 0;
         if (isMe || imOwner || (hasEditRights && !isAdministrator)) {
             Button leave = widget.addWidget(new ImageButton(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, isMe && imOwner ? DISBAND_ICON : LEAVE_ICON, btn -> {

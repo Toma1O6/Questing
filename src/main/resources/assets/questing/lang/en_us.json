@@ -20,6 +20,8 @@
   "text.questing.no_invites_received": "You have no active invites",
   "text.questing.no_invites_sent": "There are no pending invites",
 
+  "text.questing.suggestion.enter_player_name": "Enter player name...",
+
   "text.questing.error.player_not_found": "Player '%s' not found",
   "text.questing.error.too_many_players_found": "Specify player name. '%s' is too general",
   "text.questing.error.player_already_in_party": "'%s' is already in party",

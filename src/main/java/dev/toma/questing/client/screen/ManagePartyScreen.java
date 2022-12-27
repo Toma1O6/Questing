@@ -1,10 +1,8 @@
 package dev.toma.questing.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dev.toma.questing.client.screen.widget.PartyInviteWidget;
-import dev.toma.questing.client.screen.widget.PlayerProfileWidget;
-import dev.toma.questing.client.screen.widget.ScrollableWidgetList;
-import dev.toma.questing.client.screen.widget.TextboxWidget;
+import dev.toma.questing.Questing;
+import dev.toma.questing.client.screen.widget.*;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyInvite;
@@ -21,6 +19,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -36,6 +35,9 @@ public class ManagePartyScreen extends NotificationOverlayScreen implements Sync
     public static final ITextComponent MANAGE_PARTY = new TranslationTextComponent("screen.questing.manage_party");
     public static final ITextComponent MANAGE_INVITES = new TranslationTextComponent("screen.questing.manage_party_invites");
     public static final ITextComponent NO_INVITES_SENT = new TranslationTextComponent("text.questing.no_invites_sent");
+    public static final ResourceLocation LEAVE_ICON = new ResourceLocation(Questing.MODID, "textures/ui/leave.png");
+    public static final ResourceLocation DISBAND_ICON = new ResourceLocation(Questing.MODID, "textures/ui/disband.png");
+    public static final ResourceLocation MANAGE_ICON = new ResourceLocation(Questing.MODID, "textures/ui/manage_member.png");
 
     private Party party;
     private TextFieldWidget nameField;
@@ -132,7 +134,7 @@ public class ManagePartyScreen extends NotificationOverlayScreen implements Sync
         boolean isAdministrator = party.hasAnyProfile(uuid, PartyPermission.ADMIN_ROLES);
         int offsetIndex = 0;
         if (isMe || imOwner || (hasEditRights && !isAdministrator)) {
-            Button leave = widget.addWidget(new Button(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, new StringTextComponent("x"), btn -> {
+            Button leave = widget.addWidget(new ImageButton(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, isMe && imOwner ? DISBAND_ICON : LEAVE_ICON, btn -> {
                 Packet<?> packet = isMe ? new C2S_LeaveParty() : new C2S_RemovePartyMember(uuid);
                 Networking.toServer(packet);
             }));
@@ -143,7 +145,7 @@ public class ManagePartyScreen extends NotificationOverlayScreen implements Sync
             ++offsetIndex;
         }
         if (!isMe && (imOwner || (hasEditRights && !isAdministrator))) {
-            widget.addWidget(new Button(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, new StringTextComponent("E"), btn -> {
+            widget.addWidget(new ImageButton(x + width - 25 - offsetIndex * 22, y + 5, 20, 20, MANAGE_ICON, btn -> {
                 EditMemberPermissionsScreen permissionsScreen = new EditMemberPermissionsScreen(this, party, uuid);
                 permissionsScreen.setzIndex(401);
                 minecraft.setScreen(permissionsScreen);

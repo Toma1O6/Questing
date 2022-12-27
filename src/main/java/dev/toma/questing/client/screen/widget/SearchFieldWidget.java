@@ -5,6 +5,7 @@ import dev.toma.questing.utils.Alignment;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 
@@ -36,6 +37,7 @@ public class SearchFieldWidget<IN> extends TextFieldWidget {
             results = inputDataProvider.get().stream()
                     .filter(element -> this.filter.test(element, text))
                     .collect(Collectors.toList());
+            setSuggestion(text.isEmpty() ? getMessage().getString() : null);
         });
     }
 
@@ -47,9 +49,21 @@ public class SearchFieldWidget<IN> extends TextFieldWidget {
         toStringFormatter = Objects.requireNonNull(formatter);
     }
 
+    public void setFilter(BiPredicate<IN, String> filter) {
+        this.filter = filter;
+    }
+
     public void assignDefaultValue() {
         if (inputDataProvider.get().size() == 1) {
             setValue(toStringFormatter.apply(inputDataProvider.get().get(0)));
+        }
+    }
+
+    @Override
+    public void setMessage(ITextComponent message) {
+        super.setMessage(message);
+        if (this.getValue().isEmpty()) {
+            this.setSuggestion(message.getString());
         }
     }
 

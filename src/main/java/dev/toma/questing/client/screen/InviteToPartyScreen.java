@@ -23,6 +23,7 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
 
     public static final ITextComponent CLOSE = new TranslationTextComponent("text.questing.close");
     private static final ITextComponent INVITE = new TranslationTextComponent("text.questing.send_invite");
+    private static final ITextComponent SUGGEST_PLAYER_NAME = new TranslationTextComponent("text.questing.suggestion.enter_player_name");
     private static final String PLAYER_NOT_FOUND = "text.questing.error.player_not_found";
     private static final String TOO_MANY_PLAYERS_FOUND = "text.questing.error.too_many_players_found";
     private static final String PLAYER_ALREADY_IN_PARTY = "text.questing.error.player_already_in_party";
@@ -53,6 +54,7 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
         searchFieldWidget.setTextFormatter(info -> info.getProfile().getName());
         searchFieldWidget.suggests(10);
         searchFieldWidget.assignDefaultValue();
+        searchFieldWidget.setMessage(SUGGEST_PLAYER_NAME);
         textboxWidget = addButton(new TextboxWidget(leftPos + margin, topPos + innerHeight - 45, innerWidth - 10, 15, StringTextComponent.EMPTY, font));
         textboxWidget.setTextColor(0xFF4444);
         int btnY = this.topPos + this.innerHeight - margin - 20;

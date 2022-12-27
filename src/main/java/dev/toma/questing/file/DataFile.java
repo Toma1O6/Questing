@@ -31,10 +31,12 @@ public class DataFile<T> {
     }
 
     public T readData() {
+        Questing.LOGGER.debug(MARKER, "Preparing data read from {} file", filename);
         File file = new File(Objects.requireNonNull(currentWorldDir, "Current world dir is not set for " + filename), filename);
         if (!file.exists())
             return null;
         try {
+            Questing.LOGGER.debug(MARKER, "Reading data from {} file", filename);
             INBT inbt = CompressedStreamTools.readCompressed(file);
             DataResult<T> dataResult = codec.parse(NBTDynamicOps.INSTANCE, inbt);
             return dataResult.resultOrPartial(this::logError).orElse(null);

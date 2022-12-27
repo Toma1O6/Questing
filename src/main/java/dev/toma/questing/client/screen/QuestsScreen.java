@@ -52,8 +52,6 @@ public final class QuestsScreen extends Screen implements SynchronizeListener {
             manager.getPartyById(data.getPartyData().getPartyId()).ifPresent(party -> {
                 partyWidget = addButton(new PartyWidget(width - ELEMENT_MARGIN - 20 - ELEMENT_MARGIN - 130, ELEMENT_MARGIN, 130, 20, party, this));
                 partyWidget.setPlayerDisplayLimit(5);
-
-                addButton(new Button(width - ELEMENT_MARGIN - 20, ELEMENT_MARGIN, 20, 20, new StringTextComponent("M"), this::partyInvitesClicked));
             });
         });
 
@@ -75,10 +73,6 @@ public final class QuestsScreen extends Screen implements SynchronizeListener {
     private void drawHeader(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         fill(stack, 0, 0, width, HEADER_HEIGHT, 0x66 << 24);
         RenderUtils.drawAlignedText(Alignment.VERTICAL, stack, font, title, ELEMENT_MARGIN, 0, width, HEADER_HEIGHT, 0xFFFFFF, FontRenderer::width, FontRenderer::drawShadow);
-    }
-
-    private void partyInvitesClicked(Button button) {
-        minecraft.setScreen(new PartyInvitesScreen(this));
     }
 
     private void refreshScreen() {

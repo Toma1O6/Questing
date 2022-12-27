@@ -23,14 +23,6 @@ public final class NotificationManager {
         this.listeners.forEach(listener -> listener.notificationEnqueued(notification));
     }
 
-    public void forceEnqueueNextNotification() {
-        if (activeNotification != null) {
-            this.listeners.forEach(listener -> listener.notificationExpired(this.activeNotification));
-            this.activeNotification = null;
-            this.enqueueNewNotificationIfPossible();
-        }
-    }
-
     public void tick() {
         this.enqueueNewNotificationIfPossible();
         if (this.activeNotification != null) {

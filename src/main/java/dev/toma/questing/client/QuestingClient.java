@@ -63,7 +63,7 @@ public final class QuestingClient {
         }
         MatrixStack stack = event.getMatrixStack();
         float partialTicks = event.getPartialTicks();
-        this.renderer.drawNotification(stack, partialTicks, false);
+        this.renderer.drawNotification(stack, partialTicks);
     }
 
     private QuestingClient() {

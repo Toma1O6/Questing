@@ -26,13 +26,13 @@ public class NotificationWidget extends Widget {
     @Override
     public void renderButton(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
         stack.pushPose();
-        //stack.translate(0, 0, 999);
-        this.renderer.drawNotification(stack, partialTicks, isHovered);
+        stack.translate(0, 0, 999);
+        this.renderer.drawNotification(stack, partialTicks);
         stack.popPose();
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        this.renderer.onNotificationClicked();
+    protected boolean isValidClickButton(int button) {
+        return false;
     }
 }

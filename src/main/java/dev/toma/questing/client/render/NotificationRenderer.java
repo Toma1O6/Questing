@@ -1,7 +1,6 @@
 package dev.toma.questing.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dev.toma.questing.client.QuestingClient;
 import dev.toma.questing.common.notification.Notification;
 import dev.toma.questing.common.notification.NotificationIcon;
 import dev.toma.questing.common.notification.NotificationStage;
@@ -60,7 +59,7 @@ public class NotificationRenderer {
         return new BakedNotification(notification, list);
     }
 
-    public void drawNotification(MatrixStack stack, float partialTicks, boolean hovered) {
+    public void drawNotification(MatrixStack stack, float partialTicks) {
         this.updateRenderTime();
         if (notification == null || isExpired())
             return;
@@ -93,14 +92,6 @@ public class NotificationRenderer {
         if (p2 != null) {
             this.font.draw(stack, p2, notificationX + contentStart, notificationY + 25, 0xFFFFFF | aText);
         }
-        if (hovered) {
-            AbstractGui.fill(stack, notificationX, notificationY, notificationX + width, notificationY + height, 0x44FFFFFF);
-        }
-    }
-
-    public void onNotificationClicked() {
-        // TODO handle click actions
-        QuestingClient.CLIENT.notificationManager.forceEnqueueNextNotification();
     }
 
     public void setActiveNotification(Notification notification) {

@@ -18,6 +18,7 @@ public final class NotificationManager {
             Questing.LOGGER.error(Notification.MARKER, "Failed to enqueue notification: {}", notification);
             return;
         }
+        Questing.LOGGER.debug(Notification.MARKER, "Queued new notification {}", notification);
         notification.setStage(NotificationStage.APPEAR);
         this.listeners.forEach(listener -> listener.notificationEnqueued(notification));
     }
@@ -49,6 +50,14 @@ public final class NotificationManager {
                 this.listeners.forEach(listener -> listener.notificationActivated(activeNotification));
             }
         }
+    }
+
+    public void addListener(NotificationListener listener) {
+        this.listeners.add(listener);
+    }
+
+    public void removeListener(NotificationListener listener) {
+        this.listeners.remove(listener);
     }
 
     public interface NotificationListener {

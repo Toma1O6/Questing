@@ -2,14 +2,15 @@ package dev.toma.questing.common.notification;
 
 import dev.toma.questing.utils.RenderUtils;
 import dev.toma.questing.utils.Utils;
-import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Notification {
 
@@ -25,26 +26,30 @@ public class Notification {
     private int lastTimer;
     private int currentAppearTimer;
     private int lastAppearTimer;
+    private int dynamicContentSize;
 
-    protected Notification(NotificationIcon<?> icon, ITextComponent header, ITextComponent[] content, int renderTimer, int appearTimer) {
+    public Notification(NotificationIcon<?> icon, ITextComponent header, ITextComponent[] content, int renderTimer, int appearTimer) {
         this.icon = icon;
         this.header = header;
         this.content = content;
         this.renderTimer = renderTimer;
         this.appearTimer = appearTimer;
+        this.dynamicContentSize = content.length;
     }
 
     public void tickNotification() {
-        if (this.stage == NotificationStage.DISPLAY) {
+        if (this.getStage() == NotificationStage.DISPLAY) {
             lastTimer = timer;
             if (++timer > renderTimer) {
                 timer = 0;
                 lastTimer = 0;
-                if (renderIndex++ >= this.getContentSize()) {
+                if (renderIndex + 1 >= this.dynamicContentSize) {
                     this.advanceStage();
+                } else {
+                    ++renderIndex;
                 }
             }
-        } else if (this.stage.isAnimationStage()) {
+        } else if (this.getStage().isAnimationStage()) {
             this.lastAppearTimer = currentAppearTimer;
             if (currentAppearTimer++ > appearTimer) {
                 this.advanceStage();
@@ -54,25 +59,20 @@ public class Notification {
 
     public float getAppearProgress(float partialTicks) {
         float interpolated = RenderUtils.linearInterpolate(lastAppearTimer / (float) appearTimer, currentAppearTimer / (float) appearTimer, partialTicks);
-        return this.stage == NotificationStage.APPEAR ? interpolated : 1.0F - interpolated;
+        return this.getStage() == NotificationStage.APPEAR ? interpolated : 1.0F - interpolated;
     }
 
     public float getTextStageProgress(float partialTicks) {
-        float interpolated = RenderUtils.linearInterpolate(lastTimer / (float) renderTimer, timer / (float) renderTimer, partialTicks);
-        return 1.0F - interpolated;
+        return RenderUtils.linearInterpolate(lastTimer / (float) renderTimer, timer / (float) renderTimer, partialTicks);
     }
 
     public void copyRenderingAttributes(Notification other) {
         this.setStage(other.stage);
-        this.renderIndex = MathHelper.clamp(other.renderIndex, 0, this.getContentSize() - 1);
+        this.renderIndex = MathHelper.clamp(other.renderIndex, 0, this.dynamicContentSize - 1);
         this.timer = other.timer;
         this.lastTimer = other.lastTimer;
         this.currentAppearTimer = other.currentAppearTimer;
         this.lastAppearTimer = other.lastAppearTimer;
-    }
-
-    public boolean isFirstOrLastStage() {
-        return renderIndex == 0 || renderIndex == this.getContentSize() - 1;
     }
 
     public boolean isForRemoval() {
@@ -107,8 +107,12 @@ public class Notification {
         return this.content;
     }
 
-    protected int getContentSize() {
-        return this.content.length;
+    public NotificationStage getStage() {
+        return stage;
+    }
+
+    public void setDynamicContentSize(int dynamicContentSize) {
+        this.dynamicContentSize = dynamicContentSize;
     }
 
     private void advanceStage() {
@@ -123,6 +127,16 @@ public class Notification {
         this.lastAppearTimer = 0;
     }
 
+    @Override
+    public String toString() {
+        return "Notification{" +
+                "icon=" + icon +
+                ", header=" + header +
+                ", content=" + Arrays.toString(content) +
+                ", stage=" + stage +
+                '}';
+    }
+
     public static final class Builder {
 
         private NotificationIcon<?> icon = NotificationIcon.none();
@@ -130,5 +144,36 @@ public class Notification {
         private List<ITextComponent> content = new ArrayList<>();
         private int renderTimer = 40;
         private int appearTimer = 20;
+
+        public Builder icon(NotificationIcon<?> icon) {
+            this.icon = icon;
+            return this;
+        }
+
+        public Builder header(ITextComponent header) {
+            this.header = header;
+            return this;
+        }
+
+        public Builder addContentSlide(ITextComponent content) {
+            this.content.add(content);
+            return this;
+        }
+
+        public Builder setSlideRenderTimer(int renderTimer) {
+            this.renderTimer = renderTimer;
+            return this;
+        }
+
+        public Builder setRenderAppearTimer(int appearTimer) {
+            this.appearTimer = appearTimer;
+            return this;
+        }
+
+        public Notification buildNotification() {
+            Objects.requireNonNull(icon);
+            Objects.requireNonNull(header);
+            return new Notification(icon, header, content.toArray(new ITextComponent[0]), renderTimer, appearTimer);
+        }
     }
 }

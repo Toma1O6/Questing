@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class ManagePartyScreen extends OverlayScreen implements SynchronizeListener {
+public class ManagePartyScreen extends NotificationOverlayScreen implements SynchronizeListener {
 
     public static final ITextComponent MANAGE_PARTY = new TranslationTextComponent("screen.questing.manage_party");
     public static final ITextComponent MANAGE_INVITES = new TranslationTextComponent("screen.questing.manage_party_invites");

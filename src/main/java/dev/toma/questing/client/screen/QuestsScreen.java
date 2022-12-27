@@ -2,6 +2,10 @@ package dev.toma.questing.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.Questing;
+import dev.toma.questing.client.render.NotificationDockType;
+import dev.toma.questing.client.render.NotificationFlowType;
+import dev.toma.questing.client.render.NotificationRendererProvider;
+import dev.toma.questing.client.screen.widget.NotificationWidget;
 import dev.toma.questing.client.screen.widget.PartyWidget;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
@@ -52,6 +56,8 @@ public final class QuestsScreen extends Screen implements SynchronizeListener {
                 addButton(new Button(width - ELEMENT_MARGIN - 20, ELEMENT_MARGIN, 20, 20, new StringTextComponent("M"), this::partyInvitesClicked));
             });
         });
+
+        addButton(new NotificationWidget(0, 0, width, height, font, NotificationDockType.RIGHT_LOWER, NotificationFlowType.LEFT));
     }
 
     @Override

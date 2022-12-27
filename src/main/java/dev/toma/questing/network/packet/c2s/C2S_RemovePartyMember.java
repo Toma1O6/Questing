@@ -4,6 +4,8 @@ import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
+import dev.toma.questing.common.notification.NotificationFactory;
+import dev.toma.questing.common.notification.NotificationsHelper;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.PartyPermission;
@@ -54,11 +56,14 @@ public class C2S_RemovePartyMember extends AbstractPacket<C2S_RemovePartyMember>
                 }
                 Questing.LOGGER.debug(Networking.MARKER, "Removing {} from {}", party.getMemberUsername(removeMemberId), party);
                 party.executeWithAuthorization(PartyPermission.MANAGE_MEMBERS, player.getUUID(), () -> {
+                    String oldMemberName = party.getMemberUsername(removeMemberId);
                     party.removeMember(player, removeMemberId);
                     manager.sendClientData(player.level, party);
+                    party.forEachOnlineMemberExcept(null, player.level, pl -> NotificationsHelper.sendNotification(pl, NotificationFactory.getMemberKickedNotification(party, oldMemberName, player.getUUID())));
                     PlayerEntity removedPlayer = player.level.getPlayerByUUID(removeMemberId);
                     if (removedPlayer != null) {
                         manager.assignDefaultParty(removedPlayer);
+                        NotificationsHelper.sendNotification(removedPlayer, NotificationFactory.getKickedNotification(party.getName(), player.getUUID()));
                         PlayerDataProvider.getOptional(removedPlayer).ifPresent(playerData -> {
                             Optional<Party> optional = manager.getPartyById(playerData.getPartyData().getPartyId());
                             optional.ifPresent(newParty -> manager.sendClientData(removedPlayer.level, newParty));

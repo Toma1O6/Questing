@@ -3,6 +3,8 @@ package dev.toma.questing.network.packet.c2s;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
+import dev.toma.questing.common.notification.NotificationFactory;
+import dev.toma.questing.common.notification.NotificationsHelper;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.common.party.PartyPermission;
 import dev.toma.questing.network.Networking;
@@ -40,8 +42,10 @@ public class C2S_RenameParty extends AbstractPacket<C2S_RenameParty> {
                 UUID senderId = player.getUUID();
                 Questing.LOGGER.debug(Networking.MARKER, "Processing rename request for {} by {}", party, player);
                 party.executeWithAuthorization(PartyPermission.MANAGE_PARTY, senderId, () -> {
+                    String oldPartyName = party.getName();
                     party.setPartyName(partyName);
                     manager.sendClientData(player.level, party);
+                    party.forEachOnlineMemberExcept(null, player.level, partyMember -> NotificationsHelper.sendNotification(partyMember, NotificationFactory.getPartyRenameNotification(oldPartyName, partyName)));
                 });
             });
         });

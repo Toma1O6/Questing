@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.client.QuestingClient;
 import dev.toma.questing.common.notification.Notification;
 import dev.toma.questing.common.notification.NotificationIcon;
+import dev.toma.questing.common.notification.NotificationStage;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.IReorderingProcessor;
@@ -18,7 +19,7 @@ import java.util.List;
 public class NotificationRenderer {
 
     private static final float TEXT_FADING_POINT = 0.20F;
-    private static final float TEXT_FADING_LIMIT = 0.11F;
+    private static final float TEXT_FADING_LIMIT = 0.03F;
     private final FontRenderer font;
     private final NotificationDockType dockType;
     private final NotificationFlowType flowType;
@@ -27,6 +28,7 @@ public class NotificationRenderer {
     private final int height;
     private BakedNotification notification;
     private long lastRenderTime;
+    private boolean expired;
 
     public NotificationRenderer(FontRenderer font, NotificationDockType dockType, NotificationFlowType flowType, int windowX, int windowY, int windowWidth, int windowHeight, int width, int height) {
         this.font = font;
@@ -38,6 +40,7 @@ public class NotificationRenderer {
         this.windowHeight = windowHeight;
         this.width = width;
         this.height = height;
+        this.lastRenderTime = System.currentTimeMillis() + 10000L;
     }
 
     public BakedNotification prepareNotificationDimensions(Notification notification) {
@@ -57,37 +60,41 @@ public class NotificationRenderer {
         return new BakedNotification(notification, list);
     }
 
-    public void drawNotification(MatrixStack stack, float partialTicks) {
+    public void drawNotification(MatrixStack stack, float partialTicks, boolean hovered) {
         this.updateRenderTime();
-        if (notification == null)
+        if (notification == null || isExpired())
             return;
         float appearProgress = this.notification.getAppearProgress(partialTicks);
-        int notificationX = (int) (this.dockType.getStartingPositionX(this.windowX, this.windowWidth) + this.flowType.getOffsetPositionX(this.width, appearProgress));
-        int notificationY = (int) (this.dockType.getStartingPositionY(this.windowY, this.windowHeight) + this.flowType.getOffsetPositionY(this.height, appearProgress));
-        AbstractGui.fill(stack, notificationX - 1, notificationY - 1, notificationX + width + 1, notificationY + height + 1, 0xFFA5A5A5);
-        AbstractGui.fill(stack, notificationX, notificationY, notificationX + width, notificationY + height, 0xFFC6C6C6);
+        int notificationX = (int) (this.dockType.getStartingPositionX(this.windowX, this.windowWidth, this.width) + this.flowType.getOffsetPositionX(this.width, appearProgress));
+        int notificationY = (int) (this.dockType.getStartingPositionY(this.windowY, this.windowHeight, this.height) + this.flowType.getOffsetPositionY(this.height, appearProgress));
+        AbstractGui.fill(stack, notificationX, notificationY, notificationX + width, notificationY + height, 0x66 << 24);
         NotificationIcon<?> icon = this.notification.getIcon();
         int contentStart = 5;
         if (!icon.isNone()) {
-            icon.drawIcon(stack, notificationX + 2, notificationY + 7, 16, 16);
+            int iconSize = 16;
+            int iconTop = (this.height - iconSize) / 2;
+            icon.drawIcon(stack, notificationX + 2, notificationY + iconTop, iconSize, iconSize);
             contentStart = 25;
         }
         float textProgress = this.notification.getTextStageProgress(partialTicks);
         float textTransparency = 1.0F;
         if (textProgress < TEXT_FADING_POINT) {
-            textTransparency = TEXT_FADING_LIMIT + (1.0F - TEXT_FADING_LIMIT) * (textProgress / TEXT_FADING_LIMIT);
+            textTransparency = TEXT_FADING_LIMIT + (1.0F - TEXT_FADING_LIMIT) * (textProgress / TEXT_FADING_POINT);
         } else if (textProgress > 1.0F - TEXT_FADING_POINT) {
-            textTransparency = TEXT_FADING_LIMIT + (1.0F - TEXT_FADING_LIMIT) * (1.0F - (textProgress - (1.0F - TEXT_FADING_POINT) / TEXT_FADING_LIMIT));
+            textTransparency = TEXT_FADING_LIMIT + (1.0F - TEXT_FADING_LIMIT) * ((1.0F - textProgress) / TEXT_FADING_POINT);
         }
         int aText = ((int) (255 * textTransparency)) << 24;
         Pair<IReorderingProcessor, IReorderingProcessor> pair = this.notification.getRenderedText();
         ITextComponent header = this.notification.getHeader();
-        this.font.draw(stack, header, notificationX + contentStart, notificationY, this.notification.isFirstOrLastStage() ? 0xFFFFFF | aText : 0xFFFFFF);
+        this.font.draw(stack, header, notificationX + contentStart, notificationY + 3, 0xFFFFFF);
         IReorderingProcessor p1 = pair.getLeft();
         IReorderingProcessor p2 = pair.getRight();
-        this.font.draw(stack, p1, notificationX + contentStart, notificationY + 10, 0xFFFFFF | aText);
+        this.font.draw(stack, p1, notificationX + contentStart, notificationY + 15, 0xFFFFFF | aText);
         if (p2 != null) {
-            this.font.draw(stack, p2, notificationX + contentStart, notificationY + 10, 0xFFFFFF | aText);
+            this.font.draw(stack, p2, notificationX + contentStart, notificationY + 25, 0xFFFFFF | aText);
+        }
+        if (hovered) {
+            AbstractGui.fill(stack, notificationX, notificationY, notificationX + width, notificationY + height, 0x44FFFFFF);
         }
     }
 
@@ -112,27 +119,48 @@ public class NotificationRenderer {
         return windowHeight;
     }
 
+    public void setExpired(boolean expired) {
+        this.expired = expired;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
     private void updateRenderTime() {
         this.lastRenderTime = System.currentTimeMillis();
     }
 
     public static final class BakedNotification extends Notification {
 
+        private final Notification parent;
         private final List<Pair<IReorderingProcessor, IReorderingProcessor>> visualOrder;
 
         public BakedNotification(Notification parent, List<Pair<IReorderingProcessor, IReorderingProcessor>> visualOrder) {
             super(parent.getIcon(), parent.getHeader(), parent.getAllContents(), parent.getRenderTimer(), parent.getAppearTimer());
+            this.parent = parent;
             this.visualOrder = visualOrder;
             this.copyRenderingAttributes(parent);
+            this.parent.setDynamicContentSize(this.visualOrder.size());
         }
 
         @Override
-        protected int getContentSize() {
-            return visualOrder.size();
+        public NotificationStage getStage() {
+            return parent.getStage();
+        }
+
+        @Override
+        public float getAppearProgress(float partialTicks) {
+            return parent.getAppearProgress(partialTicks);
+        }
+
+        @Override
+        public float getTextStageProgress(float partialTicks) {
+            return parent.getTextStageProgress(partialTicks);
         }
 
         public Pair<IReorderingProcessor, IReorderingProcessor> getRenderedText() {
-            return this.visualOrder.get(this.getRenderIndex());
+            return this.visualOrder.get(parent.getRenderIndex());
         }
     }
 }

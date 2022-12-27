@@ -20,7 +20,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class PartyInvitesScreen extends OverlayScreen implements SynchronizeListener {
+public class PartyInvitesScreen extends NotificationOverlayScreen implements SynchronizeListener {
 
     public static final ITextComponent NO_INVITES = new TranslationTextComponent("text.questing.no_invites_received");
 

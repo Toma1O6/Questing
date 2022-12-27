@@ -6,13 +6,13 @@ public enum NotificationFlowType {
     LEFT((size, progress) -> size - (size * progress), (size, progress) -> 0),
 
     // top to down
-    DOWN((size, progress) -> 0, (size, progress) -> size - (size * progress)),
+    DOWN((size, progress) -> 0, (size, progress) -> -size + size * progress),
 
     // bottom to up
-    UP((size, progress) -> 0, (size, progress) -> size * progress),
+    UP((size, progress) -> 0, (size, progress) -> size - size * progress),
 
     // left to right
-    RIGHT((size, progress) -> size * progress, (size, progress) -> 0);
+    RIGHT((size, progress) -> -size + size * progress, (size, progress) -> 0);
 
     private final FlowPositionProvider xPosProvider;
     private final FlowPositionProvider yPosProvider;

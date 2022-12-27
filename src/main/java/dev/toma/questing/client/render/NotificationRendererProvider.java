@@ -10,9 +10,9 @@ import java.util.List;
 
 public final class NotificationRendererProvider implements NotificationManager.NotificationListener {
 
-    public static final long RENDERER_TIMEOUT = 100L; // render should never take longer than 2 ticks
-    public static final int NOTIFICATION_WIDTH = 100;
-    public static final int NOTIFICATION_HEIGHT = 30;
+    public static final long RENDERER_TIMEOUT = 1000L;
+    public static final int NOTIFICATION_WIDTH = 150;
+    public static final int NOTIFICATION_HEIGHT = 40;
 
     private final List<NotificationRenderer> renderers = new ArrayList<>();
     private Notification notification;
@@ -24,6 +24,7 @@ public final class NotificationRendererProvider implements NotificationManager.N
             NotificationRenderer renderer = iterator.next();
             long lastRenderCall = renderer.getRenderTime();
             if (ms - lastRenderCall > RENDERER_TIMEOUT) {
+                renderer.setExpired(true);
                 iterator.remove();
             }
         }

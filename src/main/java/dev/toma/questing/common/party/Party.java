@@ -6,6 +6,8 @@ import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
+import dev.toma.questing.common.notification.NotificationFactory;
+import dev.toma.questing.common.notification.NotificationsHelper;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.s2c.S2C_SynchronizePartyData;
 import dev.toma.questing.utils.Codecs;
@@ -102,6 +104,7 @@ public final class Party {
                 manager.getPartyById(partyData.getPartyId()).ifPresent(party -> manager.sendClientData(player.level, party));
                 data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
             });
+            NotificationsHelper.sendNotification(player, NotificationFactory.getPartyDisbandedNotification(partyName));
         });
         manager.partyDelete(this);
     }
@@ -118,7 +121,9 @@ public final class Party {
                 PartyData data = playerData.getPartyData();
                 data.addInvite(invite);
                 playerData.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
+                NotificationsHelper.sendNotification(receiver, NotificationFactory.getInviteNotification(invite));
             });
+            this.forEachOnlineMemberExcept(null, sender.level, player -> NotificationsHelper.sendNotification(player, NotificationFactory.getInviteSentNotification(invite)));
         });
     }
 
@@ -135,6 +140,7 @@ public final class Party {
                         partyData.removeInvite(invite);
                         data.sendDataToClient(PlayerDataSynchronizationFlags.PARTY);
                     });
+                    NotificationsHelper.sendNotification(invitee, NotificationFactory.getInviteCancelledNotification(invite));
                 }
             } else {
                 Questing.LOGGER.warn(MARKER, "Attempted to cancel non-existent invite. Request origin: {}, invite: {}", sender, invite);
@@ -298,6 +304,7 @@ public final class Party {
                 Questing.LOGGER.warn(MARKER, "Unable to complete invite {} in {}, party is full", invite, this);
                 return;
             }
+            forEachOnlineMemberExcept(null, invited.level, player -> NotificationsHelper.sendNotification(player, NotificationFactory.getInviteResponseNotification(invite, true)));
             PartyData partyData = data.getPartyData();
             UUID originalParty = partyData.getPartyId();
             PartyManager manager = Questing.PARTY_MANAGER.get();
@@ -344,6 +351,7 @@ public final class Party {
         this.activeInvites.remove(invite);
         Questing.LOGGER.debug(MARKER, "Removing declined invite {} in {}", invite, this);
         if (!invited.level.isClientSide) {
+            forEachOnlineMemberExcept(null, invited.level, player -> NotificationsHelper.sendNotification(player, NotificationFactory.getInviteResponseNotification(invite, false)));
             S2C_SynchronizePartyData packet = new S2C_SynchronizePartyData(this);
             this.forEachOnlineMemberExcept(null, invited.level, player -> {
                 ServerPlayerEntity member = (ServerPlayerEntity) player;

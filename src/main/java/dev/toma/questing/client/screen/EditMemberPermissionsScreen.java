@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class EditMemberPermissionsScreen extends OverlayScreen implements SynchronizeListener {
+public class EditMemberPermissionsScreen extends NotificationOverlayScreen implements SynchronizeListener {
 
     private Party party;
     private final UUID member;

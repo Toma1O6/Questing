@@ -4,6 +4,9 @@ import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PartyData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
+import dev.toma.questing.common.notification.Notification;
+import dev.toma.questing.common.notification.NotificationFactory;
+import dev.toma.questing.common.notification.NotificationsHelper;
 import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractActionPacket;
@@ -36,6 +39,8 @@ public class C2S_LeaveParty extends AbstractActionPacket<C2S_LeaveParty> {
                 } else { // otherwise member can leave normally
                     party.removeMember(player, uuid);
                     manager.sendClientData(player.level, party);
+                    Notification notification = NotificationFactory.getMemberLeftNotification(player.getUUID(), player.getName().getString());
+                    party.forEachOnlineMemberExcept(player.getUUID(), player.level, pl -> NotificationsHelper.sendNotification(pl, notification));
                 }
                 manager.assignDefaultParty(player);
                 manager.getPartyById(partyData.getPartyId()).ifPresent(newParty -> manager.sendClientData(player.level, newParty));

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.toma.questing.Questing;
 import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.ItemStack;
@@ -78,6 +79,10 @@ public class NotificationIcon<T> {
         return texture(iconPath, 0.0F, 0.0F, 1.0F, 1.0F);
     }
 
+    public static NotificationIcon<?> skin(UUID player) {
+        return new PlayerSkinIcon(player);
+    }
+
     public static <T> void registerNotificationIconType(ResourceLocation location, IconTypeNetworkSerializer<T> networkSerializer) {
         ICON_TYPES.put(Objects.requireNonNull(location), Objects.requireNonNull(networkSerializer));
     }
@@ -88,6 +93,11 @@ public class NotificationIcon<T> {
 
     protected T getIconData() {
         return iconData;
+    }
+
+    @Override
+    public String toString() {
+        return "EmptyIcon{}";
     }
 
     public interface IconTypeNetworkSerializer<T> {
@@ -125,6 +135,14 @@ public class NotificationIcon<T> {
             RenderUtils.blit(stack, x, y, x + width, y + height, spec.u1, spec.v1, spec.u2, spec.v2);
         }
 
+        @Override
+        public String toString() {
+            TextureSpec spec = this.getIconData();
+            return "TextureIcon{icon=" + spec.iconPath + ",uv[" +
+                    spec.u1 + "," + spec.v1 + ";" + spec.u2 + "," + spec.v2 +
+                    "]}";
+        }
+
         private static final class TextureSpec {
             private final ResourceLocation iconPath;
             private final float u1, v1, u2, v2;
@@ -152,6 +170,11 @@ public class NotificationIcon<T> {
             Minecraft client = Minecraft.getInstance();
             client.getItemRenderer().renderGuiItem(itemStack, (int) x, (int) y);
         }
+
+        @Override
+        public String toString() {
+            return "ItemStackIcon{item=" + this.getIconData().toString() + "}";
+        }
     }
 
     private static final class PlayerSkinIcon extends NotificationIcon<UUID> {
@@ -168,13 +191,18 @@ public class NotificationIcon<T> {
             Minecraft client = Minecraft.getInstance();
             if (cachedLocation == null) {
                 ClientWorld world = client.level;
-                ClientPlayerEntity clientPlayer = (ClientPlayerEntity) world.getPlayerByUUID(this.getIconData());
+                AbstractClientPlayerEntity clientPlayer = (AbstractClientPlayerEntity) world.getPlayerByUUID(this.getIconData());
                 this.cachedLocation = clientPlayer.getSkinTextureLocation();
             }
             client.getTextureManager().bind(cachedLocation);
             float min =  8.0F / 64.0F;
             float max = 16.0F / 64.0F;
             RenderUtils.blit(stack, x, y, x + width, y + height, min, min, max, max);
+        }
+
+        @Override
+        public String toString() {
+            return "PlayerSkinIcon{playerId=" + this.getIconData() + "}";
         }
     }
 

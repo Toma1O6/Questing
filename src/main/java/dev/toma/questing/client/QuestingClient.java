@@ -51,18 +51,22 @@ public final class QuestingClient {
             return;
         }
         Minecraft client = Minecraft.getInstance();
+        if (client.screen != null)
+            return;
         FontRenderer font = client.font;
         MainWindow window = event.getWindow();
         int windowWidth = window.getGuiScaledWidth();
         int windowHeight = window.getGuiScaledHeight();
-        if (renderer == null || renderer.getWindowWidth() != windowWidth || renderer.getWindowHeight() != windowHeight) {
-            this.renderer = notificationRendererProvider.getRendererWithConfiguration(NotificationDockType.RIGHT_UPPER, NotificationFlowType.LEFT, 0, 0,
+        if (renderer == null || renderer.isExpired() || renderer.getWindowWidth() != windowWidth || renderer.getWindowHeight() != windowHeight) {
+            this.renderer = notificationRendererProvider.getRendererWithConfiguration(NotificationDockType.LEFT_UPPER, NotificationFlowType.RIGHT, 0, 0,
                     windowWidth, windowHeight, NotificationRendererProvider.NOTIFICATION_WIDTH, NotificationRendererProvider.NOTIFICATION_HEIGHT, font);
         }
         MatrixStack stack = event.getMatrixStack();
         float partialTicks = event.getPartialTicks();
-        this.renderer.drawNotification(stack, partialTicks);
+        this.renderer.drawNotification(stack, partialTicks, false);
     }
 
-    private QuestingClient() {}
+    private QuestingClient() {
+        this.notificationManager.addListener(this.notificationRendererProvider);
+    }
 }

@@ -6,10 +6,10 @@ import java.util.Set;
 
 public enum NotificationDockType {
 
-    LEFT_UPPER((a, size) -> a, (a, size) -> a, NotificationFlowType.RIGHT, NotificationFlowType.DOWN),
-    LEFT_LOWER((a, size) -> a, Float::sum, NotificationFlowType.RIGHT, NotificationFlowType.UP),
-    RIGHT_UPPER(Float::sum, (a, size) -> a, NotificationFlowType.LEFT, NotificationFlowType.DOWN),
-    RIGHT_LOWER(Float::sum, Float::sum, NotificationFlowType.LEFT, NotificationFlowType.UP);
+    LEFT_UPPER((a, size, ntSize) -> a, (a, size, ntSize) -> a, NotificationFlowType.RIGHT, NotificationFlowType.DOWN),
+    LEFT_LOWER((a, size, ntSize) -> a, (a, size, ntSize) -> a + size - ntSize, NotificationFlowType.RIGHT, NotificationFlowType.UP),
+    RIGHT_UPPER((a, size, ntSize) -> a + size - ntSize, (a, size, ntSize) -> a, NotificationFlowType.LEFT, NotificationFlowType.DOWN),
+    RIGHT_LOWER((a, size, ntSize) -> a + size - ntSize, (a, size, ntSize) -> a + size - ntSize, NotificationFlowType.LEFT, NotificationFlowType.UP);
 
     private final DockFunction dockX;
     private final DockFunction dockY;
@@ -25,17 +25,17 @@ public enum NotificationDockType {
         return this.allowedFlows.contains(flowType);
     }
 
-    public float getStartingPositionX(float left, int width) {
-        return dockX.getDockingPosition(left, width);
+    public float getStartingPositionX(float left, int width, float notificationWidth) {
+        return dockX.getDockingPosition(left, width, notificationWidth);
     }
 
-    public float getStartingPositionY(float top, int height) {
-        return dockY.getDockingPosition(top, height);
+    public float getStartingPositionY(float top, int height, float notificationHeight) {
+        return dockY.getDockingPosition(top, height, notificationHeight);
     }
 
     @FunctionalInterface
     private interface DockFunction {
 
-        float getDockingPosition(float a, int size);
+        float getDockingPosition(float a, int size, float objSize);
     }
 }

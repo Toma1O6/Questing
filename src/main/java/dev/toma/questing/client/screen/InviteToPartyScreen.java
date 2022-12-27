@@ -6,7 +6,6 @@ import dev.toma.questing.client.screen.widget.TextboxWidget;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.c2s.C2S_RequestInviteCreation;
-import dev.toma.questing.utils.RenderUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,7 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class InviteToPartyScreen extends OverlayScreen implements SynchronizeListener {
+public class InviteToPartyScreen extends NotificationOverlayScreen implements SynchronizeListener {
 
     public static final ITextComponent CLOSE = new TranslationTextComponent("text.questing.close");
     private static final ITextComponent INVITE = new TranslationTextComponent("text.questing.send_invite");

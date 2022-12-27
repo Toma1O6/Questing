@@ -54,6 +54,8 @@ public class PartyInvitesScreen extends NotificationOverlayScreen implements Syn
             list.setEntryHeight(60);
         });
         addButton(new Button(leftPos + 5, topPos + innerHeight - 25, innerWidth - 10, 20, InviteToPartyScreen.CLOSE, this::closeClicked));
+
+        addNotificationWidget();
     }
 
     @Override

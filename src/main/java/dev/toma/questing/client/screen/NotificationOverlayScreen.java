@@ -12,10 +12,12 @@ public abstract class NotificationOverlayScreen extends OverlayScreen {
         super(title, layeredScreen);
     }
 
-    @Override
-    protected void init() {
-        super.init();
-        this.addButton(new NotificationWidget(0, 0, width, height, font, this.getNotificationDocking(), this.getNotificationFlow()));
+    protected void addNotificationWidget() {
+        this.addButton(this.createNotificationWidget());
+    }
+
+    protected NotificationWidget createNotificationWidget() {
+        return new NotificationWidget(0, 0, width, height, font, this.getNotificationDocking(), this.getNotificationFlow());
     }
 
     protected NotificationDockType getNotificationDocking() {

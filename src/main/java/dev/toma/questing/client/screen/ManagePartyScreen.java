@@ -110,6 +110,7 @@ public class ManagePartyScreen extends NotificationOverlayScreen implements Sync
             this.spaceEqually(cancel, confirm, margin);
         }
 
+        addNotificationWidget();
     }
 
     @Override

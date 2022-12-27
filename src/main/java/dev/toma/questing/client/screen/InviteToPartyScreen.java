@@ -61,6 +61,8 @@ public class InviteToPartyScreen extends NotificationOverlayScreen implements Sy
         this.spaceEqually(close, invite, margin);
         addButton(close);
         addButton(invite);
+
+        addNotificationWidget();
     }
 
     @Override

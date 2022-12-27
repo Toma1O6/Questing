@@ -74,6 +74,8 @@ public class EditMemberPermissionsScreen extends NotificationOverlayScreen imple
         spaceEqually(cancel, confirm, 5);
         addButton(cancel);
         addButton(confirm);
+
+        addNotificationWidget();
     }
 
     @Override

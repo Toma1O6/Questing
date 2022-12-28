@@ -11,6 +11,7 @@ import dev.toma.questing.common.area.spawner.processor.SetEffectsProcessor;
 import dev.toma.questing.common.area.spawner.processor.SetEquipmentProcessor;
 import dev.toma.questing.common.area.spawner.processor.SpawnerProcessorType;
 import dev.toma.questing.common.condition.ConditionType;
+import dev.toma.questing.common.condition.DistanceConditionProvider;
 import dev.toma.questing.common.condition.UseItemCondition;
 import dev.toma.questing.common.condition.select.AnyItemSelector;
 import dev.toma.questing.common.condition.select.ItemSelectorType;
@@ -57,6 +58,7 @@ public final class QuestingRegistries {
 
     // Conditions
     public static final ConditionType<UseItemCondition> USE_ITEM_CONDITION = new ConditionType<>(internalId("use_item"), UseItemCondition.CODEC);
+    public static final ConditionType<DistanceConditionProvider> DISTANCE_CONDITION = new ConditionType<>(internalId("distance"), DistanceConditionProvider.CODEC);
 
     // Conditions - Item selectors
     public static final ItemSelectorType<AnyItemSelector> ANY_ITEM_SELECTOR = new ItemSelectorType<>(internalId("any_item"), AnyItemSelector.CODEC);
@@ -82,6 +84,7 @@ public final class QuestingRegistries {
         SPAWNER_PROCESSOR.register(EFFECTS_SPAWNER_PROCESSOR);
 
         CONDITION.register(USE_ITEM_CONDITION);
+        CONDITION.register(DISTANCE_CONDITION);
 
         ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);
         ITEM_SELECTOR.register(SINGLE_ITEM_SELECTOR);

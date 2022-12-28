@@ -16,7 +16,7 @@ public abstract class ConditionProvider<C extends Condition> {
 
     public abstract C createConditionInstance(World world, Quest quest);
 
-    public TriggerResponse getDefaultFailureResponse() {
+    public final TriggerResponse getDefaultFailureResponse() {
         return this.defaultFailureResponse;
     }
 }

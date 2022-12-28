@@ -35,13 +35,22 @@ public final class Codecs {
     }, pattern -> pattern == null ? DataResult.error("Pattern is null") : DataResult.success(pattern.pattern()));
 
     public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> enumClass) {
-        return enumCodec(enumClass, string -> Enum.valueOf(enumClass, string), Enum::name);
+        return enumCodec(enumClass, Function.identity());
+    }
+
+    public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> enumClass, Function<String, String> inputAdjuster) {
+        return enumCodec(enumClass, string -> Enum.valueOf(enumClass, string), Enum::name, inputAdjuster);
     }
 
     public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> enumClass, Function<String, E> decoder, Function<E, String> encoder) {
+        return enumCodec(enumClass, decoder, encoder, Function.identity());
+    }
+
+    public static <E extends Enum<E>> Codec<E> enumCodec(Class<E> enumClass, Function<String, E> decoder, Function<E, String> encoder, Function<String, String> inputAdjuster) {
         return Codec.STRING.flatXmap(string -> {
             try {
-                return DataResult.success(decoder.apply(string));
+                String input = inputAdjuster.apply(string);
+                return DataResult.success(decoder.apply(input));
             } catch (IllegalArgumentException e) {
                 return DataResult.error("Invalid " + enumClass.getSimpleName() + ": " + string);
             }

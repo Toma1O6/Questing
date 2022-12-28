@@ -1,6 +1,16 @@
 package dev.toma.questing.common.condition;
 
-public interface Condition {
+public abstract class Condition {
 
-    void registerTriggerResponders(ConditionRegisterHandler registerHandler);
+    private final ConditionProvider<?> provider;
+
+    public Condition(ConditionProvider<?> provider) {
+        this.provider = provider;
+    }
+
+    public ConditionProvider<?> getProvider() {
+        return this.provider;
+    }
+
+    public abstract void registerTriggerResponders(ConditionRegisterHandler registerHandler);
 }

@@ -3,9 +3,19 @@ package dev.toma.questing.common.condition;
 import dev.toma.questing.common.quest.Quest;
 import net.minecraft.world.World;
 
-public interface ConditionProvider<C extends Condition> {
+public abstract class ConditionProvider<C extends Condition> {
 
-    ConditionType<?> getType();
+    private final boolean failsQuest;
 
-    C createConditionInstance(World world, Quest quest);
+    public ConditionProvider(boolean failsQuest) {
+        this.failsQuest = failsQuest;
+    }
+
+    public abstract ConditionType<?> getType();
+
+    public abstract C createConditionInstance(World world, Quest quest);
+
+    public boolean shouldFailQuest() {
+        return this.failsQuest;
+    }
 }

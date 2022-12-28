@@ -11,6 +11,10 @@ import dev.toma.questing.common.area.spawner.processor.SetEffectsProcessor;
 import dev.toma.questing.common.area.spawner.processor.SetEquipmentProcessor;
 import dev.toma.questing.common.area.spawner.processor.SpawnerProcessorType;
 import dev.toma.questing.common.condition.ConditionType;
+import dev.toma.questing.common.condition.UseItemCondition;
+import dev.toma.questing.common.condition.select.AnyItemSelector;
+import dev.toma.questing.common.condition.select.ItemSelectorType;
+import dev.toma.questing.common.condition.select.SingleItemSelector;
 import dev.toma.questing.common.reward.*;
 import net.minecraft.util.ResourceLocation;
 
@@ -24,6 +28,7 @@ public final class QuestingRegistries {
     public static final Registry<SpawnerType<?>> SPAWNER = new Registry<>("Spawner Type");
     public static final Registry<SpawnerProcessorType<?>> SPAWNER_PROCESSOR = new Registry<>("Spawner Processor Type");
     public static final Registry<ConditionType<?>> CONDITION = new Registry<>("Condition Type");
+    public static final Registry<ItemSelectorType<?>> ITEM_SELECTOR = new Registry<>("Item Selectors"); // used by UseItemCondition
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors
@@ -51,6 +56,11 @@ public final class QuestingRegistries {
     public static final SpawnerProcessorType<SetEffectsProcessor> EFFECTS_SPAWNER_PROCESSOR = new SpawnerProcessorType<>(internalId("set_effects"), SetEffectsProcessor.CODEC);
 
     // Conditions
+    public static final ConditionType<UseItemCondition> USE_ITEM_CONDITION = new ConditionType<>(internalId("use_item"), UseItemCondition.CODEC);
+
+    // Conditions - Item selectors
+    public static final ItemSelectorType<AnyItemSelector> ANY_ITEM_SELECTOR = new ItemSelectorType<>(internalId("any_item"), AnyItemSelector.CODEC);
+    public static final ItemSelectorType<SingleItemSelector> SINGLE_ITEM_SELECTOR = new ItemSelectorType<>(internalId("single_item"), SingleItemSelector.CODEC);
 
     public static void register() {
         REWARD_DISTRIBUTORS.register(SHARED_REWARD_DISTRIBUTOR);
@@ -70,6 +80,11 @@ public final class QuestingRegistries {
 
         SPAWNER_PROCESSOR.register(EQUIPMENT_SPAWNER_PROCESSOR);
         SPAWNER_PROCESSOR.register(EFFECTS_SPAWNER_PROCESSOR);
+
+        CONDITION.register(USE_ITEM_CONDITION);
+
+        ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);
+        ITEM_SELECTOR.register(SINGLE_ITEM_SELECTOR);
     }
 
     private static ResourceLocation internalId(String path) {

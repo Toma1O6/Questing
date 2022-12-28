@@ -7,9 +7,5 @@ import dev.toma.questing.common.trigger.TriggerResponder;
 @FunctionalInterface
 public interface ConditionRegisterHandler {
 
-    <T extends TriggerData> void registerHandler(Trigger<T> trigger, TriggerResponder<T> responder, ConditionCriterion<T> conditionCriterion);
-
-    default <T extends TriggerData> void registerHandler(Trigger<T> trigger, TriggerResponder<T> responder) {
-        registerHandler(trigger, responder, data -> true);
-    }
+    <T extends TriggerData> void registerHandler(Trigger<T> trigger, TriggerResponder<T> responder);
 }

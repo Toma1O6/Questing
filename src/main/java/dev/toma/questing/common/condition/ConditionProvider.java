@@ -1,14 +1,14 @@
 package dev.toma.questing.common.condition;
 
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import net.minecraft.world.World;
 
 public abstract class ConditionProvider<C extends Condition> {
 
-    private final TriggerResponse defaultFailureResponse;
+    private final ResponseType defaultFailureResponse;
 
-    public ConditionProvider(TriggerResponse defaultFailureResponse) {
+    public ConditionProvider(ResponseType defaultFailureResponse) {
         this.defaultFailureResponse = defaultFailureResponse;
     }
 
@@ -16,7 +16,7 @@ public abstract class ConditionProvider<C extends Condition> {
 
     public abstract C createConditionInstance(World world, Quest quest);
 
-    public final TriggerResponse getDefaultFailureResponse() {
+    public final ResponseType getDefaultFailureResponse() {
         return this.defaultFailureResponse;
     }
 }

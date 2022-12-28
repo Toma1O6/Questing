@@ -3,7 +3,7 @@ package dev.toma.questing.common.condition;
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import net.minecraft.world.World;
 
 public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
@@ -13,7 +13,7 @@ public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
     public static final Codec<EmptyCondition> CODEC = Codec.unit(EMPTY_PROVIDER);
 
     public EmptyCondition() {
-        super(TriggerResponse.SKIP);
+        super(ResponseType.SKIP);
     }
 
     public static boolean isEmpty(Condition condition) {

@@ -3,16 +3,16 @@ package dev.toma.questing.common.condition;
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import net.minecraft.world.World;
 
 public class NoDamageGivenCondition extends ConditionProvider<NoDamageGivenCondition.Instance> {
 
-    public static final Codec<NoDamageGivenCondition> CODEC = Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name)
-            .optionalFieldOf("onFail", TriggerResponse.PASS).codec()
+    public static final Codec<NoDamageGivenCondition> CODEC = Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name)
+            .optionalFieldOf("onFail", ResponseType.PASS).codec()
             .xmap(NoDamageGivenCondition::new, ConditionProvider::getDefaultFailureResponse);
 
-    public NoDamageGivenCondition(TriggerResponse response) {
+    public NoDamageGivenCondition(ResponseType response) {
         super(response);
     }
 

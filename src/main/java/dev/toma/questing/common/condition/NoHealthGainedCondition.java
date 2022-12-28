@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,11 +14,11 @@ import java.util.UUID;
 
 public class NoHealthGainedCondition extends ConditionProvider<NoHealthGainedCondition.Instance> {
 
-    public static final Codec<NoHealthGainedCondition> CODEC = Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name)
-            .optionalFieldOf("onFail", TriggerResponse.FAIL).codec()
+    public static final Codec<NoHealthGainedCondition> CODEC = Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name)
+            .optionalFieldOf("onFail", ResponseType.FAIL).codec()
             .xmap(NoHealthGainedCondition::new, ConditionProvider::getDefaultFailureResponse);
 
-    public NoHealthGainedCondition(TriggerResponse defaultFailureResponse) {
+    public NoHealthGainedCondition(ResponseType defaultFailureResponse) {
         super(defaultFailureResponse);
     }
 

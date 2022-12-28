@@ -1,11 +1,11 @@
 package dev.toma.questing.common.trigger;
 
 @FunctionalInterface
-public interface TriggerHandler<T extends TriggerData> {
+public interface TriggerHandler<T> {
 
-    void handleSuccessfullTrigger(Trigger<T> trigger, T data);
+    void handleSuccessfullTrigger(T data);
 
-    static <T extends TriggerData> TriggerHandler<T> doNothing() {
-        return (trigger, data) -> {};
+    static <T> TriggerHandler<T> doNothing() {
+        return data -> {};
     }
 }

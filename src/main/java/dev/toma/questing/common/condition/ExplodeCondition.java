@@ -3,17 +3,17 @@ package dev.toma.questing.common.condition;
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import net.minecraft.world.World;
 
 public class ExplodeCondition extends ConditionProvider<ExplodeCondition.Instance> {
 
-    public static final Codec<ExplodeCondition> CODEC = Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name)
-            .optionalFieldOf("onFail", TriggerResponse.PASS)
+    public static final Codec<ExplodeCondition> CODEC = Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name)
+            .optionalFieldOf("onFail", ResponseType.PASS)
             .xmap(ExplodeCondition::new, ConditionProvider::getDefaultFailureResponse)
             .codec();
 
-    public ExplodeCondition(TriggerResponse defaultFailureResponse) {
+    public ExplodeCondition(ResponseType defaultFailureResponse) {
         super(defaultFailureResponse);
     }
 

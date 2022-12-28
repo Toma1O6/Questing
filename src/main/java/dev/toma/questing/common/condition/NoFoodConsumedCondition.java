@@ -4,24 +4,22 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.FoodStats;
 import net.minecraft.world.World;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class NoFoodConsumedCondition extends ConditionProvider<NoFoodConsumedCondition.Instance> {
 
-    public static final Codec<NoFoodConsumedCondition> CODEC = Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name)
-            .optionalFieldOf("onFail", TriggerResponse.FAIL).codec()
+    public static final Codec<NoFoodConsumedCondition> CODEC = Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name)
+            .optionalFieldOf("onFail", ResponseType.FAIL).codec()
             .xmap(NoFoodConsumedCondition::new, ConditionProvider::getDefaultFailureResponse);
 
-    public NoFoodConsumedCondition(TriggerResponse defaultFailureResponse) {
+    public NoFoodConsumedCondition(ResponseType defaultFailureResponse) {
         super(defaultFailureResponse);
     }
 

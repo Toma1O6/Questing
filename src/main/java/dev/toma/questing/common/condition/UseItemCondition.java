@@ -6,18 +6,18 @@ import dev.toma.questing.common.condition.select.ItemSelectorType;
 import dev.toma.questing.common.condition.select.Selector;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.common.trigger.ResponseType;
 import net.minecraft.world.World;
 
 public class UseItemCondition extends ConditionProvider<UseItemCondition.Instance> {
 
     public static final Codec<UseItemCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name).optionalFieldOf("onFail", TriggerResponse.PASS).forGetter(ConditionProvider::getDefaultFailureResponse),
+            Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name).optionalFieldOf("onFail", ResponseType.PASS).forGetter(ConditionProvider::getDefaultFailureResponse),
             ItemSelectorType.CODEC.fieldOf("selector").forGetter(t -> t.itemSelector)
     ).apply(instance, UseItemCondition::new));
     private final Selector itemSelector;
 
-    public UseItemCondition(TriggerResponse defaultFailureResponse, Selector itemSelector) {
+    public UseItemCondition(ResponseType defaultFailureResponse, Selector itemSelector) {
         super(defaultFailureResponse);
         this.itemSelector = itemSelector;
     }

@@ -5,27 +5,26 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.common.trigger.TriggerResponse;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.world.World;
 
-public class DistanceCondition extends ConditionProvider<DistanceCondition.Instance> {
+public class AggroCondition extends ConditionProvider<AggroCondition.Instance> {
 
-    public static final Codec<DistanceCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<AggroCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name).optionalFieldOf("onFail", TriggerResponse.PASS).forGetter(ConditionProvider::getDefaultFailureResponse),
-            Codec.DOUBLE.fieldOf("minDistance").forGetter(t -> t.min),
-            Codec.DOUBLE.fieldOf("maxDistance").forGetter(t -> t.max)
-    ).apply(instance, DistanceCondition::new));
-    private final double min;
-    private final double max;
+            Codecs.enumCodec(AggroTarget.class, String::toUpperCase).fieldOf("target").forGetter(t -> t.aggroTarget)
+    ).apply(instance, AggroCondition::new));
 
-    public DistanceCondition(TriggerResponse defaultFailureResponse, double min, double max) {
+    private final AggroTarget aggroTarget;
+
+    public AggroCondition(TriggerResponse defaultFailureResponse, AggroTarget aggroTarget) {
         super(defaultFailureResponse);
-        this.min = min;
-        this.max = max;
+        this.aggroTarget = aggroTarget;
     }
 
     @Override
     public ConditionType<?> getType() {
-        return QuestingRegistries.DISTANCE_CONDITION;
+        return QuestingRegistries.AGGRO_CONDITION;
     }
 
     @Override
@@ -33,9 +32,16 @@ public class DistanceCondition extends ConditionProvider<DistanceCondition.Insta
         return new Instance(this);
     }
 
+    public enum AggroTarget {
+        ANY,
+        TRIGGER_PLAYER,
+        NOT_TRIGGER_PLAYER,
+        NO_TARGET
+    }
+
     static final class Instance extends Condition {
 
-        public Instance(DistanceCondition provider) {
+        public Instance(AggroCondition provider) {
             super(provider);
         }
 

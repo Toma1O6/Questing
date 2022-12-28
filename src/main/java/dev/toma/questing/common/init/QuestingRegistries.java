@@ -10,10 +10,7 @@ import dev.toma.questing.common.area.spawner.WaveBasedSpawner;
 import dev.toma.questing.common.area.spawner.processor.SetEffectsProcessor;
 import dev.toma.questing.common.area.spawner.processor.SetEquipmentProcessor;
 import dev.toma.questing.common.area.spawner.processor.SpawnerProcessorType;
-import dev.toma.questing.common.condition.ConditionType;
-import dev.toma.questing.common.condition.DistanceCondition;
-import dev.toma.questing.common.condition.ExplodeCondition;
-import dev.toma.questing.common.condition.UseItemCondition;
+import dev.toma.questing.common.condition.*;
 import dev.toma.questing.common.condition.select.AnyItemSelector;
 import dev.toma.questing.common.condition.select.ItemSelectorType;
 import dev.toma.questing.common.condition.select.SingleItemSelector;
@@ -61,6 +58,7 @@ public final class QuestingRegistries {
     public static final ConditionType<UseItemCondition> USE_ITEM_CONDITION = new ConditionType<>(internalId("use_item"), UseItemCondition.CODEC);
     public static final ConditionType<ExplodeCondition> EXPLODE_CONDITION = new ConditionType<>(internalId("explode"), ExplodeCondition.CODEC);
     public static final ConditionType<DistanceCondition> DISTANCE_CONDITION = new ConditionType<>(internalId("distance"), DistanceCondition.CODEC);
+    public static final ConditionType<AggroCondition> AGGRO_CONDITION = new ConditionType<>(internalId("aggro"), AggroCondition.CODEC);
 
     // Conditions - Item selectors
     public static final ItemSelectorType<AnyItemSelector> ANY_ITEM_SELECTOR = new ItemSelectorType<>(internalId("any_item"), AnyItemSelector.CODEC);
@@ -88,6 +86,7 @@ public final class QuestingRegistries {
         CONDITION.register(USE_ITEM_CONDITION);
         CONDITION.register(EXPLODE_CONDITION);
         CONDITION.register(DISTANCE_CONDITION);
+        CONDITION.register(AGGRO_CONDITION);
 
         ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);
         ITEM_SELECTOR.register(SINGLE_ITEM_SELECTOR);

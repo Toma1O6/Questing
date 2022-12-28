@@ -1,6 +1,7 @@
 package dev.toma.questing.common.condition;
 
 import com.mojang.serialization.Codec;
+import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.common.trigger.TriggerResponse;
 import net.minecraft.world.World;
@@ -18,12 +19,12 @@ public class ExplodeCondition extends ConditionProvider<ExplodeCondition.Instanc
 
     @Override
     public ConditionType<?> getType() {
-        return null;
+        return QuestingRegistries.EXPLODE_CONDITION;
     }
 
     @Override
     public Instance createConditionInstance(World world, Quest quest) {
-        return null;
+        return new Instance(this);
     }
 
     static final class Instance extends Condition {

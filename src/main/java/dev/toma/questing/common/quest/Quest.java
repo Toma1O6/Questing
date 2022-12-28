@@ -33,6 +33,7 @@ public abstract class Quest {
             condition.onConditionConstructing(party, this, world);
             condition.registerTriggerResponders(actionHandler::registerConditionHandler);
         });
+        // TODO init tasks
     }
 
     @SuppressWarnings("unchecked")
@@ -40,8 +41,14 @@ public abstract class Quest {
         ResponseType responseType = ResponseType.OK;
         Map<EventType<?>, Object> eventDataMap = new IdentityHashMap<>();
         this.remapEventsAndStore(trigger, triggerData, eventDataMap);
-        // TODO first handle all events/conditions
-        // Triggers should have event mappings inside so it could be used here
+        for (Map.Entry<EventType<?>, Object> entry : eventDataMap.entrySet()) {
+            EventType<V> eventType = (EventType<V>) entry.getValue();
+            V eventData = (V) entry.getValue();
+            Collection<EventDataHandler<?>> eventDataHandlers = this.actionHandler.getEvents(eventType);
+            for (EventDataHandler<?> dataHandler : eventDataHandlers) {
+                responseType = responseType.transform(this.handleEventResponse((EventDataHandler<V>) dataHandler, eventData));
+            }
+        }
         if (responseType != ResponseType.OK) {
             if (responseType == ResponseType.FAIL) {
                 // TODO fail quest
@@ -69,7 +76,13 @@ public abstract class Quest {
             for (TriggerDataHandler<?> dataHandler : triggers) {
                 this.handleTriggerSuccess((TriggerDataHandler<T>) dataHandler, triggerData);
             }
-            // TODO trigger success in all event handlers
+            for (Map.Entry<EventType<?>, Object> entry : eventDataMap.entrySet()) {
+                V eventData = (V) entry.getValue();
+                Collection<EventDataHandler<?>> handlers = this.actionHandler.getEvents(entry.getKey());
+                for (EventDataHandler<?> dataHandler : handlers) {
+                    this.handleEventSuccess((EventDataHandler<V>) dataHandler, eventData);
+                }
+            }
         }
     }
 
@@ -81,8 +94,16 @@ public abstract class Quest {
         return dataHandler.responder.onTrigger(data);
     }
 
+    private <V> ResponseType handleEventResponse(EventDataHandler<V> dataHandler, V data) {
+        return dataHandler.responder.respond(data);
+    }
+
     private <T> void handleTriggerSuccess(TriggerDataHandler<T> dataHandler, T data) {
         dataHandler.handler.handleSuccessfullTrigger(data);
+    }
+
+    private <V> void handleEventSuccess(EventDataHandler<V> dataHandler, V data) {
+        dataHandler.handler.handleEvent(data);
     }
 
     @SuppressWarnings("unchecked")
@@ -110,6 +131,10 @@ public abstract class Quest {
 
         private Collection<TriggerDataHandler<?>> getTriggers(Trigger<?> trigger) {
             return this.triggerHandlers.get(trigger);
+        }
+
+        private Collection<EventDataHandler<?>> getEvents(EventType<?> eventType) {
+            return this.dataHandlers.get(eventType);
         }
     }
 

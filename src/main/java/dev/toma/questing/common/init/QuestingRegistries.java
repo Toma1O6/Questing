@@ -55,10 +55,15 @@ public final class QuestingRegistries {
     public static final SpawnerProcessorType<SetEffectsProcessor> EFFECTS_SPAWNER_PROCESSOR = new SpawnerProcessorType<>(internalId("set_effects"), SetEffectsProcessor.CODEC);
 
     // Conditions
+    public static final ConditionType<EmptyCondition> EMPTY_CONDITION = new ConditionType<>(internalId("empty"), EmptyCondition.CODEC);
     public static final ConditionType<UseItemCondition> USE_ITEM_CONDITION = new ConditionType<>(internalId("use_item"), UseItemCondition.CODEC);
     public static final ConditionType<ExplodeCondition> EXPLODE_CONDITION = new ConditionType<>(internalId("explode"), ExplodeCondition.CODEC);
     public static final ConditionType<DistanceCondition> DISTANCE_CONDITION = new ConditionType<>(internalId("distance"), DistanceCondition.CODEC);
     public static final ConditionType<AggroCondition> AGGRO_CONDITION = new ConditionType<>(internalId("aggro"), AggroCondition.CODEC);
+    public static final ConditionType<NoDamageGivenCondition> NO_DAMAGE_GIVEN_CONDITION = new ConditionType<>(internalId("no_damage_given"), NoDamageGivenCondition.CODEC);
+    public static final ConditionType<NoDamageTakenCondition> NO_DAMAGE_TAKEN_CONDITION = new ConditionType<>(internalId("no_damage_taken"), NoDamageTakenCondition.CODEC);
+    public static final ConditionType<NoHealthGainedCondition> NO_HEALTH_GAINED = new ConditionType<>(internalId("no_health_gained"), NoHealthGainedCondition.CODEC);
+    public static final ConditionType<NoFoodConsumedCondition> NO_FOOD_CONSUMED = new ConditionType<>(internalId("no_food_consumed"), NoFoodConsumedCondition.CODEC);
 
     // Conditions - Item selectors
     public static final ItemSelectorType<AnyItemSelector> ANY_ITEM_SELECTOR = new ItemSelectorType<>(internalId("any_item"), AnyItemSelector.CODEC);
@@ -83,10 +88,14 @@ public final class QuestingRegistries {
         SPAWNER_PROCESSOR.register(EQUIPMENT_SPAWNER_PROCESSOR);
         SPAWNER_PROCESSOR.register(EFFECTS_SPAWNER_PROCESSOR);
 
+        CONDITION.register(EMPTY_CONDITION);
         CONDITION.register(USE_ITEM_CONDITION);
         CONDITION.register(EXPLODE_CONDITION);
         CONDITION.register(DISTANCE_CONDITION);
         CONDITION.register(AGGRO_CONDITION);
+        CONDITION.register(NO_DAMAGE_GIVEN_CONDITION);
+        CONDITION.register(NO_DAMAGE_TAKEN_CONDITION);
+        CONDITION.register(NO_HEALTH_GAINED);
 
         ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);
         ITEM_SELECTOR.register(SINGLE_ITEM_SELECTOR);

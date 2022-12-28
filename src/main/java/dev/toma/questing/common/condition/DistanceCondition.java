@@ -6,17 +6,17 @@ import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.common.trigger.TriggerResponse;
 import net.minecraft.world.World;
 
-public class DistanceConditionProvider extends ConditionProvider<DistanceConditionProvider.Instance> {
+public class DistanceCondition extends ConditionProvider<DistanceCondition.Instance> {
 
-    public static final Codec<DistanceConditionProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<DistanceCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.comapFlatMap(TriggerResponse::fromString, Enum::name).optionalFieldOf("onFail", TriggerResponse.PASS).forGetter(ConditionProvider::getDefaultFailureResponse),
             Codec.DOUBLE.fieldOf("minDistance").forGetter(t -> t.min),
             Codec.DOUBLE.fieldOf("maxDistance").forGetter(t -> t.max)
-    ).apply(instance, DistanceConditionProvider::new));
+    ).apply(instance, DistanceCondition::new));
     private final double min;
     private final double max;
 
-    public DistanceConditionProvider(TriggerResponse defaultFailureResponse, double min, double max) {
+    public DistanceCondition(TriggerResponse defaultFailureResponse, double min, double max) {
         super(defaultFailureResponse);
         this.min = min;
         this.max = max;
@@ -34,7 +34,7 @@ public class DistanceConditionProvider extends ConditionProvider<DistanceConditi
 
     static final class Instance extends Condition {
 
-        public Instance(DistanceConditionProvider provider) {
+        public Instance(DistanceCondition provider) {
             super(provider);
         }
 

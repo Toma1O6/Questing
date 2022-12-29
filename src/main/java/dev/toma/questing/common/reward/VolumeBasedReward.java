@@ -28,7 +28,7 @@ public abstract class VolumeBasedReward implements Reward {
         return countAdjusters;
     }
 
-    protected int getCount(final int baseValue, PlayerEntity player, Quest quest) {
+    protected static int getCount(final int baseValue, PlayerEntity player, Quest quest, List<RewardTransformer<Integer>> countAdjusters) {
         int result = baseValue;
         for (RewardTransformer<Integer> transformer : countAdjusters) {
             result = transformer.adjust(result, player, quest);

@@ -15,6 +15,10 @@ import dev.toma.questing.common.condition.select.AnyItemSelector;
 import dev.toma.questing.common.condition.select.ItemSelectorType;
 import dev.toma.questing.common.condition.select.SingleItemSelector;
 import dev.toma.questing.common.reward.*;
+import dev.toma.questing.common.reward.distributor.NoRewardDistributor;
+import dev.toma.questing.common.reward.distributor.RewardDistributionType;
+import dev.toma.questing.common.reward.distributor.SharedRewardDistributor;
+import dev.toma.questing.common.reward.distributor.SplitRewardDistributor;
 import net.minecraft.util.ResourceLocation;
 
 public final class QuestingRegistries {
@@ -31,12 +35,14 @@ public final class QuestingRegistries {
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors
+    public static final RewardDistributionType<NoRewardDistributor> NO_REWARD_DISTRIBUTOR = new RewardDistributionType<>(internalId("no_rewards"), NoRewardDistributor.CODEC);
     public static final RewardDistributionType<SharedRewardDistributor> SHARED_REWARD_DISTRIBUTOR = new RewardDistributionType<>(internalId("shared"), SharedRewardDistributor.CODEC);
     public static final RewardDistributionType<SplitRewardDistributor> SPLIT_REWARD_DISTRIBUTOR = new RewardDistributionType<>(internalId("split"), SplitRewardDistributor.CODEC);
 
     // Reward types
     public static final RewardType<ItemStackReward> ITEMSTACK_REWARD = new RewardType<>(internalId("item"), ItemStackReward.CODEC);
     public static final RewardType<ItemTagReward> ITEMTAG_REWARD = new RewardType<>(internalId("tag"), ItemTagReward.CODEC);
+    public static final RewardType<MultiReward> MULTI_REWARD = new RewardType<>(internalId("multi"), MultiReward.CODEC);
 
     // Reward transformers
     public static final RewardTransformerType<Integer, RewardCountTransformer> REWARD_COUNT_TRANSFORMER = new RewardTransformerType<>(internalId("count"), RewardCountTransformer.CODEC, Integer.class);
@@ -70,11 +76,13 @@ public final class QuestingRegistries {
     public static final ItemSelectorType<SingleItemSelector> SINGLE_ITEM_SELECTOR = new ItemSelectorType<>(internalId("single_item"), SingleItemSelector.CODEC);
 
     public static void register() {
+        REWARD_DISTRIBUTORS.register(NO_REWARD_DISTRIBUTOR);
         REWARD_DISTRIBUTORS.register(SHARED_REWARD_DISTRIBUTOR);
         REWARD_DISTRIBUTORS.register(SPLIT_REWARD_DISTRIBUTOR);
 
         REWARDS.register(ITEMSTACK_REWARD);
         REWARDS.register(ITEMTAG_REWARD);
+        REWARDS.register(MULTI_REWARD);
 
         REWARD_TRANSFORMERS.register(REWARD_COUNT_TRANSFORMER);
         REWARD_TRANSFORMERS.register(REWARD_ITEM_NBT_TRANSFORMER);

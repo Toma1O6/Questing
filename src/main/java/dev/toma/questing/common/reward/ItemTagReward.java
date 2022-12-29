@@ -3,8 +3,6 @@ package dev.toma.questing.common.reward;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tags.ITag;
@@ -22,34 +20,39 @@ public class ItemTagReward extends AbstractItemReward {
             ITEM_ADJUSTER_CODEC.listOf().optionalFieldOf("itemFunctions", Collections.emptyList()).forGetter(AbstractItemReward::getItemAdjusters),
             ITag.codec(() -> TagCollectionManager.getInstance().getItems()).fieldOf("tag").forGetter(t -> t.tag),
             Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("fetchCount", 1).forGetter(t -> t.fetchCount),
-            Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", 1).forGetter(t -> t.itemCount)
+            Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("count", 1).forGetter(t -> t.itemCount),
+            ItemList.CODEC.optionalFieldOf("generated", ItemList.EMPTY).forGetter(AbstractItemReward::getItemList)
     ).apply(instance, ItemTagReward::new));
     private final ITag<Item> tag;
     private final int fetchCount;
     private final int itemCount;
 
-    public ItemTagReward(List<RewardTransformer<Integer>> countAdjusters, List<RewardTransformer<ItemList>> itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount) {
-        super(countAdjusters, itemAdjusters);
+    public ItemTagReward(List<RewardTransformer<Integer>> countAdjusters, List<RewardTransformer<ItemList>> itemAdjusters, ITag<Item> tag, int fetchCount, int itemCount, ItemList itemList) {
+        super(countAdjusters, itemAdjusters, itemList.isEmpty() ? createDefaultFilledItemList(tag, fetchCount, itemCount) : itemList);
         this.tag = tag;
         this.fetchCount = fetchCount;
         this.itemCount = itemCount;
     }
 
     @Override
-    protected ItemList getItems(PlayerEntity player, Quest quest) {
-        List<Item> items = this.tag.getValues();
-        Random random = player.getRandom();
-        List<ItemStack> generated = new ArrayList<>();
-        for (int i = 0; i < this.fetchCount; i++) {
-            Item item = items.get(random.nextInt(items.size()));
-            List<ItemStack> split = createNonstandartSizeItemStacks(size -> new ItemStack(item, size), this.itemCount, item.getMaxStackSize());
-            generated.addAll(split);
-        }
-        return new ItemList(generated);
+    public RewardType<?> getType() {
+        return QuestingRegistries.ITEMTAG_REWARD;
     }
 
     @Override
-    public RewardType<?> getType() {
-        return QuestingRegistries.ITEMTAG_REWARD;
+    public Reward copy() {
+        return new ItemTagReward(this.getCountAdjusters(), this.getItemAdjusters(), this.tag, this.fetchCount, this.itemCount, ItemList.EMPTY);
+    }
+
+    protected static ItemList createDefaultFilledItemList(ITag<Item> tag, int fetchCount, int itemCount) {
+        List<Item> items = tag.getValues();
+        Random random = new Random();
+        List<ItemStack> generated = new ArrayList<>();
+        for (int i = 0; i < fetchCount; i++) {
+            Item item = items.get(random.nextInt(items.size()));
+            List<ItemStack> split = createNonstandartSizeItemStacks(size -> new ItemStack(item, size), itemCount, item.getMaxStackSize());
+            generated.addAll(split);
+        }
+        return new ItemList(generated);
     }
 }

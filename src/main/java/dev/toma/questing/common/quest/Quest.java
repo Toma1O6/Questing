@@ -4,13 +4,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import dev.toma.questing.common.condition.Condition;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.reward.Reward;
+import dev.toma.questing.common.reward.distributor.RewardDistributor;
 import dev.toma.questing.common.trigger.*;
 import net.minecraft.world.World;
 
-import java.util.Collection;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 public abstract class Quest {
@@ -19,6 +18,7 @@ public abstract class Quest {
     public final World level;
     private Party party;
     private List<Condition> conditions;
+    private Map<UUID, Reward> unclaimedRewards;
     private QuestStatus status = QuestStatus.NEW;
 
     public Quest(World level) { // TODO require quest type as input parameter
@@ -36,6 +36,15 @@ public abstract class Quest {
             condition.registerTriggerResponders(actionHandler::registerConditionHandler);
         });
         // TODO init tasks
+        // TODO finish reward init
+        RewardDistributor distributor = null;
+        this.party.forEachOnlineMemberExcept(null, world, player -> {
+            Reward reward = distributor.createDistributedReward(player, this.party);
+            if (reward == null)
+                return;
+            reward.generate(player, this);
+            this.unclaimedRewards.put(player.getUUID(), reward);
+        });
     }
 
     @SuppressWarnings("unchecked")

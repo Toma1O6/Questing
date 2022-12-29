@@ -3,11 +3,13 @@ package dev.toma.questing.common.reward;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -24,43 +26,30 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
         return DataResult.success(itemTransformer);
     }, itemTransformer -> itemTransformer == null ? DataResult.error("Reward transformer is null") : DataResult.success(itemTransformer));
     private final List<RewardTransformer<ItemList>> itemAdjusters;
+    private ItemList result;
 
-    public AbstractItemReward(List<RewardTransformer<Integer>> countAdjusters, List<RewardTransformer<ItemList>> itemAdjusters) {
+    public AbstractItemReward(List<RewardTransformer<Integer>> countAdjusters, List<RewardTransformer<ItemList>> itemAdjusters, ItemList result) {
         super(countAdjusters);
         this.itemAdjusters = itemAdjusters;
+        this.result = result;
     }
 
-    protected abstract ItemList getItems(PlayerEntity player, Quest quest);
+    @Override
+    public void generate(PlayerEntity player, Quest quest) {
+        result = result.adjust(this.getCountAdjusters(), this.itemAdjusters, player, quest);
+    }
+
+    public ItemList getItemList() {
+        return result;
+    }
 
     public List<RewardTransformer<ItemList>> getItemAdjusters() {
         return itemAdjusters;
     }
 
-    protected List<ItemStack> adjustCount(ItemStack stack, PlayerEntity player, Quest quest) {
-        int base = stack.getCount();
-        int count = getCount(base, player, quest);
-        int limit = stack.getMaxStackSize();
-        List<ItemStack> list = new ArrayList<>();
-        while (count > 0) {
-            int take = Math.min(limit, count);
-            ItemStack itemStack = stack.copy();
-            itemStack.setCount(take);
-            list.add(itemStack);
-            count -= take;
-        }
-        return list;
-    }
-
     @Override
     public void awardPlayer(PlayerEntity player, Quest quest) {
-        ItemList list = this.getItems(player, quest);
-        for (RewardTransformer<ItemList> transformer : itemAdjusters) {
-            list = transformer.adjust(list, player, quest);
-        }
-        for (ItemStack stack : list) {
-            List<ItemStack> adjusted = this.adjustCount(stack, player, quest);
-            adjusted.forEach(item -> giveToPlayer(item, player));
-        }
+        this.result.forEach(itemStack -> giveToPlayer(itemStack, player));
     }
 
     public static void giveToPlayer(ItemStack stack, PlayerEntity player) {
@@ -86,15 +75,61 @@ public abstract class AbstractItemReward extends VolumeBasedReward {
 
     public static final class ItemList implements Iterable<ItemStack> {
 
+        public static final ItemList EMPTY = new ItemList(Collections.emptyList());
+        public static final Codec<ItemList> CODEC = Codecs.SIMPLIFIED_ITEMSTACK.listOf()
+                .optionalFieldOf("itemList", Collections.emptyList())
+                .xmap(ItemList::new, itemList -> itemList.items).codec();
+
         public final List<ItemStack> items;
 
         public ItemList(List<ItemStack> items) {
             this.items = items;
         }
 
+        public ItemList adjust(List<RewardTransformer<Integer>> countAdjust, List<RewardTransformer<ItemList>> itemAdjust, PlayerEntity player, Quest quest) {
+            ItemList list = this;
+            this.items.clear();
+            List<ItemStack> results = new ArrayList<>();
+            for (RewardTransformer<ItemList> transformer : itemAdjust) {
+                list = transformer.adjust(list, player, quest);
+            }
+            for (ItemStack stack : list) {
+                List<ItemStack> adjusted = this.adjustCount(stack, player, quest, countAdjust);
+                results.addAll(adjusted);
+            }
+            return new ItemList(results);
+        }
+
+        public boolean isEmpty() {
+            return this.items.isEmpty();
+        }
+
         @Override
         public Iterator<ItemStack> iterator() {
             return items.iterator();
+        }
+
+        private List<ItemStack> adjustCount(ItemStack stack, PlayerEntity player, Quest quest, List<RewardTransformer<Integer>> countAdjusters) {
+            int base = stack.getCount();
+            int count = getCount(base, player, quest, countAdjusters);
+            int limit = stack.getMaxStackSize();
+            List<ItemStack> list = new ArrayList<>();
+            while (count > 0) {
+                int take = Math.min(limit, count);
+                ItemStack itemStack = stack.copy();
+                itemStack.setCount(take);
+                list.add(itemStack);
+                count -= take;
+            }
+            return list;
+        }
+
+        private int getCount(final int baseValue, PlayerEntity player, Quest quest, List<RewardTransformer<Integer>> countAdjusters) {
+            int result = baseValue;
+            for (RewardTransformer<Integer> transformer : countAdjusters) {
+                result = transformer.adjust(result, player, quest);
+            }
+            return result;
         }
     }
 }

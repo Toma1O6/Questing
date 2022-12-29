@@ -1,4 +1,4 @@
-package dev.toma.questing.common.reward;
+package dev.toma.questing.common.reward.distributor;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;

@@ -20,7 +20,7 @@ public class LandBasedAreaProvider extends SimpleAreaProvider {
             Codec.intRange(0, Integer.MAX_VALUE).fieldOf("minDistance").forGetter(SimpleAreaProvider::getDistanceMin),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxDistance", 0).forGetter(SimpleAreaProvider::getDistanceMax),
             Codec.intRange(0, Integer.MAX_VALUE).fieldOf("size").forGetter(SimpleAreaProvider::getAreaSize),
-            Codecs.enumCodec(AreaInteractionMode.class).optionalFieldOf("interactionMode", AreaInteractionMode.NO_INTERACTION).forGetter(SimpleAreaProvider::getInteractionMode),
+            Codecs.enumCodec(AreaInteractionMode.class, String::toUpperCase).optionalFieldOf("interactionMode", AreaInteractionMode.NO_INTERACTION).forGetter(SimpleAreaProvider::getInteractionMode),
             SpawnerType.CODEC.listOf().optionalFieldOf("spawners", Collections.emptyList()).forGetter(SimpleAreaProvider::getMobSpawners)
     ).apply(instance, LandBasedAreaProvider::new));
 

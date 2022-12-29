@@ -10,7 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 public class RewardCountTransformer implements RewardTransformer<Integer> {
 
     public static final Codec<RewardCountTransformer> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-            Codecs.enumCodec(Operation.class).fieldOf("operation").forGetter(ins -> ins.operation),
+            Codecs.enumCodec(Operation.class, String::toUpperCase).fieldOf("operation").forGetter(ins -> ins.operation),
             Codec.FLOAT.fieldOf("value").forGetter(ins -> ins.value)
     ).apply(builder, RewardCountTransformer::new));
 

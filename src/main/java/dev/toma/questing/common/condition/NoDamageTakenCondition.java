@@ -3,7 +3,9 @@ package dev.toma.questing.common.condition;
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.trigger.Events;
 import dev.toma.questing.common.trigger.ResponseType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
 
 public class NoDamageTakenCondition extends ConditionProvider<NoDamageTakenCondition.Instance> {
@@ -34,7 +36,13 @@ public class NoDamageTakenCondition extends ConditionProvider<NoDamageTakenCondi
 
         @Override
         public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-
+            registerHandler.register(Events.DAMAGE_EVENT, (eventData, quest) -> {
+                LivingEntity entity = eventData.getEntity();
+                if (checkIfEntityIsPartyMember(entity, quest.getParty())) {
+                    return this.getProvider().getDefaultFailureResponse();
+                }
+                return ResponseType.OK;
+            });
         }
     }
 }

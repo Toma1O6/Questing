@@ -2,8 +2,12 @@ package dev.toma.questing.common.condition;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.trigger.Events;
 import dev.toma.questing.common.trigger.ResponseType;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
 public class NoDamageGivenCondition extends ConditionProvider<NoDamageGivenCondition.Instance> {
@@ -34,7 +38,15 @@ public class NoDamageGivenCondition extends ConditionProvider<NoDamageGivenCondi
 
         @Override
         public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-
+            registerHandler.register(Events.DAMAGE_EVENT, (eventData, quest) -> {
+                Party party = quest.getParty();
+                DamageSource damageSource = eventData.getSource();
+                Entity sourceEntity = damageSource.getEntity();
+                if (checkIfEntityIsPartyMember(sourceEntity, party)) {
+                    return this.getProvider().getDefaultFailureResponse();
+                }
+                return ResponseType.OK;
+            });
         }
     }
 }

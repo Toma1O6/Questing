@@ -16,12 +16,14 @@ import java.util.function.Function;
 public abstract class Quest {
 
     private final QuestActionHandler actionHandler = new QuestActionHandler();
+    public final World level;
     private Party party;
     private List<Condition> conditions;
     private QuestStatus status = QuestStatus.NEW;
 
-    public Quest() { // TODO require quest type as input parameter
+    public Quest(World level) { // TODO require quest type as input parameter
         this.registerTriggers(actionHandler::registerTrigger);
+        this.level = level;
     }
 
     public abstract void registerTriggers(TriggerRegisterHandler registerHandler);
@@ -95,7 +97,7 @@ public abstract class Quest {
     }
 
     private <V> ResponseType handleEventResponse(EventDataHandler<V> dataHandler, V data) {
-        return dataHandler.responder.respond(data);
+        return dataHandler.responder.respond(data, this);
     }
 
     private <T> void handleTriggerSuccess(TriggerDataHandler<T> dataHandler, T data) {
@@ -103,7 +105,7 @@ public abstract class Quest {
     }
 
     private <V> void handleEventSuccess(EventDataHandler<V> dataHandler, V data) {
-        dataHandler.handler.handleEvent(data);
+        dataHandler.handler.handleEvent(data, this);
     }
 
     @SuppressWarnings("unchecked")

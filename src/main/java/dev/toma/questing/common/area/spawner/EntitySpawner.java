@@ -23,7 +23,7 @@ import java.util.Random;
 public class EntitySpawner implements Spawner {
 
     public static final Codec<EntitySpawner> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codecs.enumCodec(SpawnMode.class).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
+            Codecs.enumCodec(SpawnMode.class, String::toUpperCase).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
             Registry.ENTITY_TYPE.fieldOf("entity").forGetter(EntitySpawner::getEntity),
             Codec.intRange(1, 64).optionalFieldOf("min", 1).forGetter(spawner -> spawner.minCount),
             Codec.intRange(1, 64).optionalFieldOf("max", 1).forGetter(spawner -> spawner.maxCount),

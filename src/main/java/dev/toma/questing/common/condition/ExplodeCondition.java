@@ -3,7 +3,10 @@ package dev.toma.questing.common.condition;
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.trigger.Events;
 import dev.toma.questing.common.trigger.ResponseType;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 
 public class ExplodeCondition extends ConditionProvider<ExplodeCondition.Instance> {
@@ -35,7 +38,14 @@ public class ExplodeCondition extends ConditionProvider<ExplodeCondition.Instanc
 
         @Override
         public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-
+            registerHandler.register(Events.DEATH_EVENT, (eventData, quest) -> {
+                DamageSource source = eventData.getSource();
+                Entity owner = source.getEntity();
+                if (checkIfEntityIsPartyMember(owner, quest.getParty()) && !source.isExplosion()) {
+                    return this.getProvider().getDefaultFailureResponse();
+                }
+                return ResponseType.OK;
+            });
         }
     }
 }

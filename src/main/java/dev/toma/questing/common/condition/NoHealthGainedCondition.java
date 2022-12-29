@@ -4,12 +4,17 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.trigger.Events;
 import dev.toma.questing.common.trigger.ResponseType;
+import dev.toma.questing.utils.PlayerLookup;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class NoHealthGainedCondition extends ConditionProvider<NoHealthGainedCondition.Instance> {
@@ -42,7 +47,24 @@ public class NoHealthGainedCondition extends ConditionProvider<NoHealthGainedCon
 
         @Override
         public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-
+            registerHandler.register(Events.EVENT, (eventData, quest) -> {
+                Party party = quest.getParty();
+                Set<UUID> members = party.getMembers();
+                if (quest.level.isClientSide) {
+                    return ResponseType.SKIP;
+                }
+                ServerWorld serverLevel = (ServerWorld) quest.level;
+                for (UUID member : members) {
+                    ServerPlayerEntity player = PlayerLookup.findServerPlayer(serverLevel, member);
+                    if (player == null)
+                        continue;
+                    boolean shouldFail = shouldFail(player);
+                    if (!shouldFail)
+                        continue;
+                    return this.getProvider().getDefaultFailureResponse();
+                }
+                return ResponseType.OK;
+            });
         }
 
         @Override

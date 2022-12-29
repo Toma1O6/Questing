@@ -76,7 +76,7 @@ public class DistanceCondition extends ConditionProvider<DistanceCondition.Insta
                     double max = distanceCondition.max < 0 ? Double.MAX_VALUE : distanceCondition.max;
                     return distance >= min && distance <= max ? ResponseType.OK : distanceCondition.getDefaultFailureResponse();
                 }
-                return ResponseType.OK;
+                return ResponseType.SKIP;
             });
         }
     }

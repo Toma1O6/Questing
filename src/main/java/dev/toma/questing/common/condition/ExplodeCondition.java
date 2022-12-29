@@ -41,10 +41,10 @@ public class ExplodeCondition extends ConditionProvider<ExplodeCondition.Instanc
             registerHandler.register(Events.DEATH_EVENT, (eventData, quest) -> {
                 DamageSource source = eventData.getSource();
                 Entity owner = source.getEntity();
-                if (checkIfEntityIsPartyMember(owner, quest.getParty()) && !source.isExplosion()) {
-                    return this.getProvider().getDefaultFailureResponse();
+                if (checkIfEntityIsPartyMember(owner, quest.getParty())) {
+                    return source.isExplosion() ? ResponseType.OK : this.getProvider().getDefaultFailureResponse();
                 }
-                return ResponseType.OK;
+                return ResponseType.SKIP;
             });
         }
     }

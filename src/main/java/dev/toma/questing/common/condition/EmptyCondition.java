@@ -38,7 +38,6 @@ public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
 
         @Override
         public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-
         }
     }
 }

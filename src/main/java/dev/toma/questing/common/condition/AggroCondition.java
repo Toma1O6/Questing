@@ -86,9 +86,11 @@ public class AggroCondition extends ConditionProvider<AggroCondition.Instance> {
                     if (!validator.isValid(target, (PlayerEntity) origin)) {
                         return condition.getDefaultFailureResponse();
                     }
+                    return ResponseType.OK;
                 }
+                return ResponseType.PASS;
             }
-            return ResponseType.OK;
+            return ResponseType.SKIP;
         }
     }
 }

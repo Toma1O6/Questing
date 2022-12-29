@@ -41,7 +41,7 @@ public class NoDamageTakenCondition extends ConditionProvider<NoDamageTakenCondi
                 if (checkIfEntityIsPartyMember(entity, quest.getParty())) {
                     return this.getProvider().getDefaultFailureResponse();
                 }
-                return ResponseType.OK;
+                return ResponseType.SKIP;
             });
         }
     }

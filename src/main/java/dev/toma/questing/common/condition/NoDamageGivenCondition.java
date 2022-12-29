@@ -45,7 +45,7 @@ public class NoDamageGivenCondition extends ConditionProvider<NoDamageGivenCondi
                 if (checkIfEntityIsPartyMember(sourceEntity, party)) {
                     return this.getProvider().getDefaultFailureResponse();
                 }
-                return ResponseType.OK;
+                return ResponseType.SKIP;
             });
         }
     }

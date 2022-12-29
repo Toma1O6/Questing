@@ -74,7 +74,7 @@ public class UseItemCondition extends ConditionProvider<UseItemCondition.Instanc
                     ItemStack usedItem = provider.getUsedItem(source);
                     return this.validItemList.contains(usedItem.getItem()) ? ResponseType.OK : this.getProvider().getDefaultFailureResponse();
                 }
-                return ResponseType.OK;
+                return ResponseType.SKIP;
             });
         }
     }

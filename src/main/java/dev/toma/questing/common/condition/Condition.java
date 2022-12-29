@@ -1,5 +1,6 @@
 package dev.toma.questing.common.condition;
 
+import com.mojang.serialization.Codec;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
 import net.minecraft.entity.Entity;
@@ -20,6 +21,8 @@ public abstract class Condition {
     public final ConditionProvider<?> getProvider() {
         return this.provider;
     }
+
+    public abstract Codec<? extends Condition> codec();
 
     public abstract void registerTriggerResponders(ConditionRegisterHandler registerHandler);
 

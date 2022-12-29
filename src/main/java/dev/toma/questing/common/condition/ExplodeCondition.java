@@ -32,8 +32,17 @@ public class ExplodeCondition extends ConditionProvider<ExplodeCondition.Instanc
 
     static final class Instance extends Condition {
 
+        private static final Codec<Instance> CODEC = ExplodeCondition.CODEC
+                .xmap(Instance::new, t -> (ExplodeCondition) t.getProvider())
+                .fieldOf("provider").codec();
+
         public Instance(ExplodeCondition provider) {
             super(provider);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

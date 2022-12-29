@@ -62,8 +62,17 @@ public class AggroCondition extends ConditionProvider<AggroCondition.Instance> {
 
     static final class Instance extends Condition {
 
+        private static final Codec<Instance> CODEC = AggroCondition.CODEC
+                .xmap(Instance::new, instance -> (AggroCondition) instance.getProvider())
+                .fieldOf("provider").codec();
+
         public Instance(AggroCondition provider) {
             super(provider);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

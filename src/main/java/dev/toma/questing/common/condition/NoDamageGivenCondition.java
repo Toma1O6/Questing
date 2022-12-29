@@ -32,8 +32,17 @@ public class NoDamageGivenCondition extends ConditionProvider<NoDamageGivenCondi
 
     static final class Instance extends Condition {
 
+        private static final Codec<Instance> CODEC = NoDamageGivenCondition.CODEC
+                .xmap(Instance::new, t -> (NoDamageGivenCondition) t.getProvider())
+                .fieldOf("provider").codec();
+
         public Instance(NoDamageGivenCondition provider) {
             super(provider);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

@@ -59,8 +59,17 @@ public class DistanceCondition extends ConditionProvider<DistanceCondition.Insta
 
     static final class Instance extends Condition {
 
+        private static final Codec<Instance> CODEC = DistanceCondition.CODEC
+                .xmap(Instance::new, t -> (DistanceCondition) t.getProvider())
+                .fieldOf("provider").codec();
+
         public Instance(DistanceCondition provider) {
             super(provider);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

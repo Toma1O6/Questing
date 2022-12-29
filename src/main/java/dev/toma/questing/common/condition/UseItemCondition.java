@@ -13,9 +13,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class UseItemCondition extends ConditionProvider<UseItemCondition.Instance> {
@@ -57,11 +60,25 @@ public class UseItemCondition extends ConditionProvider<UseItemCondition.Instanc
 
     static final class Instance extends Condition {
 
+        private static final Codec<Instance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                UseItemCondition.CODEC.fieldOf("provider").forGetter(t -> (UseItemCondition) t.getProvider()),
+                Registry.ITEM.listOf().fieldOf("items").forGetter(t -> new ArrayList<>(t.validItemList))
+        ).apply(instance, Instance::new));
         private final Set<Item> validItemList;
 
         public Instance(UseItemCondition conditionProvider) {
             super(conditionProvider);
             this.validItemList = new HashSet<>(conditionProvider.itemSelector.getUseableItems());
+        }
+
+        private Instance(UseItemCondition provider, List<Item> items) {
+            super(provider);
+            this.validItemList = new HashSet<>(items);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

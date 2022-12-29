@@ -1,11 +1,13 @@
 package dev.toma.questing.common.condition;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.common.trigger.Events;
 import dev.toma.questing.common.trigger.ResponseType;
+import dev.toma.questing.utils.Codecs;
 import dev.toma.questing.utils.PlayerLookup;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -14,6 +16,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,10 +42,25 @@ public class NoHealthGainedCondition extends ConditionProvider<NoHealthGainedCon
 
     static final class Instance extends Condition {
 
-        private final Object2IntMap<UUID> statusCache = new Object2IntOpenHashMap<>();
+        private static final Codec<Instance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                NoHealthGainedCondition.CODEC.fieldOf("provider").forGetter(t -> (NoHealthGainedCondition) t.getProvider()),
+                Codec.unboundedMap(Codecs.UUID_STRING, Codec.INT).fieldOf("statusMap").forGetter(t -> t.statusCache)
+        ).apply(instance, Instance::new));
+        private final Object2IntMap<UUID> statusCache;
 
         public Instance(NoHealthGainedCondition provider) {
             super(provider);
+            this.statusCache = new Object2IntOpenHashMap<>();
+        }
+
+        private Instance(NoHealthGainedCondition provider, Map<UUID, Integer> map) {
+            this(provider);
+            this.statusCache.putAll(map);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

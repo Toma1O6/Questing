@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
 
     public static final EmptyCondition EMPTY_PROVIDER = new EmptyCondition();
-    public static final Condition EMPTY = new Instance(EMPTY_PROVIDER);
+    private static final Instance EMPTY = new Instance(EMPTY_PROVIDER);
     public static final Codec<EmptyCondition> CODEC = Codec.unit(EMPTY_PROVIDER);
 
     public EmptyCondition() {
@@ -32,8 +32,15 @@ public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
 
     static final class Instance extends Condition {
 
+        private static final Codec<Instance> CODEC = Codec.unit(EMPTY);
+
         private Instance(EmptyCondition provider) {
             super(provider);
+        }
+
+        @Override
+        public Codec<? extends Condition> codec() {
+            return CODEC;
         }
 
         @Override

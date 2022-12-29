@@ -1,6 +1,5 @@
 package dev.toma.questing.common.condition;
 
-import com.mojang.serialization.Codec;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
 import net.minecraft.entity.Entity;
@@ -10,25 +9,17 @@ import net.minecraft.world.World;
 import java.util.Set;
 import java.util.UUID;
 
-public abstract class Condition {
+public interface Condition {
 
-    private final ConditionProvider<?> provider;
+    ConditionType<?> getType();
 
-    public Condition(ConditionProvider<?> provider) {
-        this.provider = provider;
-    }
+    Condition copy();
 
-    public final ConditionProvider<?> getProvider() {
-        return this.provider;
-    }
+    void registerTriggerResponders(ConditionRegisterHandler registerHandler);
 
-    public abstract Codec<? extends Condition> codec();
+    default void onConditionConstructing(Party party, Quest quest, World world) {}
 
-    public abstract void registerTriggerResponders(ConditionRegisterHandler registerHandler);
-
-    public void onConditionConstructing(Party party, Quest quest, World world) {}
-
-    public static boolean checkIfEntityIsPartyMember(Entity entity, Party party) {
+    static boolean checkIfEntityIsPartyMember(Entity entity, Party party) {
         if (entity instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) entity;
             UUID playerId = player.getUUID();

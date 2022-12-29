@@ -2,19 +2,13 @@ package dev.toma.questing.common.condition;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
-import dev.toma.questing.common.trigger.ResponseType;
-import net.minecraft.world.World;
 
-public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
+public class EmptyCondition implements Condition {
 
-    public static final EmptyCondition EMPTY_PROVIDER = new EmptyCondition();
-    private static final Instance EMPTY = new Instance(EMPTY_PROVIDER);
-    public static final Codec<EmptyCondition> CODEC = Codec.unit(EMPTY_PROVIDER);
+    public static final EmptyCondition EMPTY = new EmptyCondition();
+    public static final Codec<EmptyCondition> CODEC = Codec.unit(EMPTY);
 
-    public EmptyCondition() {
-        super(ResponseType.SKIP);
-    }
+    private EmptyCondition() {}
 
     public static boolean isEmpty(Condition condition) {
         return condition == EMPTY;
@@ -26,25 +20,11 @@ public class EmptyCondition extends ConditionProvider<EmptyCondition.Instance> {
     }
 
     @Override
-    public Instance createConditionInstance(World world, Quest quest) {
-        return (Instance) EMPTY;
+    public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
     }
 
-    static final class Instance extends Condition {
-
-        private static final Codec<Instance> CODEC = Codec.unit(EMPTY);
-
-        private Instance(EmptyCondition provider) {
-            super(provider);
-        }
-
-        @Override
-        public Codec<? extends Condition> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-        }
+    @Override
+    public Condition copy() {
+        return this;
     }
 }

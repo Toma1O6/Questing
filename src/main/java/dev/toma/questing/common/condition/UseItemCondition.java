@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.condition.select.ItemSelectorType;
 import dev.toma.questing.common.condition.select.Selector;
 import dev.toma.questing.common.init.QuestingRegistries;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.Quest;
 import dev.toma.questing.common.trigger.Events;
 import dev.toma.questing.common.trigger.ResponseType;
@@ -18,20 +19,21 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-public class UseItemCondition extends ConditionProvider<UseItemCondition.Instance> {
+public class UseItemCondition extends AbstractDefaultCondition {
 
     public static final Codec<UseItemCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name).optionalFieldOf("onFail", ResponseType.PASS).forGetter(ConditionProvider::getDefaultFailureResponse),
-            ItemSelectorType.CODEC.fieldOf("selector").forGetter(t -> t.itemSelector)
+            Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name).optionalFieldOf("onFail", ResponseType.PASS).forGetter(AbstractDefaultCondition::getDefaultFailureResponse),
+            ItemSelectorType.CODEC.fieldOf("selector").forGetter(t -> t.itemSelector),
+            Registry.ITEM.listOf().xmap(HashSet::new, ArrayList::new).optionalFieldOf("items", new HashSet<>()).forGetter(t -> t.validItems)
     ).apply(instance, UseItemCondition::new));
     private final Selector itemSelector;
+    private final HashSet<Item> validItems;
 
-    public UseItemCondition(ResponseType defaultFailureResponse, Selector itemSelector) {
+    public UseItemCondition(ResponseType defaultFailureResponse, Selector itemSelector, HashSet<Item> items) {
         super(defaultFailureResponse);
         this.itemSelector = itemSelector;
+        this.validItems = items;
     }
 
     @Override
@@ -40,8 +42,28 @@ public class UseItemCondition extends ConditionProvider<UseItemCondition.Instanc
     }
 
     @Override
-    public Instance createConditionInstance(World world, Quest quest) {
-        return new Instance(this);
+    public void onConditionConstructing(Party party, Quest quest, World world) {
+        if (this.validItems.isEmpty())
+            this.validItems.addAll(this.itemSelector.getUseableItems());
+    }
+
+    @Override
+    public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
+        registerHandler.register(Events.DEATH_EVENT, (eventData, quest) -> {
+            DamageSource source = eventData.getSource();
+            Entity damageOrigin = source.getEntity();
+            if (Condition.checkIfEntityIsPartyMember(damageOrigin, quest.getParty())) {
+                UsedItemProvider provider = source instanceof UsedItemProvider ? (UsedItemProvider) source : UsedItemProvider.DEFAULT;
+                ItemStack usedItem = provider.getUsedItem(source);
+                return this.validItems.contains(usedItem.getItem()) ? ResponseType.OK : this.getDefaultFailureResponse();
+            }
+            return ResponseType.SKIP;
+        });
+    }
+
+    @Override
+    public Condition copy() {
+        return new UseItemCondition(this.getDefaultFailureResponse(), this.itemSelector, new HashSet<>(this.validItems));
     }
 
     @FunctionalInterface
@@ -56,43 +78,5 @@ public class UseItemCondition extends ConditionProvider<UseItemCondition.Instanc
         };
 
         ItemStack getUsedItem(DamageSource source);
-    }
-
-    static final class Instance extends Condition {
-
-        private static final Codec<Instance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                UseItemCondition.CODEC.fieldOf("provider").forGetter(t -> (UseItemCondition) t.getProvider()),
-                Registry.ITEM.listOf().fieldOf("items").forGetter(t -> new ArrayList<>(t.validItemList))
-        ).apply(instance, Instance::new));
-        private final Set<Item> validItemList;
-
-        public Instance(UseItemCondition conditionProvider) {
-            super(conditionProvider);
-            this.validItemList = new HashSet<>(conditionProvider.itemSelector.getUseableItems());
-        }
-
-        private Instance(UseItemCondition provider, List<Item> items) {
-            super(provider);
-            this.validItemList = new HashSet<>(items);
-        }
-
-        @Override
-        public Codec<? extends Condition> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-            registerHandler.register(Events.DEATH_EVENT, (eventData, quest) -> {
-                DamageSource source = eventData.getSource();
-                Entity damageOrigin = source.getEntity();
-                if (checkIfEntityIsPartyMember(damageOrigin, quest.getParty())) {
-                    UsedItemProvider provider = source instanceof UsedItemProvider ? (UsedItemProvider) source : UsedItemProvider.DEFAULT;
-                    ItemStack usedItem = provider.getUsedItem(source);
-                    return this.validItemList.contains(usedItem.getItem()) ? ResponseType.OK : this.getProvider().getDefaultFailureResponse();
-                }
-                return ResponseType.SKIP;
-            });
-        }
     }
 }

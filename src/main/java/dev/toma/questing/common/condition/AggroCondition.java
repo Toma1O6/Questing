@@ -14,14 +14,13 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.DamageSource;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
-public class AggroCondition extends ConditionProvider<AggroCondition.Instance> {
+public class AggroCondition extends AbstractDefaultCondition {
 
     public static final Codec<AggroCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name).optionalFieldOf("onFail", ResponseType.PASS).forGetter(ConditionProvider::getDefaultFailureResponse),
+            Codec.STRING.comapFlatMap(ResponseType::fromString, Enum::name).optionalFieldOf("onFail", ResponseType.PASS).forGetter(AbstractDefaultCondition::getDefaultFailureResponse),
             Codecs.enumCodec(AggroTarget.class, String::toUpperCase).fieldOf("target").forGetter(t -> t.aggroTarget)
     ).apply(instance, AggroCondition::new));
 
@@ -38,8 +37,34 @@ public class AggroCondition extends ConditionProvider<AggroCondition.Instance> {
     }
 
     @Override
-    public Instance createConditionInstance(World world, Quest quest) {
-        return new Instance(this);
+    public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
+        registerHandler.register(Events.DEATH_EVENT, this::validate);
+        registerHandler.register(Events.DAMAGE_EVENT, this::validate);
+    }
+
+    @Override
+    public Condition copy() {
+        return new AggroCondition(this.getDefaultFailureResponse(), this.aggroTarget);
+    }
+
+    private ResponseType validate(DeathEvent event, Quest quest) {
+        DamageSource source = event.getSource();
+        Entity origin = source.getEntity();
+        Party party = quest.getParty();
+        if (Condition.checkIfEntityIsPartyMember(origin, party)) {
+            AggroTarget.TargetValidator validator = aggroTarget.validator;
+            LivingEntity victim = event.getEntity();
+            if (victim instanceof MobEntity) {
+                MobEntity mobEntity = (MobEntity) victim;
+                LivingEntity target = mobEntity.getTarget();
+                if (!validator.isValid(target, (PlayerEntity) origin)) {
+                    return this.getDefaultFailureResponse();
+                }
+                return ResponseType.OK;
+            }
+            return ResponseType.PASS;
+        }
+        return ResponseType.SKIP;
     }
 
     public enum AggroTarget {
@@ -57,49 +82,6 @@ public class AggroCondition extends ConditionProvider<AggroCondition.Instance> {
 
         private interface TargetValidator {
             boolean isValid(@Nullable LivingEntity target, PlayerEntity src);
-        }
-    }
-
-    static final class Instance extends Condition {
-
-        private static final Codec<Instance> CODEC = AggroCondition.CODEC
-                .xmap(Instance::new, instance -> (AggroCondition) instance.getProvider())
-                .fieldOf("provider").codec();
-
-        public Instance(AggroCondition provider) {
-            super(provider);
-        }
-
-        @Override
-        public Codec<? extends Condition> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-            registerHandler.register(Events.DEATH_EVENT, this::validate);
-            registerHandler.register(Events.DAMAGE_EVENT, this::validate);
-        }
-
-        private ResponseType validate(DeathEvent event, Quest quest) {
-            DamageSource source = event.getSource();
-            Entity origin = source.getEntity();
-            Party party = quest.getParty();
-            if (checkIfEntityIsPartyMember(origin, party)) {
-                AggroCondition condition = (AggroCondition) this.getProvider();
-                AggroTarget.TargetValidator validator = condition.aggroTarget.validator;
-                LivingEntity victim = event.getEntity();
-                if (victim instanceof MobEntity) {
-                    MobEntity mobEntity = (MobEntity) victim;
-                    LivingEntity target = mobEntity.getTarget();
-                    if (!validator.isValid(target, (PlayerEntity) origin)) {
-                        return condition.getDefaultFailureResponse();
-                    }
-                    return ResponseType.OK;
-                }
-                return ResponseType.PASS;
-            }
-            return ResponseType.SKIP;
         }
     }
 }

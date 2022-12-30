@@ -19,6 +19,13 @@ import dev.toma.questing.common.reward.distributor.NoRewardDistributor;
 import dev.toma.questing.common.reward.distributor.RewardDistributionType;
 import dev.toma.questing.common.reward.distributor.SharedRewardDistributor;
 import dev.toma.questing.common.reward.distributor.SplitRewardDistributor;
+import dev.toma.questing.common.task.KillEntityTask;
+import dev.toma.questing.common.task.KillEntityTaskInstance;
+import dev.toma.questing.common.task.TaskType;
+import dev.toma.questing.common.task.util.AnyEntityFilter;
+import dev.toma.questing.common.task.util.EntityFilterType;
+import dev.toma.questing.common.task.util.ExactEntityFilter;
+import dev.toma.questing.common.task.util.HostileEntityFilter;
 import net.minecraft.util.ResourceLocation;
 
 public final class QuestingRegistries {
@@ -32,6 +39,8 @@ public final class QuestingRegistries {
     public static final Registry<SpawnerProcessorType<?>> SPAWNER_PROCESSOR = new Registry<>("Spawner Processor Type");
     public static final Registry<ConditionType<?>> CONDITION = new Registry<>("Condition Type");
     public static final Registry<ItemSelectorType<?>> ITEM_SELECTOR = new Registry<>("Item Selectors"); // used by UseItemCondition
+    public static final Registry<TaskType<?, ?>> TASK = new Registry<>("Tasks");
+    public static final Registry<EntityFilterType<?>> ENTITY_FILTER = new Registry<>("Entity filters");
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors
@@ -77,6 +86,14 @@ public final class QuestingRegistries {
     public static final ItemSelectorType<AnyItemSelector> ANY_ITEM_SELECTOR = new ItemSelectorType<>(internalId("any_item"), AnyItemSelector.CODEC);
     public static final ItemSelectorType<SingleItemSelector> SINGLE_ITEM_SELECTOR = new ItemSelectorType<>(internalId("single_item"), SingleItemSelector.CODEC);
 
+    // Tasks
+    public static final TaskType<KillEntityTaskInstance, KillEntityTask> KILL_ENTITY_TASK = new TaskType<>(internalId("kill_entity"), KillEntityTask.CODEC, KillEntityTaskInstance.CODEC);
+
+    // Tasks - Entity filters
+    public static final EntityFilterType<AnyEntityFilter> ANY_ENTITY_FILTER = new EntityFilterType<>(internalId("any"), AnyEntityFilter.CODEC);
+    public static final EntityFilterType<HostileEntityFilter> HOSTILE_ENTITY_FILTER = new EntityFilterType<>(internalId("hostile"), HostileEntityFilter.CODEC);
+    public static final EntityFilterType<ExactEntityFilter> EXACT_ENTITY_FILTER = new EntityFilterType<>(internalId("exact"), ExactEntityFilter.CODEC);
+
     public static void register() {
         REWARD_DISTRIBUTORS.register(NO_REWARD_DISTRIBUTOR);
         REWARD_DISTRIBUTORS.register(SHARED_REWARD_DISTRIBUTOR);
@@ -111,6 +128,12 @@ public final class QuestingRegistries {
 
         ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);
         ITEM_SELECTOR.register(SINGLE_ITEM_SELECTOR);
+
+        TASK.register(KILL_ENTITY_TASK);
+
+        ENTITY_FILTER.register(ANY_ENTITY_FILTER);
+        ENTITY_FILTER.register(HOSTILE_ENTITY_FILTER);
+        ENTITY_FILTER.register(EXACT_ENTITY_FILTER);
     }
 
     private static ResourceLocation internalId(String path) {

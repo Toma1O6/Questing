@@ -43,6 +43,8 @@ public final class QuestingRegistries {
     public static final RewardType<ItemStackReward> ITEMSTACK_REWARD = new RewardType<>(internalId("item"), ItemStackReward.CODEC);
     public static final RewardType<ItemTagReward> ITEMTAG_REWARD = new RewardType<>(internalId("tag"), ItemTagReward.CODEC);
     public static final RewardType<MultiReward> MULTI_REWARD = new RewardType<>(internalId("multi"), MultiReward.CODEC);
+    public static final RewardType<ChoiceReward> CHOICE_REWARD = new RewardType<>(internalId("choice"), ChoiceReward.CODEC);
+    public static final RewardType<RepeatedReward> REPEATED_REWARD = new RewardType<>(internalId("repeated"), RepeatedReward.CODEC);
 
     // Reward transformers
     public static final RewardTransformerType<Integer, RewardCountTransformer> REWARD_COUNT_TRANSFORMER = new RewardTransformerType<>(internalId("count"), RewardCountTransformer.CODEC, Integer.class);
@@ -83,6 +85,8 @@ public final class QuestingRegistries {
         REWARDS.register(ITEMSTACK_REWARD);
         REWARDS.register(ITEMTAG_REWARD);
         REWARDS.register(MULTI_REWARD);
+        REWARDS.register(CHOICE_REWARD);
+        REWARDS.register(REPEATED_REWARD);
 
         REWARD_TRANSFORMERS.register(REWARD_COUNT_TRANSFORMER);
         REWARD_TRANSFORMERS.register(REWARD_ITEM_NBT_TRANSFORMER);

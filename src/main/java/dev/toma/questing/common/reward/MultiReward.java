@@ -13,7 +13,7 @@ public class MultiReward implements Reward {
     public static final Codec<MultiReward> CODEC = RewardType.CODEC.listOf()
             .xmap(MultiReward::new, t -> t.rewardList)
             .fieldOf("rewards").codec();
-    private final List<Reward> rewardList;
+    protected final List<Reward> rewardList;
 
     public MultiReward(List<Reward> rewardList) {
         this.rewardList = rewardList;

@@ -39,6 +39,10 @@ public class ChoiceReward extends MultiReward implements SelectableReward {
     public void generate(PlayerEntity player, Quest quest) {
         super.generate(player, quest);
         this.generated = unwrapRewards(this.rewardList, player, quest);
+        int limit = this.getChoiceGenerationLimit(player, quest);
+        if (limit > 0 && this.generated.size() > limit) {
+            this.generated = this.generated.subList(0, limit);
+        }
     }
 
     @Override
@@ -88,6 +92,10 @@ public class ChoiceReward extends MultiReward implements SelectableReward {
 
     protected int getRewardSelectionLimit(PlayerEntity player, Quest quest) {
         return this.getChoiceCount();
+    }
+
+    protected int getChoiceGenerationLimit(PlayerEntity player, Quest quest) {
+        return -1;
     }
 
     protected static List<Reward> unwrapRewards(List<Reward> source, PlayerEntity player, Quest quest) {

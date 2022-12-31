@@ -58,6 +58,7 @@ public final class QuestingRegistries {
     public static final RewardDistributionType<SplitRewardDistributor> SPLIT_REWARD_DISTRIBUTOR = new RewardDistributionType<>(internalId("split"), SplitRewardDistributor.CODEC);
 
     // Reward types
+    public static final RewardType<EmptyReward, EmptyRewardProvider> EMPTY_REWARD = new RewardType<>(internalId("empty"), EmptyRewardProvider.CODEC, EmptyReward.CODEC);
     public static final RewardType<ItemStackReward, ItemStackRewardProvider> ITEMSTACK_REWARD = new RewardType<>(internalId("item"), ItemStackRewardProvider.CODEC, ItemStackReward.CODEC);
     public static final RewardType<ItemTagReward, ItemTagRewardProvider> ITEMTAG_REWARD = new RewardType<>(internalId("tag"), ItemTagRewardProvider.CODEC, ItemTagReward.CODEC);
     public static final RewardType<MultiReward, MultiRewardProvider> MULTI_REWARD = new RewardType<>(internalId("multi"), MultiRewardProvider.CODEC, MultiReward.CODEC);
@@ -108,6 +109,7 @@ public final class QuestingRegistries {
         REWARD_DISTRIBUTORS.register(SHARED_REWARD_DISTRIBUTOR);
         REWARD_DISTRIBUTORS.register(SPLIT_REWARD_DISTRIBUTOR);
 
+        REWARDS.register(EMPTY_REWARD);
         REWARDS.register(ITEMSTACK_REWARD);
         REWARDS.register(ITEMTAG_REWARD);
         REWARDS.register(MULTI_REWARD);

@@ -1,9 +1,9 @@
 package dev.toma.questing.common.component.condition.instance;
 
-import dev.toma.questing.common.component.condition.ConditionRegisterHandler;
 import dev.toma.questing.common.component.condition.provider.ConditionProvider;
 import dev.toma.questing.common.party.Party;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.ConditionRegisterHandler;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.world.World;
 
 public interface Condition {

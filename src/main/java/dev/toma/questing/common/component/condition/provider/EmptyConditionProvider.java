@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.common.component.condition.ConditionType;
 import dev.toma.questing.common.component.condition.instance.EmptyCondition;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 
 public class EmptyConditionProvider implements ConditionProvider<EmptyCondition> {
 

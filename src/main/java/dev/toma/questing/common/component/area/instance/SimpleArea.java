@@ -2,7 +2,7 @@ package dev.toma.questing.common.component.area.instance;
 
 import dev.toma.questing.common.component.area.provider.SimpleAreaProvider;
 import dev.toma.questing.common.component.area.spawner.Spawner;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -44,7 +44,7 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
     @Override
     public void onUpdate(World world, Quest quest) {
         if (this.active) {
-            this.spawnerList.forEach(spawner -> spawner.tick(world, this, quest));
+            this.spawnerList.forEach(spawner -> spawner.trySpawn(world, this, quest));
         }
     }
 

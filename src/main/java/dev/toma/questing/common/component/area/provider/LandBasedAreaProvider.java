@@ -8,7 +8,7 @@ import dev.toma.questing.common.component.area.instance.LandArea;
 import dev.toma.questing.common.component.area.spawner.Spawner;
 import dev.toma.questing.common.component.area.spawner.SpawnerType;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

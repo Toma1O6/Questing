@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.component.reward.provider.ItemTagRewardProvider;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Codecs;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;

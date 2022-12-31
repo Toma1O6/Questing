@@ -1,8 +1,8 @@
 package dev.toma.questing.common.component.condition.instance;
 
 import com.mojang.serialization.Codec;
-import dev.toma.questing.common.component.condition.ConditionRegisterHandler;
 import dev.toma.questing.common.component.condition.provider.EmptyConditionProvider;
+import dev.toma.questing.common.quest.ConditionRegisterHandler;
 
 public class EmptyCondition implements Condition {
 

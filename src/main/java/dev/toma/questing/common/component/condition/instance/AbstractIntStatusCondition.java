@@ -1,11 +1,11 @@
 package dev.toma.questing.common.component.condition.instance;
 
-import dev.toma.questing.common.component.condition.ConditionRegisterHandler;
 import dev.toma.questing.common.component.condition.provider.AbstractDefaultConditionProvider;
 import dev.toma.questing.common.component.trigger.Events;
 import dev.toma.questing.common.component.trigger.ResponseType;
 import dev.toma.questing.common.party.Party;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.ConditionRegisterHandler;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.PlayerLookup;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -47,13 +47,13 @@ public abstract class AbstractIntStatusCondition implements Condition {
 
     @Override
     public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-        registerHandler.register(Events.EVENT, (eventData, quest) -> {
+        registerHandler.register(Events.EVENT, (eventData, level, quest) -> {
             Party party = quest.getParty();
             Set<UUID> members = party.getMembers();
-            if (quest.level.isClientSide) {
+            if (level.isClientSide) {
                 return ResponseType.SKIP;
             }
-            ServerWorld serverLevel = (ServerWorld) quest.level;
+            ServerWorld serverLevel = (ServerWorld) level;
             for (UUID member : members) {
                 ServerPlayerEntity player = PlayerLookup.findServerPlayer(serverLevel, member);
                 if (player == null)

@@ -1,7 +1,6 @@
 package dev.toma.questing.common.component.reward.instance;
 
-import dev.toma.questing.common.component.reward.instance.RewardHolder;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 public interface SelectableReward extends RewardHolder {

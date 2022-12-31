@@ -5,7 +5,7 @@ import dev.toma.questing.common.component.condition.ConditionType;
 import dev.toma.questing.common.component.condition.instance.NoHealthGainedCondition;
 import dev.toma.questing.common.component.trigger.ResponseType;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 
 public class NoHealthGainedConditionProvider extends AbstractDefaultConditionProvider<NoHealthGainedCondition> {
 

@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.component.reward.RewardType;
 import dev.toma.questing.common.component.reward.instance.RepeatedReward;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class RepeatedRewardProvider implements RewardProvider<RepeatedReward> {

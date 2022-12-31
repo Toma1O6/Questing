@@ -4,7 +4,7 @@ import dev.toma.questing.Questing;
 import dev.toma.questing.common.component.area.AreaInteractionMode;
 import dev.toma.questing.common.component.area.instance.SimpleArea;
 import dev.toma.questing.common.component.area.spawner.Spawner;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;

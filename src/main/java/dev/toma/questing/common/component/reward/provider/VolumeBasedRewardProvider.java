@@ -3,10 +3,9 @@ package dev.toma.questing.common.component.reward.provider;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.toma.questing.common.component.reward.instance.Reward;
-import dev.toma.questing.common.component.reward.provider.RewardProvider;
 import dev.toma.questing.common.component.reward.transformer.RewardTransformer;
 import dev.toma.questing.common.component.reward.transformer.RewardTransformerType;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.List;

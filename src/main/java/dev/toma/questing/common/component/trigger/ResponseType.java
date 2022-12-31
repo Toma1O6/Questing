@@ -7,12 +7,21 @@ import java.util.Set;
 
 public enum ResponseType {
 
-    OK,
-    PASS,
-    SKIP,
-    FAIL;
+    OK(false),
+    PASS(true),
+    SKIP(false),
+    FAIL(true);
 
     public static final Set<ResponseType> VALID_FAILURE_STATUSES = EnumSet.range(PASS, FAIL);
+    private final boolean shouldInterrupt;
+
+    ResponseType(boolean shouldInterrupt) {
+        this.shouldInterrupt = shouldInterrupt;
+    }
+
+    public boolean shouldInterrupt() {
+        return shouldInterrupt;
+    }
 
     public static DataResult<ResponseType> fromString(String string) {
         try {

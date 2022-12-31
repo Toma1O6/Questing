@@ -1,13 +1,13 @@
 package dev.toma.questing.common.component.condition.instance;
 
 import com.mojang.serialization.Codec;
-import dev.toma.questing.common.component.condition.ConditionRegisterHandler;
 import dev.toma.questing.common.component.condition.provider.AggroConditionProvider;
 import dev.toma.questing.common.component.trigger.Events;
 import dev.toma.questing.common.component.trigger.ResponseType;
 import dev.toma.questing.common.component.trigger.event.DeathEvent;
 import dev.toma.questing.common.party.Party;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.ConditionRegisterHandler;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -32,8 +32,8 @@ public class AggroCondition implements Condition {
 
     @Override
     public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-        registerHandler.register(Events.DEATH_EVENT, this::validate);
-        registerHandler.register(Events.DAMAGE_EVENT, this::validate);
+        registerHandler.register(Events.DEATH_EVENT, (event, level, quest) -> validate(event, quest));
+        registerHandler.register(Events.DAMAGE_EVENT, (event, level, quest) -> validate(event, quest));
     }
 
     protected ResponseType validate(DeathEvent event, Quest quest) {

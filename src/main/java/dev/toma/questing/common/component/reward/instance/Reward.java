@@ -1,7 +1,7 @@
 package dev.toma.questing.common.component.reward.instance;
 
 import dev.toma.questing.common.component.reward.provider.RewardProvider;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 public interface Reward {

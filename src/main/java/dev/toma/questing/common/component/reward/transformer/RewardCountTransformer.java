@@ -3,7 +3,7 @@ package dev.toma.questing.common.component.reward.transformer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.player.PlayerEntity;
 

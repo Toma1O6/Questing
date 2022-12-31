@@ -6,7 +6,7 @@ import dev.toma.questing.common.component.reward.RewardType;
 import dev.toma.questing.common.component.reward.instance.ItemTagReward;
 import dev.toma.questing.common.component.reward.transformer.RewardTransformer;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

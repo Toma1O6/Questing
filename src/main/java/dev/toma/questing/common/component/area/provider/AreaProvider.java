@@ -3,7 +3,7 @@ package dev.toma.questing.common.component.area.provider;
 import dev.toma.questing.common.component.area.AreaInteractionMode;
 import dev.toma.questing.common.component.area.AreaType;
 import dev.toma.questing.common.component.area.instance.Area;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 

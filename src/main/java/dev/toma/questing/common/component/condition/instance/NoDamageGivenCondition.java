@@ -1,11 +1,11 @@
 package dev.toma.questing.common.component.condition.instance;
 
 import com.mojang.serialization.Codec;
-import dev.toma.questing.common.component.condition.ConditionRegisterHandler;
 import dev.toma.questing.common.component.condition.provider.NoDamageGivenConditionProvider;
 import dev.toma.questing.common.component.trigger.Events;
 import dev.toma.questing.common.component.trigger.ResponseType;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.quest.ConditionRegisterHandler;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
@@ -27,7 +27,7 @@ public class NoDamageGivenCondition implements Condition {
 
     @Override
     public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-        registerHandler.register(Events.DAMAGE_EVENT, (eventData, quest) -> {
+        registerHandler.register(Events.DAMAGE_EVENT, (eventData, level, quest) -> {
             Party party = quest.getParty();
             DamageSource damageSource = eventData.getSource();
             Entity sourceEntity = damageSource.getEntity();

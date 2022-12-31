@@ -5,6 +5,7 @@ import dev.toma.questing.common.component.reward.RewardType;
 import dev.toma.questing.common.component.reward.provider.RewardProvider;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 import javax.annotation.Nullable;
@@ -23,7 +24,7 @@ public class SharedRewardDistributor implements RewardDistributor {
 
     @Nullable
     @Override
-    public RewardProvider<?> getRewardProviderFor(PlayerEntity player, Party party) {
+    public RewardProvider<?> getRewardProviderFor(PlayerEntity player, Party party, Quest quest) {
         return reward;
     }
 

@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.component.area.instance.Area;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.world.World;
 
@@ -26,10 +26,10 @@ public class RandomizedSpawner implements Spawner {
     }
 
     @Override
-    public void tick(World world, Area area, Quest quest) {
+    public void trySpawn(World world, Area area, Quest quest) {
         Random random = world.getRandom();
         if (random.nextFloat() <= this.chance) {
-            this.spawnerList.forEach(spawner -> spawner.tick(world, area, quest));
+            this.spawnerList.forEach(spawner -> spawner.trySpawn(world, area, quest));
         }
     }
 

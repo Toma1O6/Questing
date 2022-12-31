@@ -1,7 +1,7 @@
 package dev.toma.questing.common.component.area.instance;
 
 import dev.toma.questing.common.component.area.provider.AreaProvider;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;

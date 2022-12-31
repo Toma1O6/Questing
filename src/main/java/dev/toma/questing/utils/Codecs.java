@@ -62,4 +62,8 @@ public final class Codecs {
             }
         }, enumType -> enumType == null ? DataResult.error("Enum is null") : DataResult.success(encoder.apply(enumType)));
     }
+
+    public static <E extends Enum<E>> Codec<E> enumCodecComap(Class<E> enumClass, Function<String, DataResult<E>> decoder, Function<E, String> encoder, Function<String, String> inputAdjuster) {
+        return Codec.STRING.comapFlatMap(string -> decoder.apply(inputAdjuster.apply(string)), encoder);
+    }
 }

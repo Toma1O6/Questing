@@ -6,7 +6,7 @@ import dev.toma.questing.common.component.area.instance.Area;
 import dev.toma.questing.common.component.area.spawner.processor.SpawnerProcessor;
 import dev.toma.questing.common.component.area.spawner.processor.SpawnerProcessorType;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -44,7 +44,7 @@ public class EntitySpawner implements Spawner {
     }
 
     @Override
-    public void tick(World world, Area area, Quest quest) {
+    public void trySpawn(World world, Area area, Quest quest) {
         Random random = world.getRandom();
         int spawnCount = this.minCount + random.nextInt(this.maxCount - this.minCount + 1);
         for (int i = 0; i < spawnCount; i++) {

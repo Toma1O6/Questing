@@ -34,6 +34,7 @@ import dev.toma.questing.common.component.task.util.AnyEntityFilter;
 import dev.toma.questing.common.component.task.util.EntityFilterType;
 import dev.toma.questing.common.component.task.util.ExactEntityFilter;
 import dev.toma.questing.common.component.task.util.HostileEntityFilter;
+import dev.toma.questing.common.quest.QuestType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -50,6 +51,7 @@ public final class QuestingRegistries {
     public static final Registry<ItemSelectorType<?>> ITEM_SELECTOR = new Registry<>("Item Selectors"); // used by UseItemCondition
     public static final Registry<TaskType<?, ?>> TASK = new Registry<>("Tasks");
     public static final Registry<EntityFilterType<?>> ENTITY_FILTER = new Registry<>("Entity filters");
+    public static final Registry<QuestType<?, ?>> QUEST = new Registry<>("Quests");
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors

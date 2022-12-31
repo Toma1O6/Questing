@@ -2,7 +2,7 @@ package dev.toma.questing.common.component.reward.provider;
 
 import dev.toma.questing.common.component.reward.RewardType;
 import dev.toma.questing.common.component.reward.instance.Reward;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 public interface RewardProvider<R extends Reward> {

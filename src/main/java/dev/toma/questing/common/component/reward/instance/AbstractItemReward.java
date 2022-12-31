@@ -2,7 +2,7 @@ package dev.toma.questing.common.component.reward.instance;
 
 import dev.toma.questing.common.component.reward.provider.AbstractItemRewardProvider;
 import dev.toma.questing.common.component.reward.transformer.RewardTransformer;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;

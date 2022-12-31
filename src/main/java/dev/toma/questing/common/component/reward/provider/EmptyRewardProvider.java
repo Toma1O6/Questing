@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.common.component.reward.RewardType;
 import dev.toma.questing.common.component.reward.instance.EmptyReward;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class EmptyRewardProvider implements RewardProvider<EmptyReward> {

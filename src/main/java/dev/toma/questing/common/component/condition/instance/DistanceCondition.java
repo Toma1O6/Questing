@@ -1,11 +1,10 @@
 package dev.toma.questing.common.component.condition.instance;
 
 import com.mojang.serialization.Codec;
-import dev.toma.questing.common.component.condition.ConditionRegisterHandler;
 import dev.toma.questing.common.component.condition.provider.DistanceConditionProvider;
-import dev.toma.questing.common.component.condition.provider.ConditionProvider;
 import dev.toma.questing.common.component.trigger.Events;
 import dev.toma.questing.common.component.trigger.ResponseType;
+import dev.toma.questing.common.quest.ConditionRegisterHandler;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
@@ -27,7 +26,7 @@ public class DistanceCondition implements Condition {
 
     @Override
     public void registerTriggerResponders(ConditionRegisterHandler registerHandler) {
-        registerHandler.register(Events.DEATH_EVENT, (eventData, quest) -> {
+        registerHandler.register(Events.DEATH_EVENT, (eventData, level, quest) -> {
             DamageSource source = eventData.getSource();
             Entity origin = source.getEntity();
             if (Utils.checkIfEntityIsPartyMember(origin, quest.getParty())) {

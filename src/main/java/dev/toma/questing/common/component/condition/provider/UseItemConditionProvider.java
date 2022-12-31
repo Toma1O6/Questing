@@ -8,7 +8,7 @@ import dev.toma.questing.common.component.condition.select.ItemSelectorType;
 import dev.toma.questing.common.component.condition.select.Selector;
 import dev.toma.questing.common.component.trigger.ResponseType;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 
 public class UseItemConditionProvider extends AbstractDefaultConditionProvider<UseItemCondition> {
 

@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.toma.questing.common.component.reward.provider.RewardProvider;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class NoRewardDistributor implements RewardDistributor {
@@ -14,7 +15,7 @@ public class NoRewardDistributor implements RewardDistributor {
     private NoRewardDistributor() {}
 
     @Override
-    public RewardProvider<?> getRewardProviderFor(PlayerEntity player, Party party) {
+    public RewardProvider<?> getRewardProviderFor(PlayerEntity player, Party party, Quest quest) {
         return null;
     }
 

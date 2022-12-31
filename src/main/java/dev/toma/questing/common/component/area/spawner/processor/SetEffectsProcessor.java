@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.common.component.area.instance.Area;
 import dev.toma.questing.common.component.area.spawner.Spawner;
 import dev.toma.questing.common.init.QuestingRegistries;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.utils.EffectProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;

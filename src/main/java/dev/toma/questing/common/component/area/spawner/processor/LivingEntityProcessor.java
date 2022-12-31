@@ -3,7 +3,7 @@ package dev.toma.questing.common.component.area.spawner.processor;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.component.area.instance.Area;
 import dev.toma.questing.common.component.area.spawner.Spawner;
-import dev.toma.questing.common.quest.Quest;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;

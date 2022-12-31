@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Optional;
@@ -16,6 +17,11 @@ import java.util.regex.PatternSyntaxException;
 public final class Codecs {
 
     public static final Codec<UUID> UUID_STRING = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+    public static final Codec<Vector3d> VECTOR3D = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.DOUBLE.fieldOf("x").forGetter(v -> v.x),
+            Codec.DOUBLE.fieldOf("y").forGetter(v -> v.y),
+            Codec.DOUBLE.fieldOf("z").forGetter(v -> v.z)
+    ).apply(instance, Vector3d::new));
     public static final Codec<ItemStack> SIMPLIFIED_ITEMSTACK = RecordCodecBuilder.create(instance -> instance.group(
             Registry.ITEM.fieldOf("item").forGetter(ItemStack::getItem),
             Codec.INT.optionalFieldOf("count", 1).forGetter(ItemStack::getCount),

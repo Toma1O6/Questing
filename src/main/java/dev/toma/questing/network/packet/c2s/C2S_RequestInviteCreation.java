@@ -8,11 +8,9 @@ import dev.toma.questing.common.party.PartyManager;
 import dev.toma.questing.network.Networking;
 import dev.toma.questing.network.packet.AbstractPacket;
 import dev.toma.questing.utils.PlayerLookup;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
-import sun.net.www.content.text.plain;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -2,11 +2,12 @@ package dev.toma.questing.common.quest;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import dev.toma.questing.common.condition.Condition;
+import dev.toma.questing.common.component.condition.instance.Condition;
+import dev.toma.questing.common.component.distributor.RewardDistributor;
+import dev.toma.questing.common.component.reward.instance.Reward;
+import dev.toma.questing.common.component.reward.provider.RewardProvider;
+import dev.toma.questing.common.component.trigger.*;
 import dev.toma.questing.common.party.Party;
-import dev.toma.questing.common.reward.Reward;
-import dev.toma.questing.common.reward.distributor.RewardDistributor;
-import dev.toma.questing.common.trigger.*;
 import net.minecraft.world.World;
 
 import java.util.*;
@@ -39,10 +40,10 @@ public abstract class Quest {
         // TODO finish reward init
         RewardDistributor distributor = null;
         this.party.forEachOnlineMemberExcept(null, world, player -> {
-            Reward reward = distributor.createDistributedReward(player, this.party);
-            if (reward == null)
+            RewardProvider<?> rewardProvider = distributor.getRewardProviderFor(player, this.party);
+            if (rewardProvider == null)
                 return;
-            reward.generate(player, this);
+            Reward reward = rewardProvider.createReward(player, this);
             this.unclaimedRewards.put(player.getUUID(), reward);
         });
     }

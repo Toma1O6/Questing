@@ -37,11 +37,6 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
     }
 
     @Override
-    public void onActivated(World world, Quest quest) {
-        this.active = true;
-    }
-
-    @Override
     public void onUpdate(World world, Quest quest) {
         if (this.active) {
             this.spawnerList.forEach(spawner -> spawner.trySpawn(world, this, quest));
@@ -90,5 +85,9 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
 
     public boolean isActive() {
         return active;
+    }
+
+    protected void setActive(boolean active) {
+        this.active = active;
     }
 }

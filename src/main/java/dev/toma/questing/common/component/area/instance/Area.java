@@ -9,13 +9,13 @@ import net.minecraft.world.World;
 
 public interface Area {
 
-    void onActivated(World world, Quest quest);
-
     void onUpdate(World world, Quest quest);
 
     double getEntityDistance(Entity entity);
 
     boolean isActiveArea();
+
+    boolean hasBeenAbandonded();
 
     Vector3d getLeftCorner();
 

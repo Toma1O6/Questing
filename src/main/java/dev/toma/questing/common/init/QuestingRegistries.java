@@ -35,6 +35,10 @@ import dev.toma.questing.common.component.task.util.EntityFilterType;
 import dev.toma.questing.common.component.task.util.ExactEntityFilter;
 import dev.toma.questing.common.component.task.util.HostileEntityFilter;
 import dev.toma.questing.common.quest.QuestType;
+import dev.toma.questing.common.quest.instance.SimpleAreaQuest;
+import dev.toma.questing.common.quest.instance.SimpleQuest;
+import dev.toma.questing.common.quest.provider.SimpleAreaQuestProvider;
+import dev.toma.questing.common.quest.provider.SimpleQuestProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
@@ -51,7 +55,7 @@ public final class QuestingRegistries {
     public static final Registry<ItemSelectorType<?>> ITEM_SELECTOR = new Registry<>("Item Selectors"); // used by UseItemCondition
     public static final Registry<TaskType<?, ?>> TASK = new Registry<>("Tasks");
     public static final Registry<EntityFilterType<?>> ENTITY_FILTER = new Registry<>("Entity filters");
-    public static final Registry<QuestType<?, ?>> QUEST = new Registry<>("Quests");
+    public static final Registry<QuestType<?, ?>> QUESTS = new Registry<>("Quests");
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors
@@ -106,6 +110,10 @@ public final class QuestingRegistries {
     public static final EntityFilterType<HostileEntityFilter> HOSTILE_ENTITY_FILTER = new EntityFilterType<>(internalId("hostile"), HostileEntityFilter.CODEC);
     public static final EntityFilterType<ExactEntityFilter> EXACT_ENTITY_FILTER = new EntityFilterType<>(internalId("exact"), ExactEntityFilter.CODEC);
 
+    // Quests
+    public static final QuestType<SimpleQuest, SimpleQuestProvider> QUEST = new QuestType<>(internalId("quest"), SimpleQuestProvider.CODEC, SimpleQuest.CODEC);
+    public static final QuestType<SimpleAreaQuest, SimpleAreaQuestProvider> AREA_QUEST = new QuestType<>(internalId("area_quest"), SimpleAreaQuestProvider.CODEC, SimpleAreaQuest.CODEC);
+
     public static void register() {
         REWARD_DISTRIBUTORS.register(NO_REWARD_DISTRIBUTOR);
         REWARD_DISTRIBUTORS.register(SHARED_REWARD_DISTRIBUTOR);
@@ -147,6 +155,9 @@ public final class QuestingRegistries {
         ENTITY_FILTER.register(ANY_ENTITY_FILTER);
         ENTITY_FILTER.register(HOSTILE_ENTITY_FILTER);
         ENTITY_FILTER.register(EXACT_ENTITY_FILTER);
+
+        QUESTS.register(QUEST);
+        QUESTS.register(AREA_QUEST);
     }
 
     private static ResourceLocation internalId(String path) {

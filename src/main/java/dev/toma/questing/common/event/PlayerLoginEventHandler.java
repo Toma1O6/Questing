@@ -14,4 +14,8 @@ public final class PlayerLoginEventHandler {
 
         PlayerDataProvider.getOptional(player).ifPresent(playerData -> playerData.sendDataToClient(PlayerDataSynchronizationFlags.ALL));
     }
+
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+    }
 }

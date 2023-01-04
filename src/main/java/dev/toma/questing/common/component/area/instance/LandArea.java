@@ -29,4 +29,9 @@ public class LandArea extends SimpleArea<LandBasedAreaProvider> {
     protected LandArea(LandBasedAreaProvider provider, BlockPos center, Vector3d a, Vector3d b, List<Spawner> spawnerList, boolean active) {
         super(provider, center, a, b, spawnerList, active);
     }
+
+    @Override
+    public boolean hasBeenAbandonded() {
+        return false; // TODO implement player check logic - propably into onUpdate method
+    }
 }

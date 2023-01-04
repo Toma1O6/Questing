@@ -7,6 +7,8 @@ import dev.toma.questing.common.command.QuestingDebugCommand;
 import dev.toma.questing.common.data.PlayerData;
 import dev.toma.questing.common.data.PlayerDataProvider;
 import dev.toma.questing.common.data.PlayerDataSynchronizationFlags;
+import dev.toma.questing.common.engine.QuestEngineManager;
+import dev.toma.questing.common.engine.SimpleQuestEngine;
 import dev.toma.questing.common.event.PlayerLoginEventHandler;
 import dev.toma.questing.common.init.QuestingRegistries;
 import dev.toma.questing.common.party.Party;
@@ -48,6 +50,7 @@ public final class Questing {
     public static final Marker MARKER_AREA = MarkerManager.getMarker("Area");
     // Files
     public static final DataFileManager<Map<UUID, Party>, PartyManager> PARTY_MANAGER = DataFileManager.create("questing/parties.dat", PartyManager.CODEC, PartyManager::new);
+    public static final DataFileManager<Map<ResourceLocation, CompoundNBT>, QuestEngineManager> QUEST_MANAGER = DataFileManager.create("questing/quests.dat", QuestEngineManager.CODEC, QuestEngineManager::new);
 
     // Config
     public static QuestingConfig config;
@@ -60,11 +63,14 @@ public final class Questing {
         modEventBus.addListener(this::setup);
         forgeEventBus.addListener(this::registerCommands);
         forgeEventBus.addListener(PlayerLoginEventHandler::onPlayerLoggedIn);
+        forgeEventBus.addListener(PlayerLoginEventHandler::onPlayerLoggedOut);
         forgeEventBus.addListener(this::clonePlayer);
         forgeEventBus.addListener(this::changeDimension);
         forgeEventBus.addGenericListener(Entity.class, this::attachPlayerCapabilities);
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> QuestingClient.CLIENT::construct);
+
+        QUEST_MANAGER.get().registerQuestEngine(SimpleQuestEngine.IDENTIFIER, SimpleQuestEngine.CODEC, SimpleQuestEngine::new);
     }
 
     private void setup(FMLCommonSetupEvent event) {

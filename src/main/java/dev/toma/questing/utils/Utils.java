@@ -90,5 +90,17 @@ public final class Utils {
         return Math.sqrt(x * x + y * y + z * z);
     }
 
+    public static boolean isNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
+
+    public static boolean isNullOrEmpty(Object[] array) {
+        return array == null || array.length == 0;
+    }
+
+    public static boolean isNullOrEmpty(Collection<?> collection) {
+        return collection == null || collection.isEmpty();
+    }
+
     private Utils() {}
 }

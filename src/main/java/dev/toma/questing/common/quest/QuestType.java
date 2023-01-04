@@ -9,8 +9,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class QuestType<Q extends Quest, P extends QuestProvider<Q>> implements IdentifierHolder {
 
-    public static final Codec<QuestProvider<?>> PROVIDER_CODEC = QuestingRegistries.QUEST.dispatch("type", QuestProvider::getType, t -> t.providerCodec);
-    public static final Codec<Quest> INSTANCE_CODEC = QuestingRegistries.QUEST.dispatch("type", p -> p.getProvider().getType(), t -> t.instanceCodec);
+    public static final Codec<QuestProvider<?>> PROVIDER_CODEC = QuestingRegistries.QUESTS.dispatch("type", QuestProvider::getType, t -> t.providerCodec);
+    public static final Codec<Quest> INSTANCE_CODEC = QuestingRegistries.QUESTS.dispatch("type", p -> p.getProvider().getType(), t -> t.instanceCodec);
     private final ResourceLocation identifier;
     private final Codec<P> providerCodec;
     private final Codec<Q> instanceCodec;

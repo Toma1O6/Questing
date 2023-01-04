@@ -13,6 +13,7 @@ import dev.toma.questing.common.component.task.instance.Task;
 import dev.toma.questing.common.component.trigger.ActionHandler;
 import dev.toma.questing.common.component.trigger.ActionResponder;
 import dev.toma.questing.common.component.trigger.Trigger;
+import dev.toma.questing.common.engine.QuestEngine;
 import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.ProgressStatus;
 import dev.toma.questing.common.quest.QuestActionContainer;
@@ -30,6 +31,7 @@ public abstract class AbstractQuest implements Quest {
 
     protected final QuestActionContainer actionContainer;
     protected final QuestData data;
+    protected QuestEngine engine;
 
     public AbstractQuest(QuestData questData) {
         this.actionContainer = new QuestActionContainer();
@@ -50,8 +52,9 @@ public abstract class AbstractQuest implements Quest {
     }
 
     @Override
-    public void onGenerated(Party party, World level) {
+    public void onGenerated(Party party, World level, QuestEngine engine) {
         this.setStatus(ProgressStatus.GENERATED);
+        this.onReloaded(engine);
         this.data.conditionList = this.getProvider().getConditions().stream()
                 .map(provider -> provider.createCondition(this))
                 .collect(Collectors.toList());
@@ -70,6 +73,11 @@ public abstract class AbstractQuest implements Quest {
     }
 
     @Override
+    public void onReloaded(QuestEngine engine) {
+        this.engine = engine;
+    }
+
+    @Override
     public void onAssigned(Party party, World level) {
         this.setStatus(ProgressStatus.ACTIVE);
         this.data.party = party;
@@ -80,10 +88,24 @@ public abstract class AbstractQuest implements Quest {
         this.registerTaskHandlers(level);
     }
 
+    @Override
+    public void complete(World level) {
+        this.setStatus(ProgressStatus.COMPLETED);
+        this.engine.storeRewards(this.getUnclaimedRewards());
+        this.onCompleted(level);
+    }
+
+    @Override
+    public void fail(World level) {
+        this.setStatus(ProgressStatus.FAILED);
+        this.getUnclaimedRewards().clear();
+        this.onFailed(level);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <T, E> void trigger(Trigger<T> trigger, T triggerData, World level) {
-        if (!this.shouldAcceptTrigger(trigger, triggerData, level)) {
+        if (this.getStatus() != ProgressStatus.ACTIVE || !this.shouldAcceptTrigger(trigger, triggerData, level)) {
             return;
         }
         QuestActionContainer.TriggerContext<T, E> context = QuestActionContainer.TriggerContext.create(this.actionContainer, trigger, triggerData);
@@ -105,8 +127,7 @@ public abstract class AbstractQuest implements Quest {
             if (status.isFinalStatus()) {
                 this.onTaskFinished(task);
                 if (status == ProgressStatus.FAILED && !task.getProvider().isOptional()) {
-                    this.setStatus(ProgressStatus.FAILED);
-                    this.onFailed(level);
+                    this.fail(level);
                     return;
                 }
             }
@@ -126,9 +147,9 @@ public abstract class AbstractQuest implements Quest {
             }
         }
         if (this.data.status == ProgressStatus.COMPLETED) {
-            this.onCompleted(level);
+            this.complete(level);
         } else {
-            this.onFailed(level);
+            this.fail(level);
         }
     }
 
@@ -141,6 +162,9 @@ public abstract class AbstractQuest implements Quest {
 
     protected void onCompleted(World level) {
 
+    }
+
+    protected void onTick(World level) {
     }
 
     protected List<Task> getActiveTasks() {

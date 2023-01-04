@@ -65,6 +65,18 @@ public final class Party {
         return new Party(ownerId, set, usernames, Collections.emptySet(), partyName, map);
     }
 
+    public static boolean isAnyMemberOnline(Party party, World level) {
+        if (level.isClientSide)
+            return false;
+        Set<UUID> members = party.getMembers();
+        for (UUID uuid : members) {
+            if (PlayerLookup.findServerPlayer((ServerWorld) level, uuid) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean canAddNewMember() {
         int size = this.members.size();
         return size < Questing.config.maxPartySize;

@@ -1,10 +1,15 @@
 package dev.toma.questing.utils;
 
+import dev.toma.questing.common.component.condition.instance.Condition;
+import dev.toma.questing.common.component.condition.instance.EmptyCondition;
+import dev.toma.questing.common.component.condition.provider.ConditionProvider;
 import dev.toma.questing.common.party.Party;
+import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.*;
 import java.util.function.Function;
@@ -100,6 +105,17 @@ public final class Utils {
 
     public static boolean isNullOrEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
+    }
+
+    public static List<Condition> getConditions(List<ConditionProvider<?>> list, Quest quest) {
+        return list.stream()
+                .map(provider -> provider.createCondition(quest))
+                .filter(condition -> !EmptyCondition.isEmpty(condition))
+                .collect(Collectors.toList());
+    }
+
+    public static String toLocalizationString(ResourceLocation location) {
+        return location.toString().replaceAll("[:/]", ".");
     }
 
     private Utils() {}

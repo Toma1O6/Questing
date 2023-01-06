@@ -2,9 +2,10 @@ package dev.toma.questing.common.component.condition.select;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Random;
 
 public class SingleItemSelector implements Selector {
 
-    public static final Codec<SingleItemSelector> CODEC = Registry.ITEM.listOf()
+    public static final Codec<SingleItemSelector> CODEC = Codecs.forgeRegistryCodec(ForgeRegistries.ITEMS).listOf()
             .xmap(SingleItemSelector::new, t -> t.items)
             .fieldOf("items").codec();
     private static final Random RANDOM = new Random();

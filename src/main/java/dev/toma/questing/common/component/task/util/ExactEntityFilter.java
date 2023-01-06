@@ -2,9 +2,10 @@ package dev.toma.questing.common.component.task.util;
 
 import com.mojang.serialization.Codec;
 import dev.toma.questing.common.init.QuestingRegistries;
+import dev.toma.questing.utils.Codecs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,7 +13,7 @@ import java.util.Set;
 
 public class ExactEntityFilter implements EntityFilter {
 
-    public static final Codec<ExactEntityFilter> CODEC = Registry.ENTITY_TYPE.listOf()
+    public static final Codec<ExactEntityFilter> CODEC = Codecs.forgeRegistryCodec(ForgeRegistries.ENTITIES).listOf()
             .xmap(list -> new ExactEntityFilter(new HashSet<>(list)), filter -> new ArrayList<>(filter.entityTypes))
             .fieldOf("entities").codec();
 

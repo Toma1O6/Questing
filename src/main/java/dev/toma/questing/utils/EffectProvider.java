@@ -4,14 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
 public final class EffectProvider implements Supplier<EffectInstance> {
 
     public static final Codec<EffectProvider> CODEC = RecordCodecBuilder.create(b -> b.group(
-            Registry.MOB_EFFECT.fieldOf("effect").forGetter(EffectProvider::getEffect),
+            Codecs.forgeRegistryCodec(ForgeRegistries.POTIONS).fieldOf("effect").forGetter(EffectProvider::getEffect),
             Codec.intRange(1, Integer.MAX_VALUE).fieldOf("duration").orElse(100).forGetter(EffectProvider::getDuration),
             Codec.intRange(0, 255).fieldOf("amplifier").orElse(0).forGetter(EffectProvider::getAmplifier),
             Codec.BOOL.optionalFieldOf("ambient", false).forGetter(EffectProvider::isAmbient),

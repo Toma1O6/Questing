@@ -12,9 +12,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.Heightmap;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +24,7 @@ public class EntitySpawner implements Spawner {
 
     public static final Codec<EntitySpawner> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codecs.enumCodec(SpawnMode.class, String::toUpperCase).optionalFieldOf("mode", SpawnMode.GROUND).forGetter(spawner -> spawner.spawnMode),
-            Registry.ENTITY_TYPE.fieldOf("entity").forGetter(EntitySpawner::getEntity),
+            Codecs.forgeRegistryCodec(ForgeRegistries.ENTITIES).fieldOf("entity").forGetter(EntitySpawner::getEntity),
             Codec.intRange(1, 64).optionalFieldOf("min", 1).forGetter(spawner -> spawner.minCount),
             Codec.intRange(1, 64).optionalFieldOf("max", 1).forGetter(spawner -> spawner.maxCount),
             SpawnerProcessorType.CODEC.listOf().optionalFieldOf("processors", Collections.emptyList()).forGetter(spawner -> spawner.processors)

@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
@@ -27,7 +27,7 @@ public final class Codecs {
             Codec.DOUBLE.fieldOf("z").forGetter(v -> v.z)
     ).apply(instance, Vector3d::new));
     public static final Codec<ItemStack> SIMPLIFIED_ITEMSTACK = RecordCodecBuilder.create(instance -> instance.group(
-            Registry.ITEM.fieldOf("item").forGetter(ItemStack::getItem),
+            Codecs.forgeRegistryCodec(ForgeRegistries.ITEMS).fieldOf("item").forGetter(ItemStack::getItem),
             Codec.INT.optionalFieldOf("count", 1).forGetter(ItemStack::getCount),
             CompoundNBT.CODEC.optionalFieldOf("nbt").forGetter(item -> Optional.ofNullable(item.getTag()))
     ).apply(instance, (item, count, optionalTag) -> {

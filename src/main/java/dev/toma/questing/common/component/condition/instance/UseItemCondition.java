@@ -9,12 +9,13 @@ import dev.toma.questing.common.component.trigger.ResponseType;
 import dev.toma.questing.common.component.trigger.event.DeathEvent;
 import dev.toma.questing.common.quest.ConditionRegisterHandler;
 import dev.toma.questing.common.quest.instance.Quest;
+import dev.toma.questing.utils.Codecs;
 import dev.toma.questing.utils.Utils;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,7 +25,7 @@ public class UseItemCondition implements Condition {
 
     public static final Codec<UseItemCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UseItemConditionProvider.CODEC.fieldOf("provider").forGetter(t -> t.provider),
-            Registry.ITEM.listOf().xmap(list -> (Set<Item>) new HashSet<>(list), ArrayList::new).fieldOf("items").forGetter(t -> t.validItems)
+            Codecs.forgeRegistryCodec(ForgeRegistries.ITEMS).listOf().xmap(list -> (Set<Item>) new HashSet<>(list), ArrayList::new).fieldOf("items").forGetter(t -> t.validItems)
     ).apply(instance, UseItemCondition::new));
     private final UseItemConditionProvider provider;
     private final Set<Item> validItems;

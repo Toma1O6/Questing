@@ -5,8 +5,12 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -65,5 +69,15 @@ public final class Codecs {
 
     public static <E extends Enum<E>> Codec<E> enumCodecComap(Class<E> enumClass, Function<String, DataResult<E>> decoder, Function<E, String> encoder, Function<String, String> inputAdjuster) {
         return Codec.STRING.comapFlatMap(string -> decoder.apply(inputAdjuster.apply(string)), encoder);
+    }
+
+    public static <V extends ForgeRegistryEntry<V>> Codec<V> forgeRegistryCodec(IForgeRegistry<V> registry) {
+        return ResourceLocation.CODEC.comapFlatMap(location -> {
+            if (!registry.containsKey(location)) {
+                return DataResult.error("Unknown ID: " + location + ", does not exist in " + registry.getRegistryName() + " registry");
+            }
+            V value = registry.getValue(location);
+            return DataResult.success(value);
+        }, IForgeRegistryEntry::getRegistryName);
     }
 }

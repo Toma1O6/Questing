@@ -17,6 +17,7 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
     private final Vector3d a, b;
     private final List<Spawner> spawnerList;
     private boolean active;
+    private boolean abandonded;
 
     public SimpleArea(P provider, BlockPos center, List<Spawner> spawnerList) {
         this.provider = provider;
@@ -38,6 +39,7 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
 
     @Override
     public void onUpdate(World world, Quest quest) {
+        this.checkPlayers(world, quest);
         if (this.active) {
             this.spawnerList.forEach(spawner -> spawner.trySpawn(world, this, quest));
         }
@@ -66,6 +68,11 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
     }
 
     @Override
+    public boolean hasBeenAbandonded() {
+        return this.abandonded;
+    }
+
+    @Override
     public boolean isWithin(double x, double y, double z) {
         return x >= this.a.x && z >= this.a.z && x <= this.b.x && z <= this.b.z;
     }
@@ -89,5 +96,9 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
 
     protected void setActive(boolean active) {
         this.active = active;
+    }
+
+    protected void checkPlayers(World world, Quest quest) {
+        // TODO handle area activation and player control
     }
 }

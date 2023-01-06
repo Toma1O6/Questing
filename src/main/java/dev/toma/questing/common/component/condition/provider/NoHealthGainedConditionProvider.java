@@ -24,6 +24,6 @@ public class NoHealthGainedConditionProvider extends AbstractDefaultConditionPro
 
     @Override
     public ConditionType<NoHealthGainedCondition, ?> getType() {
-        return QuestingRegistries.NO_HEALTH_GAINED;
+        return QuestingRegistries.NO_HEALTH_GAINED_CONDITION;
     }
 }

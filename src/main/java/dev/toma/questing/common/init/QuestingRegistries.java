@@ -27,6 +27,9 @@ import dev.toma.questing.common.component.reward.provider.*;
 import dev.toma.questing.common.component.reward.transformer.RewardCountTransformer;
 import dev.toma.questing.common.component.reward.transformer.RewardItemNbtTransformer;
 import dev.toma.questing.common.component.reward.transformer.RewardTransformerType;
+import dev.toma.questing.common.component.selector.AllOfSelector;
+import dev.toma.questing.common.component.selector.SelectorType;
+import dev.toma.questing.common.component.selector.SomeOfSelector;
 import dev.toma.questing.common.component.task.TaskType;
 import dev.toma.questing.common.component.task.instance.KillEntityTask;
 import dev.toma.questing.common.component.task.provider.KillEntityTaskProvider;
@@ -56,6 +59,7 @@ public final class QuestingRegistries {
     public static final Registry<TaskType<?, ?>> TASK = new Registry<>("Tasks");
     public static final Registry<EntityFilterType<?>> ENTITY_FILTER = new Registry<>("Entity filters");
     public static final Registry<QuestType<?, ?>> QUESTS = new Registry<>("Quests");
+    public static final Registry<SelectorType<?, ?>> SELECTORS = new Registry<>("Selectors");
 
     // ENTRIES --------------------------------------------------------
     // Reward distributors
@@ -95,8 +99,9 @@ public final class QuestingRegistries {
     public static final ConditionType<AggroCondition, AggroConditionProvider> AGGRO_CONDITION = new ConditionType<>(internalId("aggro"), AggroConditionProvider.CODEC, AggroCondition.CODEC);
     public static final ConditionType<NoDamageGivenCondition, NoDamageGivenConditionProvider> NO_DAMAGE_GIVEN_CONDITION = new ConditionType<>(internalId("no_damage_given"), NoDamageGivenConditionProvider.CODEC, NoDamageGivenCondition.CODEC);
     public static final ConditionType<NoDamageTakenCondition, NoDamageTakenConditionProvider> NO_DAMAGE_TAKEN_CONDITION = new ConditionType<>(internalId("no_damage_taken"), NoDamageTakenConditionProvider.CODEC, NoDamageTakenCondition.CODEC);
-    public static final ConditionType<NoHealthGainedCondition, NoHealthGainedConditionProvider> NO_HEALTH_GAINED = new ConditionType<>(internalId("no_health_gained"), NoHealthGainedConditionProvider.CODEC, NoHealthGainedCondition.CODEC);
-    public static final ConditionType<NoFoodConsumedCondition, NoFoodConsumedConditionProvider> NO_FOOD_CONSUMED = new ConditionType<>(internalId("no_food_consumed"), NoFoodConsumedConditionProvider.CODEC, NoFoodConsumedCondition.CODEC);
+    public static final ConditionType<NoHealthGainedCondition, NoHealthGainedConditionProvider> NO_HEALTH_GAINED_CONDITION = new ConditionType<>(internalId("no_health_gained"), NoHealthGainedConditionProvider.CODEC, NoHealthGainedCondition.CODEC);
+    public static final ConditionType<NoFoodConsumedCondition, NoFoodConsumedConditionProvider> NO_FOOD_CONSUMED_CONDITION = new ConditionType<>(internalId("no_food_consumed"), NoFoodConsumedConditionProvider.CODEC, NoFoodConsumedCondition.CODEC);
+    public static final ConditionType<SelectCondition, SelectConditionProvider> SELECT_CONDITION = new ConditionType<>(internalId("select"), SelectConditionProvider.CODEC, SelectCondition.CODEC);
 
     // Conditions - Item selectors
     public static final ItemSelectorType<AnyItemSelector> ANY_ITEM_SELECTOR = new ItemSelectorType<>(internalId("any_item"), AnyItemSelector.CODEC);
@@ -113,6 +118,10 @@ public final class QuestingRegistries {
     // Quests
     public static final QuestType<SimpleQuest, SimpleQuestProvider> QUEST = new QuestType<>(internalId("quest"), SimpleQuestProvider.CODEC, SimpleQuest.CODEC);
     public static final QuestType<SimpleAreaQuest, SimpleAreaQuestProvider> AREA_QUEST = new QuestType<>(internalId("area_quest"), SimpleAreaQuestProvider.CODEC, SimpleAreaQuest.CODEC);
+
+    // Selectors
+    public static final SelectorType<?, ?> ALL_OF_SELECTOR = new SelectorType<>(internalId("all_of"), AllOfSelector::codec);
+    public static final SelectorType<?, ?> SOME_OF_SELECTOR = new SelectorType<>(internalId("some_of"), SomeOfSelector::codec);
 
     public static void register() {
         REWARD_DISTRIBUTORS.register(NO_REWARD_DISTRIBUTOR);
@@ -145,7 +154,8 @@ public final class QuestingRegistries {
         CONDITION.register(AGGRO_CONDITION);
         CONDITION.register(NO_DAMAGE_GIVEN_CONDITION);
         CONDITION.register(NO_DAMAGE_TAKEN_CONDITION);
-        CONDITION.register(NO_HEALTH_GAINED);
+        CONDITION.register(NO_HEALTH_GAINED_CONDITION);
+        CONDITION.register(SELECT_CONDITION);
 
         ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);
         ITEM_SELECTOR.register(SINGLE_ITEM_SELECTOR);
@@ -158,6 +168,9 @@ public final class QuestingRegistries {
 
         QUESTS.register(QUEST);
         QUESTS.register(AREA_QUEST);
+
+        SELECTORS.register(ALL_OF_SELECTOR);
+        SELECTORS.register(SOME_OF_SELECTOR);
     }
 
     private static ResourceLocation internalId(String path) {

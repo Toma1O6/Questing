@@ -19,6 +19,7 @@ import dev.toma.questing.common.quest.ProgressStatus;
 import dev.toma.questing.common.quest.QuestActionContainer;
 import dev.toma.questing.common.quest.TaskRegisterHandler;
 import dev.toma.questing.utils.Codecs;
+import dev.toma.questing.utils.Utils;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
@@ -55,9 +56,7 @@ public abstract class AbstractQuest implements Quest {
     public void onGenerated(Party party, World level, QuestEngine engine) {
         this.setStatus(ProgressStatus.GENERATED);
         this.onReloaded(engine);
-        this.data.conditionList = this.getProvider().getConditions().stream()
-                .map(provider -> provider.createCondition(this))
-                .collect(Collectors.toList());
+        this.data.conditionList = Utils.getConditions(this.getProvider().getConditions(), this);
         this.data.taskList = this.getProvider().getTasks().stream()
                 .map(provider -> provider.createTaskInstance(this))
                 .collect(Collectors.toList());

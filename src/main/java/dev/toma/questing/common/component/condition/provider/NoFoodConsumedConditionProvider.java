@@ -25,6 +25,6 @@ public class NoFoodConsumedConditionProvider extends AbstractDefaultConditionPro
 
     @Override
     public ConditionType<NoFoodConsumedCondition, ?> getType() {
-        return QuestingRegistries.NO_FOOD_CONSUMED;
+        return QuestingRegistries.NO_FOOD_CONSUMED_CONDITION;
     }
 }

@@ -17,7 +17,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class KillEntityTask extends AbstractTask {
 
@@ -31,9 +30,7 @@ public final class KillEntityTask extends AbstractTask {
     private int killCount;
 
     public KillEntityTask(KillEntityTaskProvider provider, Quest quest) {
-        this(provider, provider.getConditions().stream()
-                .map(cProvider -> cProvider.createCondition(quest))
-                .collect(Collectors.toList()), ProgressStatus.ACTIVE, 0);
+        this(provider, Utils.getConditions(provider.getConditions(), quest), ProgressStatus.ACTIVE, 0);
     }
 
     public KillEntityTask(KillEntityTaskProvider provider, List<Condition> conditions, ProgressStatus status, int killCount) {

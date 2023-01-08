@@ -17,17 +17,17 @@ import net.minecraft.world.biome.Biome;
 import java.util.Collections;
 import java.util.List;
 
-public class LandBasedAreaProvider extends SimpleAreaProvider<LandArea> {
+public class LandAreaProvider extends SimpleAreaProvider<LandArea> {
 
-    public static final Codec<LandBasedAreaProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<LandAreaProvider> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.intRange(0, Integer.MAX_VALUE).fieldOf("minDistance").forGetter(SimpleAreaProvider::getDistanceMin),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("maxDistance", 0).forGetter(SimpleAreaProvider::getDistanceMax),
             Codec.intRange(0, Integer.MAX_VALUE).fieldOf("size").forGetter(SimpleAreaProvider::getAreaSize),
             Codecs.enumCodec(AreaInteractionMode.class, String::toUpperCase).optionalFieldOf("interactionMode", AreaInteractionMode.NO_INTERACTION).forGetter(SimpleAreaProvider::getInteractionMode),
             SpawnerType.CODEC.listOf().optionalFieldOf("spawners", Collections.emptyList()).forGetter(SimpleAreaProvider::getMobSpawners)
-    ).apply(instance, LandBasedAreaProvider::new));
+    ).apply(instance, LandAreaProvider::new));
 
-    public LandBasedAreaProvider(int distanceMin, int distanceMax, int areaSize, AreaInteractionMode interactionMode, List<Spawner> spawners) {
+    public LandAreaProvider(int distanceMin, int distanceMax, int areaSize, AreaInteractionMode interactionMode, List<Spawner> spawners) {
         super(distanceMin, distanceMax, areaSize, interactionMode, spawners);
     }
 

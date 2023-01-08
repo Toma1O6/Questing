@@ -3,17 +3,23 @@ package dev.toma.questing.common.engine;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.toma.questing.Questing;
+import dev.toma.questing.common.component.trigger.Trigger;
+import dev.toma.questing.common.data.PlayerData;
+import dev.toma.questing.common.data.PlayerDataProvider;
+import dev.toma.questing.common.party.PartyManager;
+import dev.toma.questing.common.quest.instance.Quest;
 import dev.toma.questing.file.DataFileManager;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.LazyOptional;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 public final class QuestEngineManager implements DataFileManager.DataHandler<Map<ResourceLocation, CompoundNBT>> {
@@ -36,6 +42,28 @@ public final class QuestEngineManager implements DataFileManager.DataHandler<Map
             throw new UnsupportedOperationException("Engine " + identifier + " is not loaded yet");
         }
         return engine;
+    }
+
+    public <T> void triggerQuests(World level, Trigger<T> trigger, T data) {
+        // really performant code here
+        this.engines.values().forEach(engine -> engine.getQuestsByParty().values()
+                .forEach(quests -> quests.forEach(quest -> quest.trigger(trigger, data, level))));
+    }
+
+    public <T> void triggerQuests(World level, Trigger<T> trigger, T data, PlayerEntity triggerOrigin) {
+        PlayerData playerData = PlayerDataProvider.getUnsafe(triggerOrigin);
+        if (playerData != null) {
+            UUID partyId = playerData.getPartyData().getPartyId();
+            this.engines.values().forEach(engine -> {
+                Map<UUID, List<Quest>> byParty = engine.getQuestsByParty();
+                List<Quest> list = byParty.get(partyId);
+                if (list != null) {
+                    list.forEach(quest -> quest.trigger(trigger, data, level));
+                }
+            });
+        } else {
+            this.triggerQuests(level, trigger, data);
+        }
     }
 
     @Override

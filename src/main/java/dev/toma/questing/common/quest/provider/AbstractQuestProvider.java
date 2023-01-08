@@ -41,4 +41,17 @@ public abstract class AbstractQuestProvider<Q extends Quest> implements QuestPro
     public RewardDistributor getRewardDistributor() {
         return distributor;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractQuestProvider<?> that = (AbstractQuestProvider<?>) o;
+        return identifier.equals(that.identifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return identifier.hashCode();
+    }
 }

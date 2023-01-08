@@ -1,9 +1,12 @@
 package dev.toma.questing.common.component.area.instance;
 
+import dev.toma.questing.Questing;
 import dev.toma.questing.common.component.area.provider.SimpleAreaProvider;
 import dev.toma.questing.common.component.area.spawner.Spawner;
+import dev.toma.questing.common.party.Party;
 import dev.toma.questing.common.quest.instance.Quest;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -18,6 +21,7 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
     private final List<Spawner> spawnerList;
     private boolean active;
     private boolean abandonded;
+    protected int gracePeriod;
 
     public SimpleArea(P provider, BlockPos center, List<Spawner> spawnerList) {
         this.provider = provider;
@@ -26,15 +30,18 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
         this.a = new Vector3d(center.getX() + 0.5 - size, center.getY(), center.getZ() + 0.5 - size);
         this.b = new Vector3d(center.getX() + 0.5 + size, center.getY(), center.getZ() + 0.5 + size);
         this.spawnerList = spawnerList;
+        this.gracePeriod = this.getDefaultGracePeriod();
     }
 
-    protected SimpleArea(P provider, BlockPos center, Vector3d a, Vector3d b, List<Spawner> spawnerList, boolean active) {
+    protected SimpleArea(P provider, BlockPos center, Vector3d a, Vector3d b, List<Spawner> spawnerList, boolean active, boolean abandonded, int gracePeriod) {
         this.provider = provider;
         this.center = center;
         this.a = a;
         this.b = b;
         this.spawnerList = spawnerList;
         this.active = active;
+        this.abandonded = abandonded;
+        this.gracePeriod = gracePeriod;
     }
 
     @Override
@@ -94,11 +101,38 @@ public abstract class SimpleArea<P extends SimpleAreaProvider<?>> implements Are
         return active;
     }
 
+    protected int getDefaultGracePeriod() {
+        return Questing.config.areaGracePeriodDuration;
+    }
+
     protected void setActive(boolean active) {
         this.active = active;
     }
 
     protected void checkPlayers(World world, Quest quest) {
-        // TODO handle area activation and player control
+        Party party = quest.getParty();
+        List<PlayerEntity> players = party.getOnlineMembers(world, null);
+        if (this.active) {
+            boolean areAllIn = true;
+            for (PlayerEntity player : players) {
+                if (!this.isWithin(player)) {
+                    areAllIn = false;
+                    break;
+                }
+            }
+            if (areAllIn) {
+                this.gracePeriod = this.getDefaultGracePeriod();
+            } else {
+                if (--this.gracePeriod <= 0) {
+                    this.abandonded = true;
+                }
+            }
+        } else {
+            for (PlayerEntity player : players) {
+                if (!this.isWithin(player))
+                    return;
+            }
+            this.setActive(true);
+        }
     }
 }

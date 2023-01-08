@@ -3,7 +3,7 @@ package dev.toma.questing.common.init;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.component.area.AreaType;
 import dev.toma.questing.common.component.area.instance.LandArea;
-import dev.toma.questing.common.component.area.provider.LandBasedAreaProvider;
+import dev.toma.questing.common.component.area.provider.LandAreaProvider;
 import dev.toma.questing.common.component.area.spawner.EntitySpawner;
 import dev.toma.questing.common.component.area.spawner.RandomizedSpawner;
 import dev.toma.questing.common.component.area.spawner.SpawnerType;
@@ -80,7 +80,7 @@ public final class QuestingRegistries {
     public static final RewardTransformerType<ItemStack, RewardItemNbtTransformer> REWARD_ITEM_NBT_TRANSFORMER = new RewardTransformerType<>(internalId("item_nbt"), RewardItemNbtTransformer.CODEC, ItemStack.class);
 
     // Area types
-    public static final AreaType<LandArea, LandBasedAreaProvider> LAND_AREA = new AreaType<>(internalId("land_area"), LandBasedAreaProvider.CODEC, LandArea.CODEC);
+    public static final AreaType<LandArea, LandAreaProvider> LAND_AREA = new AreaType<>(internalId("land_area"), LandAreaProvider.CODEC, LandArea.CODEC);
 
     // Spawner types
     public static final SpawnerType<WaveBasedSpawner> WAVE_BASED_SPAWNER = new SpawnerType<>(internalId("wave_based"), WaveBasedSpawner.CODEC);
@@ -155,6 +155,7 @@ public final class QuestingRegistries {
         CONDITION.register(NO_DAMAGE_GIVEN_CONDITION);
         CONDITION.register(NO_DAMAGE_TAKEN_CONDITION);
         CONDITION.register(NO_HEALTH_GAINED_CONDITION);
+        CONDITION.register(NO_FOOD_CONSUMED_CONDITION);
         CONDITION.register(SELECT_CONDITION);
 
         ITEM_SELECTOR.register(ANY_ITEM_SELECTOR);

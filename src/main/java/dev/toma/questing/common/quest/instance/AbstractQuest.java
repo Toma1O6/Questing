@@ -101,7 +101,6 @@ public abstract class AbstractQuest implements Quest {
         this.onFailed(level);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T, E> void trigger(Trigger<T> trigger, T triggerData, World level) {
         if (this.getStatus() != ProgressStatus.ACTIVE || !this.shouldAcceptTrigger(trigger, triggerData, level)) {
@@ -110,12 +109,12 @@ public abstract class AbstractQuest implements Quest {
         QuestActionContainer.TriggerContext<T, E> context = QuestActionContainer.TriggerContext.create(this.actionContainer, trigger, triggerData);
         QuestActionContainer.HandledTriggerContext<T, E> responseCtx = context.handle(triggerData, level, this);
         switch (responseCtx.getResponseType()) {
-            case SKIP:
             case PASS:
                 return;
             case FAIL:
                 this.setStatus(ProgressStatus.FAILED);
                 return;
+            case SKIP:
             case OK:
                 break;
         }
@@ -140,6 +139,7 @@ public abstract class AbstractQuest implements Quest {
                         continue;
                     }
                     this.setStatus(ProgressStatus.FAILED);
+                    break;
                 } else if (taskStatus != ProgressStatus.COMPLETED && !task.getProvider().isOptional()) {
                     throw new UnsupportedOperationException("Task is in incorrect state: " + taskStatus);
                 }
@@ -219,6 +219,19 @@ public abstract class AbstractQuest implements Quest {
         return this.data.unclaimedRewards;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Quest that = (Quest) obj;
+        return this.getProvider().equals(that.getProvider());
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getProvider().hashCode();
+    }
+
     public static final class QuestData {
 
         public static final Codec<QuestData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -226,7 +239,7 @@ public abstract class AbstractQuest implements Quest {
                 ConditionType.CONDITION_CODEC.listOf().fieldOf("conditions").forGetter(QuestData::getConditionList),
                 TaskType.INSTANCE_CODEC.listOf().fieldOf("tasks").forGetter(QuestData::getTaskList),
                 Codec.unboundedMap(Codecs.UUID_STRING, RewardType.REWARD_CODEC).fieldOf("rewards").forGetter(QuestData::getUnclaimedRewards),
-                Party.CODEC.fieldOf("party").forGetter(QuestData::getParty)
+                Party.REF_CODEC.fieldOf("party").forGetter(QuestData::getParty)
         ).apply(instance, QuestData::new));
         private ProgressStatus status;
         private List<Condition> conditionList;

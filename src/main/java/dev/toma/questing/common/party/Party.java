@@ -1,6 +1,7 @@
 package dev.toma.questing.common.party;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.toma.questing.Questing;
 import dev.toma.questing.common.data.PartyData;
@@ -35,6 +36,11 @@ public final class Party {
             Codec.STRING.fieldOf("name").forGetter(p -> p.partyName),
             Codec.unboundedMap(Codecs.UUID_STRING, Codec.INT).fieldOf("permissions").forGetter(p -> p.permissionMap)
     ).apply(instance, Party::new));
+    public static final Codec<Party> REF_CODEC = Codecs.UUID_STRING.comapFlatMap(partyId -> {
+        PartyManager manager = Questing.PARTY_MANAGER.get();
+        Optional<Party> optional = manager.getPartyById(partyId);
+        return optional.map(DataResult::success).orElseGet(() -> DataResult.error("Party not found by ID"));
+    }, Party::getOwner);
     private final UUID owner;
     private final LinkedHashSet<UUID> members = new LinkedHashSet<>();
     private final Map<UUID, String> usernameCache = new HashMap<>();
@@ -249,6 +255,22 @@ public final class Party {
                 action.accept(player);
             }
         }
+    }
+
+    public List<PlayerEntity> getOnlineMembers(World level, @Nullable UUID exceptFor) {
+        if (level.isClientSide)
+            return Collections.emptyList();
+        List<PlayerEntity> list = new ArrayList<>();
+        for (UUID memberId : members) {
+            if (Objects.equals(memberId, exceptFor)) {
+                continue;
+            }
+            PlayerEntity player = PlayerLookup.findServerPlayer((ServerWorld) level, memberId);
+            if (player != null) {
+                list.add(player);
+            }
+        }
+        return list;
     }
 
     public void setPartyName(String partyName) {
